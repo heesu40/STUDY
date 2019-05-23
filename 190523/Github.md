@@ -42,6 +42,10 @@ public class Helloewerld{
 }
 ```
 
+# git 사용 방법
+
+
+
 Typor라 완전 중요!!!!!
 
 git 다운!!!
@@ -52,9 +56,9 @@ mv=>파일이동(mv 옮길 파일명 옮길 장소)
 
 ls=> 파일확인
 
-git init=>은 ㅎ
+git init=>은 실행
 
-git status 
+git status =>은 상태확인
 
 **git add . 하면 관리목록에 추가!!!**
 
@@ -68,8 +72,7 @@ git commit -m "내용"
 
 git log 쓴 내용 확인
 
-이상하면 ctrl +c
+이상하면 ctrl +c 
 
 github에 올리기 위해서는 New repository 에서 한다!
 
-살짝 수정!
