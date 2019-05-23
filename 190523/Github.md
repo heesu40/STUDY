@@ -44,3 +44,32 @@ public class Helloewerld{
 
 Typor라 완전 중요!!!!!
 
+git 다운!!!
+
+mkdir =>파일 생성 (git에서)
+
+mv=>파일이동(mv 옮길 파일명 옮길 장소)
+
+ls=> 파일확인
+
+git init=>은 ㅎ
+
+git status 
+
+**git add . 하면 관리목록에 추가!!!**
+
+**git commit 실제로 저장 또는 스냅샷**
+
+**git push** 요 강조 부분만 나중에는 반복하게 된다.
+
+생활코딩 지옥에서 온 GIt 에 들어가보자. 
+
+git commit -m "내용"
+
+git log 쓴 내용 확인
+
+이상하면 ctrl +c
+
+github에 올리기 위해서는 New repository 에서 한다!
+
+살짝 수정!
