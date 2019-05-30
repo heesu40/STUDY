@@ -168,5 +168,101 @@ public static void main(String[] args) {
 - continue는  break와는 다르게 블럭의 끝으로 이동하기에 반복문을 벗어나지 않는다.
 - break문은 근접한 단 하나의 반복문만을 벗어나기에 중첩된 경우에는 break문으로 완전히 빠져나가기 힘들다. 이때 사용하는 것이 이름을 붙이는 것!
 
+## 배열
 
+- 특징
+  - 배열은 Reference Type, 객체로 취급한다.
+  - new 키워드로 생성한다.
+  - new 키워드로 생성할 경우 heap메모리에 생성된다.
+  - 배열은 타입에 따라서 요소(element)값을  기본값으로 저장한다.
+  - 배열은 객체로 생성되면 자동으로 length 속성(멤버필드)에 요소 개수 size가 저장된다.
+- 1차원 배열
+  - 하나의 변수로 동일한 타입의 1개이상의 값을 저장하고,참조할 수 있는 집합 유형
+  - 배열은 생성후 size조정이 불가하다.	
+
+```java
+int[]  array1;   //배열 선언
+String[]  array2;
+array1 = new int[5];  //배열은 생성시 size 선언해야 한다.
+//명시적으로 배열의 요소값을 초기화하시 않으면 정수, 실수 타입은 자동 0으로 초기화 된다.
+int[]  array3 = new int[10]; //선언과 생성을 동시에..
+int[]  array4 = new int[]{'A', 'B', 'C'};//선언, 생성, 명시적 초기화, 이경우 size 정의 안한다.
+```
+
+- 2차원 배열
+  - 1차원 배열이 여러개 구성된 집합 구조
+
+```java
+int[][] nums; //배열 선언
+int nums2[][];
+int[] nums3[];
+nums = new int[5][5]; //배열 생성, 자동 0으로 초기화 
+nums2 = new int[5][]; //배열 생성, 1차원 배열이 5개 저장, 1차원 배열의 저장될 요소 개수는 동적이다.
+ 
+nums2 = new int[ ][5]; //컴파일 에러
+```
+
+
+
+## 클래스 
+
+특징
+
+- 클래스는 Reference Type 
+- 클래스는 객체를 생성하기 위한 객체의 속성과기능을 설계한 설계도로 메모리에 객체로 생성해야 사용 가능.
+
+```java
+Scanner input = new Scanner(System.in); //객체를 생성
+int num = input.nextInt()
+String name = input.next();
+```
+
+객체
+
+- 인스턴스
+- 인스턴스화 한다= 클래스를 메모리에 객체로 생성하는 동적 개념.
+
+클래스선언 
+
+-  자바는 클래스대 클래스 상속은 단일 상속만 지원
+- 명시적으로 상속받지 않으면 자동으로 java.lang.Object클래스를 상속받는다..(컴파일시에 JDK가 자동으로 )
+
+| AccessModifier   | [Modifier]     | class | 이름 | [extends 부모클래스] | [implements 인터페이스,인터페이스.....] | {}   |
+| ---------------- | -------------- | ----- | ---- | -------------------- | --------------------------------------- | ---- |
+| public (default) | final abstract |       |      |                      |                                         |      |
+
+멤버변수 선언(속성)
+
+- 객체(인스턴스)의 멤버변수는 명시적으로 초기화하지 않으면 JVM이 객체를 생성할때 default초기값으로 초기화를 한다.
+
+| AccessModifier | [Modifier] | 타입 변수 이름=초기값 |
+| -------------- | ---------- | --------------------- |
+| public         | final      |                       |
+| protected      | static     |                       |
+| (defalut)      | volatile   |                       |
+| private        | transient  |                       |
+
+메서드 선언(기능)
+
+- final 선언된 상수는 반드시 명시적 초기화가 필요
+-  static 선언된 변수는 객체 생성없이 클래스이름으로 사용 가능=> 클래스 변수
+- static 변수는 동일한 클래스로부터 생성되는 객체들로부터 공유해야 하는 값을 설계할 때 사용한다.
+
+| AccessModifier | [Modifier] |      |      |      |
+| -------------- | ---------- | ---- | ---- | ---- |
+| public         | final      |      |      |      |
+| protected      | static     |      |      |      |
+| (defalut)      | volatile   |      |      |      |
+| private        | transient  |      |      |      |
+
+
+
+## 메서드
+
+### Random 난수 생성 메서드
+
+```java
+Random  r = new Random();
+int num = r.nextInt( );//-2^31~2^31-1
+```
 
