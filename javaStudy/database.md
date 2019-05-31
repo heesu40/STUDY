@@ -6,9 +6,13 @@
 
 데이터베이스는 동시 공유와 실시간 접근성이 좋다. 내용에 따른 참조도 가능하다(검색기능)
 
+## Database
+
+- 2가지 유형이 있는데 Business 또는 User, Meta Data의  데이터로 저장된다.
+
 ## DBMS(Database와 다르다)
 
-- database 관리하는 프로그램.(프로그램이기에 메모리가 있으며 database를 관리하기 위한 다양한 프로세스가 존재한다.) Memory+process 
+- database 관리하는 프로그램.(프로그램이기에 메모리가 있으며 database를 관리하기 위한 다양한 프로세스가 존재한다.) Memory+process , 데이터베이스의 무결점성을 보장한다.
 
 - 계층구조가 가장 단순한 프로세스(계층형 DBMS) 
 
@@ -21,7 +25,7 @@
   - 여러 데이터로부터 참조가능
   - 참조관게 多:多
 
-- 상용DB인 RDBMS
+- 상용DB인 RDBMS(관계형 DBMS)
 
   - 1970년 EF CODD 의 논문 이후 지금까지 사용 
   - 표준 언어 SQL
@@ -54,15 +58,28 @@
   - 사용자 정의 타입를 RDBMS에 추가하여 ORDBMS라 하여 사용하였다.
 - 2000년대 쯤에는 web data를 추가
 - no SQL =>가변 schema 구조다.
+  
   - RDBMS의 표준언어인 SQL를 알아야 한다.
+  
+- 계층형-망형-관계형-객체관계형-클러스터 순서로 진화했다.
 
 ### 용어
 
 Table=/entity(record 집합)
 
-Row=/Record=/Tuple(속성값 모음)
+- Column(속성)+Row(Record)
 
-Column-=/Attribute(속성)
+- Row=/Record=/Tuple(속성값 모음)
+
+- Column-=/Attribute(속성)
+
+Primary Key -Not Null + Unique
+
+Foreign Key- 참조관계(Parnent 테이블의 PK를 참조하는 child 테이블의 외래키)
+
+null- 아직 값이 할당되지 않음을 의미, 0 아니며, " "와 다르며 산술 연산 결과는 null,비교연산(=,!=,>)결과는 null,논리연산 결과도 null 
+
+- 이를 변환하기 위해 nul(컬럼, null일때 리털할 값)을 이용해 변환후 처리해야 한다.
 
 ###  DML
 
@@ -77,10 +94,12 @@ Column-=/Attribute(속성)
 - View
 - Index
 - Sequence
-
 - 생성 Creat~
 - 변경 Alter~
 - 삭제 Drop~
+- truncate
+- rename
+- comment
 - table 저장소 관리 truncate(테이블에만 있는 명령어)
 
 ### DCL
@@ -88,6 +107,13 @@ Column-=/Attribute(속성)
 - DBMS보안 기능 
   - 인증(예로 로그인 같은)
   - 권한을 통해서 제어 Grant~(주는 것) revoke~(권한 삭제)
+
+### TCL 
+
+- 트랜젝션 데이터의 영구 저장, 취소 등과 관련된 명령어
+- commit ~ 저장
+- rollback ~취소
+- savepoint ~ 
 
 ### 검색(SQL내부 돌아가는 구조)
 
@@ -148,31 +174,32 @@ Column-=/Attribute(속성)
   ```
 
 - 이것으로 변경 가능하지만 만약 세션을 종료한 후에 다시 시작하면 세션의 기본 날짜 출력 형식으로 변경 ,세션에 설정된 기본 날짜 출력 형식은  RR/MM/DD이다.
+  
   - exit; ---db disconnection. 세션 종료!
 
 
 
 
 
-### 표현식
+### 컬럼타입과 사용 가능한  연산자
 
 - 컬럼 연산자 값
 - expression [as]alias(별칭)->Colum title Rename
 
-number타입 컬럼은 산술연산(+,-,*,/)
+- number타입 컬럼( number(p,s))은 산술연산(+,-,*,/) 
+- char(size)/varchar2 타입 컬럼은 문자열 결합: ||  결합연산자
 
-- char/varchar2 타입 컬럼은 문자열 결합: ||
-- date 타입컬럼 : date+n, date-n, date-date, date±1/n
+- date 타입컬럼 : date+n(정수), date-n, date-date, date±1/n
+- timestamp , timestamp with timezone 등
+- interval year to month, interval day to second
 - select sal+100, sal-100, sal*2
   - 원래의 자료가 아닌 중간 block에 저장된 정보를 이용하기에 원본 내용에 지장 없다.
-
 - 데이터가 추가될때 입력되지 않는 컬럼값은 null이다.
 - 산술시 null 결과는 항상 null이며 모든 DBMS에서는 null아닌 값으로 변환해주는 내장 함수 제공
 - nvl(column, null일때 리턴값)
 - null은 비교연산, 논리연산 모두 null이 결과
 - 문자, 날짜 데이터는 반드시 '   ' 를 사용해서 표현, 처리
 - 날짜 데이터 세션에 설정된 포맷 형식하고 일치해야 한다.('RR/MM/DD')
-
 - **select~ from**절이 필수절이다.
 - 단순계산 결과, 함수 결과, 데이터 출력 등은 dual테이블을 사용한다.
   - desc dual
@@ -345,29 +372,57 @@ select translate('1111jack','0123456789'||'1111jack','0123456789')from dual;
 --결과값 1111
 ```
 
-## round,trunc,mod,ceil,power
-
-- round(값,반올림 위치) 반올림
-- trunc()  버림
-- mod() 나머지
-- ceil()가장 가까운 큰 정수
-- floor()가장 가까운 작은 정수
-- power()  제곱
-- 이러한 값들은 where절에 함수 사용 가능하다.
+## where절 연산자
 
 - null은 연산자 못씀으로 is null과 is not null연산자 사용
-- 논리연산자  and, or, not
+
+- in 리스트 연산자 : in(값,값,값) 문장일 경우 '   ' 에 넣어준다. 
+
+  - like '%,_': 문자 패턴 비교 연산자 `  like '%,_'
+    - %는 문자 종류는 모든 문자, 개수는 0~m
+    - _는 문자 종류는 모든 문자, 개수는 1을 의미한다.
+
+- 논리연산자  not, and, or
+
 - 범위연산자 between 하한값 and 상한값(순서 바뀌면 안된다.)
-- in 리스트 연산자 : in(값,값,값) 문장일 경우 '   ' 에 넣어준다.
-- character pattern matching 연산자 : like '%,_'
-  - %는 문자 종류는 모든 문자, 개수는 0~m
-  - _는 문자 종류는 모든 문자, 개수는 1을 의미한다.
-- 논리연산자의 우선순위 NOT,AND,OR
+
 - order by절에는 컬럼 표현식, 별칭, 컬럼 포지션을 사용할 수 있다.
 
-## 
+- =, >, <=, >=, !=, <> 
+
+  ``` 
+  order by 컬럼;
+  order by 표현식;
+  order by 별칭;
+  order by 컬럼포지션(colunm position);
+  ```
+
+  
+
+  
 
 ## 조건 검색
+
+- 검색 방법
+  - Projection
+  - selection
+  - join
+
+
+employees, emp - 사원정보
+departments, dept - 부서정보
+
+ex) 사원이름, 부서번호, 부서이름
+
+- oracle join syntax -- where절에 조인조건 선언
+- sql1999 표준 syntax-- from 절에 조인조건 선언
+
+- 조인 종류
+  - equi join (inner join
+  - non-equi join
+  - self-join (자기참조가 가능한 테이블에서만)
+  - 조인 조건을 잘못 정의하거나 , 조인 조건을 누락하면 cartesian product (cross join)
+    outer join (조인컬럼값이 null인 경우 결과집합에 포함시키기 위한 조인)
 
 - empno 사번
 - ename 이름
@@ -376,17 +431,17 @@ select translate('1111jack','0123456789'||'1111jack','0123456789')from dual;
 - comm 커미션
 - deptno 부서번호
 - sal급여
-- mgr 관리자번호
+- mgr 관리자번호 
 
 - 원래 정보는 heap메모리에 정렬없이 저장되어 있는데, 메모리에 불려져 buffercache에 의해 함수처리되어 pca..?에서 정렬된다.
 
 ```sql
-select~
+select~ *|[distinct] column.....| expression [as] Alias --허용치 않은 문자열의 경우 "" 사용
 from~
 [where 필터 조건]
 [group by 컬럼]
 [having 조건]
-[order by 정렬기준컬럼 정렬방식]--asc오름차순 default, desx내림차순
+[order by 정렬기준컬럼 정렬방식]--asc오름차순 default, desc내림차순
 ```
 
 ## 단점
@@ -401,9 +456,9 @@ from~
 
 - predefine=>DB벤더 NVL,sysdate,user.....
 - custom(pL/SQL)
-- 단일행 함수는 1개의 결과리턴해야한다.
+- 단일행 함수(하나의 행에 하나의 결과값)는 1개의 결과리턴해야한다.
 - 복수행 함수(그룹 함수)도 1개의 결과를 리턴한다.(어떤 함수든 1개의 값을 리턴한다)
-- 분석함수
+- 분석함수(window)함수 
 - 함수는 종류가 다양
   - Character
   - Number
@@ -411,14 +466,124 @@ from~
   - null처리, 기타
   - Conversion함수
   - round 반올림 
-
 - date function
-
 - 변환함수는 to_date, to_char, to_number 등등 과 같이 to로 시작하는 경우가 많다.
-  - hiredate='14/02/14' 의 경우  오라클은 자동으로 hiredate를 문자열로 변환하여 값과 비교를 하게 된다. 
+  - hiredate='14/02/14' 의 경우  오라클은 자동으로 hiredate를 문자열로 변환하여 값과 비교를 하게 된다.\
+
+## 함수 종류
 
 - initcap(),lower(),upper()
 - length()-문자 길이 lengthb()- 문자 길이 byte
 - `select concat(concat(ename, ' is '), job)
   from emp;` concat는 문자열을 결합하는 것으로 가로 안의 내용부터 처리한다.
-- 
+- round(값,반올림 위치) 반올림
+- trunc()  버림
+- mod() 나머지
+- ceil()가장 가까운 큰 정수
+- floor()가장 가까운 작은 정수
+- power()  제곱
+
+#### null처리 조건 처리
+
+- nvl(컬럼, 바꿀 표현)  컬럼과 바꿀 표현이 동일한 타입이어야 한다.
+- nvl2(컬럼, 표현1, 표현2) 표현1,2가 동일한 타입이어야 한다.
+  - 컬럼 이 null아니면 표현1 null이면 표현2
+- coalesce(컬럼,표현1,표현2....) 함수의 파라미터 값에서 null이 아닌값을 리턴하고 함수는 종료한다.
+- nullif(표현1,표현2) 표현1,2이 동일한 타입이어야 한다. 표현 1=표현2이면 null리턴하고 다르면 표현1을 리턴한다.
+
+#### 조건처리 함수
+
+- decode 함수  decode(column, 표현1, 리턴값1, 표현2, 리턴값2.....)
+
+- 조건은 작은 수부터 해야한다. 
+
+```sql
+select sal, deptno,sal,
+decode(deptno , 10, sal*1.05
+                ,20, sal*1.1
+                ,30,sal*1.03 , sal+100) "increase"-- 증가 값을
+from emp; --singlow함수다.
+
+ select sal, deptno,sal,
+ decode(trunc(sal/1000) ,0,0
+                        ,1,sal*0.05
+                        ,2,sal*0.1
+                        ,3,sal*0.15
+                        ,sal*0.2) "세금" from emp;--조건식을 쓸 수 없다.표현식에 주의하자
+```
+
+조건처리 표현식, 표준 sql3 :case[표현식] when [값|조건표현식] then 값 [else 값] end
+
+```sql
+select sal, deptno,sal,
+case deptno when 10 then sal*1.05
+            when 20 then sal*1.1
+            when 30 then sal*1.03 else sal+100 end "increase"
+from emp;-- end는 마지막에 반드시 써주어야 하며 가로가 필요 없다!
+
+select sal,ename,deptno,
+case  when sal>=4000 then sal*0.2
+        when sal>=3000 then sal*0.15
+        when sal>=2000 then sal*0.1
+        when sal>=1000 then sal*0.05 else sal*0 end "세금" from emp;-- case와 when사이에 컬럼명을 넣지 않아야 조건식을 넣을 수 있다.
+```
+
+
+
+### 그룹 함수
+
+그룹핑된 행 집합, 테이블의 전체 행 집합의 컬럼이 함수의 인수로 전달되고 결과는 반드시 1개 리턴
+
+sum(number 타입|expression)
+
+avg(number타입|expression)
+
+min(number,char,date 컬럼타입 | expression)
+
+max(number,char,date,컬럼타입 |expression)
+
+count([distinct]number, char, date 컬럼타입 |expression) :null이 아닌 값(행) 개수 리턴
+
+stddev(number타입 |expression) :표준편차
+
+variance(number타입|expression) :분산
+
+conn scott/oracle
+
+- 모든 그룹함수는 null을 함수 연산에 포함하지 않는다.
+
+```sql
+select sum(sal),avg(sal),max(sal),min(sal) from emp;
+select count(*), count(empno) from emp;-- count는 특이하게 * 사용 가능, 또는 key사용
+select max(hiredate) as "신입", min(hiredate)as "왕고" from emp;
+select max(ename), min(ename) from emp;
+select count(distinct deptno) from emp;
+select count(comm) from emp;-- null은 count하지 않습니다.
+select avg(comm), sum(comm)/count(*) from emp;--avg는 null을 제외한 명수로 평균을 구한다.
+
+select deptno,avg(sal) from emp;--오류!!!!!!!!!!그룹함수는 여러행이 결과로 나오는 열과 같이 실행 못한다.
+select deptno,avg(sal)
+from emp group by deptno; --이건 가능하다 deptno를 그룹으로 평균이 각각 구해진다.
+select avg(sal) from emp group by deptno;--group by절은 select문에 선언 안되도 된다.
+```
+
+- group by 절은 column명만 선언 가능.
+
+- group by 컬럼명, 컬럼명 ... 하면 순서대로 그룹화된다.
+
+- group by 조건은 having절에 써야 한다.
+
+  ```sql
+  select deptno,count(deptno),sum(sal) --4 가 되면 그룹함수에 대한 조건을 where에 쓸 수 없음으로 그룹함수 조건은 having 절에 작성한다.
+  from emp --1
+  where ~	--2
+  group by deptno  --3
+  having count(deptno)<4;
+  ```
+
+  
+
+
+
+
+
