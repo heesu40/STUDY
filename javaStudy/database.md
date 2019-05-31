@@ -583,6 +583,8 @@ select avg(sal) from emp group by deptno;--group by절은 select문에 선언 �
 
   
 
+## 조인
+
 
 
 
