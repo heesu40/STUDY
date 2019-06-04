@@ -248,12 +248,12 @@ String name = input.next();
 -  static 선언된 변수는 객체 생성없이 클래스이름으로 사용 가능=> 클래스 변수
 - static 변수는 동일한 클래스로부터 생성되는 객체들로부터 공유해야 하는 값을 설계할 때 사용한다.
 
-| AccessModifier | [Modifier] |      |      |      |
-| -------------- | ---------- | ---- | ---- | ---- |
-| public         | final      |      |      |      |
-| protected      | static     |      |      |      |
-| (defalut)      | volatile   |      |      |      |
-| private        | transient  |      |      |      |
+| AccessModifier | [Modifier]  | 리턴타입     | 메서드이름()                  |
+| -------------- | ----------- | ------------ | ----------------------------- |
+| public         | final       | void         | ()안에 [타입변수,타입변수...] |
+| protected      | abstract    | 모든타입가능 |                               |
+| (defalut)      | static      |              |                               |
+| private        | sychronized |              |                               |
 
 
 
