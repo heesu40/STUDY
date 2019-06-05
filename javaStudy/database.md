@@ -115,16 +115,20 @@ null- 아직 값이 할당되지 않음을 의미, 0 아니며, " "와 다르며
 - rollback ~취소
 - savepoint ~ 
 
-### 검색(SQL내부 돌아가는 구조)
+### 검색(SQL내부 돌아가는 구조), DB수행방식
 
 - service process가
 
   1. syntax checking (문법 체크)
   2. library cache 검색 (동일한 SQL context정보 있으면 실행- 응답 진짜 빠름)
      - 두개를 soft parsing 이라 한다.
-
-  3. semantic checking(I/O BLOCK를 이용)
-  4. optimizer(내부적으로 호출이 되어 객체 통계정보를 이용하여 경로선택(네이게이션의 경우)) 실행하여 service process로 리턴
+3. semantic checking(I/O BLOCK를 이용),Meta정보 이용
+  4. optimizer(내부적으로 호출이 되어 객체 통계정보를 이용하여 경로선택(네이게이션의 경우)) 실행하여 service process로 리턴, Meta정보를 이용해 최적의 비용 실행계획
+  5. library cashe에 저장
+  6. 실행-Row Lock설정(배타적)-허나 이 값은 취소가 될 수 있다.
+     - undo data(변경전 데이터)를 undo segnent에 저장
+     - Redo date를 기록를 log buffer에 저장 -db인스턴스에 장애발생시 다시 실행위해 
+     - memory buffer에 변경 (이 과정은 rollback때문에 있는과정)
 
 ### SQL
 
@@ -465,6 +469,7 @@ from~
   - Date
   - null처리, 기타
   - Conversion함수
+    - to_date() 등등
   - round 반올림 
 - date function
 - 변환함수는 to_date, to_char, to_number 등등 과 같이 to로 시작하는 경우가 많다.
@@ -589,9 +594,9 @@ select avg(sal) from emp group by deptno;--group by절은 select문에 선언 �
   having count(deptno)<4;--4
   order by 컬럼 정렬방식--6
   ```
-```
+
   
-  
+
 
 ## 검색방법
 
@@ -628,9 +633,7 @@ select avg(sal) from emp group by deptno;--group by절은 select문에 선언 �
    
    select e.ename, e.deptno, d.dname
    from emp e left outer join dept d  on e.deptno = d.depto;
-   
-   
-```
+   ```
 
 6. ```sql
    --소속 사원이 없는 부서정보를 조인 결과에 포함하려면
@@ -679,9 +682,10 @@ where 조건식(select 조회할 열
 ```
 
 - 조건 값을 알수 없어서 query를 2번 수행해야 하는 경우 subquery를 활용할 수  있다.
+  
   `subquery = inner query= nested query
-  main query = outer query`
-
+main query = outer query`
+  
 - subquery 는 mainquery의  select절, from절, where절, having절, order by절 에  subquery가 정의될 수 있다.
 
 - where절과 having절의 subquery는 연산자 오른쪽에 () 안에 정의한다.
@@ -689,14 +693,39 @@ where 조건식(select 조회할 열
 #### 서브쿼리 종류
 
 1. 단일 행을 리턴하는 subquery : single row subquery
+
 2. 복수행을 리턴하는 subquery : multiple row subquery
+
 3. 단일 행, 단일 컬럼값을 리턴 subquery : scalar subquery
+
 4. 두개 이상의 컬럼값을 리턴하는 subquery : multiple column subquery
-5. where exists(co-related subquery) :서브쿼리에 결과 값이 하나 이상 존재하면 조건식이 모두 true,아니면 false가 되는 연산자(false값을 얻고 싶은 경우 not exists를 사용한다.)
 
-- where절에 single row subquery 를 사용할 경우 반드시 single row operator(>, >=, <=, <, =, <>)와 함께 사용한다.
+5. 상관관계 서브쿼리 :`where exists(co-related subquery)` :서브쿼리에 결과 값이 하나 이상 존재하면 조건식이 모두 true,아니면 false가 되는 연산자(false값을 얻고 싶은 경우 not exists를 사용한다.) 
 
-- where절에 multiple row subquery를 사용할 경우 반드시 multiple row operator(In, any, all)와 함께 사용합니다.
+   - subquery가 main query의 컬럼을 참조해서, main query의 행수만큼 subquery 반복적으로 수행하는 Query
+
+     ```sql
+     select~~
+     from table1 a
+     where column 연산자 (select ~
+                      	from table2
+                      	where a.colunm =column2)
+     --존재 유무를 확인하는 연산자는 exists, not exists,
+     ```
+
+     
+
+6. subquery가 올 수 있는 위치
+
+   - select
+   - from - inline wiew
+   - where- 연산자 오른쪽(subquery)
+   - having-연산자 오른쪽(subquery)
+   - order by
+
+- where절과 having절에 single row subquery 를 사용할 경우 반드시 single row operator(>, >=, <=, <, =, <>)와 함께 사용한다.
+
+- where절과 having절에 multiple row subquery를 사용할 경우 반드시 multiple row operator(In, any>,any<, all>,all<)와 함께 사용합니다.
 
   - any
 
@@ -706,7 +735,7 @@ where 조건식(select 조회할 열
 1500> or
     2000> or
 --위의 경우로 표현하고 싶을시
-    >any(1000,1500,2000)--으로 표현
+    >any(1000,1500,2000)--으로 표현 하나만 만족 해도 된다
     ```
     
   - all
@@ -716,10 +745,18 @@ where 조건식(select 조회할 열
     1000< and
     1500< and
     2000<= and
-    >all(1000,1500,2000)
+    >all(1000,1500,2000) --모두 만족 시키고 싶을 경우
     ```
   
-    
+
+7. subquerydpsms 모든 select 절, 함수등 제약없이 사용 가능하지만, order by 절은 from절의 inline view에서만 허용된다.
+
+
+
+#### rownum
+
+- 결과행에 순차적인 번호를 입력해주는 내장컬럼
+- order by전에 발생하므로, order by 후에 하고 싶으면 subquery이용한다.
 
 
 
@@ -929,10 +966,11 @@ where 2<=(select count(employee_id)
   [별칭1]as (select문 1),
   [별칭2]as (select문 2),
   ....
+  [별칭n]as (select문  n)--마지막은 ,를 찍지 않는다.
   select
   from 별칭1, 별칭2, 별칭3....
-  ```
-
+```
+  
   
 
 부서별 총 급여가 전체 부서의 평균급여보다 큰 부서번호와 총급여를 출력
@@ -951,32 +989,80 @@ where a.sum_sal > b.total_avg;--with를 사용한 것
 
 #### 집합연산자
 
-- union
+- union -합집합 이며 중복값을 제거하며 중복행을 제거 위해 첫번째 select 로 sorting한다.
 
-- union all
+- union all-append방식
 
-- intersect
+- intersect - 중복된 행만 가져온다.첫번째 select로 sorting해서 비교
 
-- minus
+- minus-첫번째 select결과만 가져오기에 sorting해서 비교
+
+- 위치 는  order by절을 제외하고 모두 올 수 있다.
+
+  ```sql
+  select~
+  from~
+  [where~]
+  [group by~]
+  [having]
+  union | union all | intersect | minus
+  select~
+  from~
+  [where~]
+  [group by~]
+  [having]
+  [order by~];--맨 마지막에만 가능
+  ```
+
+- 각 select 문에서 컬럼갯수와 컬럼타입 일치해야한다.
+
+- 결과는 첫번째 컬럼값을 기준으로 정렬된다. order by절은 맨 마지막에 작성해야한다.
+
+
+
+- grouping sets
+
+  - 특정 그룹으로만 출력하고 싶을때
+
+  ```sql
+  select deptno,job,mgr,avg(sal)
+  from emp
+  group by gruoping sets ((deptno,mgr),(mgr),(job),());
+  ```
+
+  
 
 - group by rollup
 
-  ```sql
-  group by rollup(A,B)
-  ->group by (A,B)
-  ->group by(A)
-  ->group by()
-  
-  group by rollup(A,B,C)
-  ->group by (A,B,C)
-  ->group by(A,B)
-  ->group by(A)
-  ->group by()
-  
-  ```
+  - 그룹화데이터의 합계를 출력할 때 유용하게 사용
+  - select 절의 n+1개의 조합이 출력
+
+```sql
+group by rollup(A,B)
+->group by (A,B)
+->group by(A)
+->group by()
+
+group by rollup(A,B,C)
+->group by (A,B,C)
+->group by(A,B)
+->group by(A)
+->group by()
+
+select deptno,job,count(*)
+from emp
+group by deptno, rollup(job);
+
+select deptno,job,count(*)
+from emp
+group by deptno, rollup(job);--필요한 조합의 출력만 보기 위해서는 열 중 일부만 지정 할 수 있다. 
+
+```
 
 - group by cube
 
+  - select절의 2^n개의 조합이 출력
+  
   ```sql
   group by cube(A,B)
   ->group by (A,B)
@@ -992,9 +1078,9 @@ where a.sum_sal > b.total_avg;--with를 사용한 것
   ->group by(A)
   ->group by(A)
   ->group by(C)
-  ->group by()
+->group by()
   ```
-
+  
   
 
 문> 20명 사원의 현재와 과거의 모든 부서, 직무 이력을 출력 (동일한 직무와 부서 근무 이력은 중복 데이터로 출력합니다.)
@@ -1068,4 +1154,479 @@ select  deptno,job,avg(sal)
 from emp
 group by rollup(deptno, job);
 ```
+
+문> 전체 사원들의 급여 평균과
+    부서별 사원들의 급여 평균과 
+    직무별 사원들의 급여 평균과
+    부서와 직무별 사원들의 급여 평균을 단일 결과 집합으로 출력
+
+```sql
+select to_number(null), to_char(null), avg(sal)
+from emp
+union all
+select deptno, to_char(null), avg(sal)
+from emp
+group by deptno
+union all
+select to_number(null), job, avg(sal)
+from emp
+group by deptno, job
+union all
+select deptno, job, avg(sal)
+from emp
+group by deptno, job;
+--비효율적
+
+select deptno, job, avg(sal)
+from emp
+group by cube (deptno, job);
+
+```
+
+
+
+## 테이블 추가
+
+### 추가
+
+- 테이블을 추가하려면 대상 테이블에 insert권한 또는 테이블의 소유자여야 한다.
+
+  ```sql
+  insert into 테이블명 [(컬럼명,컬럼명....)]
+  values (컬럼리스트의 순서대로 값...);
+  --새로 추가되는 행의 일부 컬럼값만 정의할 경우, 필수 컬럼은 반드시
+  insert into 테이블명 --생략시
+  values (테이블에 정의된 컬럼 순서대로 모든 값이 선언);
+  
+  insert into dept(dname,loc)
+  values ('IT','Seoul');
+  ```
+
+  
+
+#### insert문에서 서브쿼리 사용시
+
+- values절은 사용하지 않는다.
+
+
+
+### 수정
+
+```sql
+update 테이블명
+set 컬럼명=new 컬럼값 [,컬럼명=new컬럼값,...]
+--테이블의 모든 데이터를 
+
+update 테이블명
+set 컬럼명=new 컬럼값 [,컬럼명=new컬럼값,...]
+where 조건;
+```
+
+- 메모리에만 저장상태
+- rollback; 하면 테이블 생성 후 모든 insert는 삭제 된다
+- 오류가 뜨는 경우
+  - 컬럼 사이즈 초과, 전체 자리수보다 클때
+  - 무결성 오류, PK중복값 일때
+  - 참조무결성 제약조건 오류, FK오류이다.
+- 함수사용 가능
+
+```sql
+insert into emp (empno,ename,deptno,hiredate)
+values (9000,'Kim',50,sysdate);-- 함수사용 가능
+insert into emp (empno,ename,deptno,hiredate)
+values (9001,'Lee',50,'19년3월2일');---리터럴이 형식 문자열과 일치 하지 않아 오류가 뜨므로
+insert into emp (empno,ename,deptno,hiredate)
+values (9001,'Lee',50,'19/3/2');--해도 에러면 to_date()함수 사용 to_date('19/03/02') 한다.
+```
+
+#### 구조복제
+
+```sql
+create table emp10
+as select*from emp
+where 1=2; --false조건을 준다. 검색된 내용이 없을 것이다. 이렇게 하면 테이블 구조만 복제한다.CTAS
+
+desc emp10
+select*from emp10;--구조만 있는 것을 확인할 수 있다.
+```
+
+
+
+
+
+문> SMITH사원의 급여를 KING사원과 급여와 동일하도록 변경
+
+```sql
+update emp
+set sal=(select sal from emp where ename='KING')
+where ename='SMITH';
+```
+
+문>king사원과 동일한 부서에 근무하는 KING을 제외한 다른 사원의 급여를 20%인상
+
+```sql
+
+```
+
+
+
+### 삭제
+
+```sql
+delete from 테이블명;--전체 행 삭제
+delete 테이블명;--오라클에서는from절 생략 가능
+delete from 테이블명 where 조건;
+--조건 만족 하는 행만 삭제
+delete from 테이블명 where 컬럼 연산자(subquery);
+```
+
+문> ADAMS 사원과 동일한 직무를 담당하는 사원 삭제(ADAMS는 제외)
+
+```sql
+ delete 
+ from emp
+ where job=(select job from emp where ename='ADAMS') 
+ and ename<>'ADAMS
+```
+
+
+
+### merge문
+
+- 운용계 DB 목적 : Tx
+
+  - 데이터 변경이 계속 발생(ex 인터넷 쇼핑-가입 탈퇴 등등)
+  - 분석기능-DSS예측 필요
+  - Data amining 하게 된다.
+
+- 데이터 이관 작업은 ETL 한다.이런 ETL에 사용되는 것이 merge문
+
+  ```sql
+  merge into 대상테이블 t(엘리아스 지정해야한다.)
+  using 소스테이블 s(alias)
+  on t.PK컬럼 =s.PK컬럼--같으면 row존재한다
+  when matched then
+  update set t.컬럼=s.컬럼....(테이블명은 미리 썼기 때문에 생략)
+  [delete where 조건]
+  when not matched then --일치하는 것이 없기에 추가해야한다.
+  insert (t.컬럼리스트)
+  values (s.컬럼리스트);
+  ```
+
+  
+
+문>emp테이블로부터 30번 부서 사원정보를 emp30테이블로 복제하고
+
+30번 부서 사원은 직무와 급여를 update하고
+
+급여가 2500이상이면 삭제하라
+
+20,10번부서  사원은 사원번호와 이름과 부서번호만 입력하라.
+
+```
+
+```
+
+
+
+## Trasaction
+
+ACID -원자성, 일관성,격리성, 영속성
+
+DB-Transaction은 변경(DML,DDL,DCL)이 포함되면 
+
+select는 transaction으로 포함되지 않고 
+
+- 수행중인 DML트랜잭션의 세션이 비정상적종료하면 oracle server는 rollback한다.
+- 정상종료(exit;)oracle server는 commit
+
+### 읽기 일관성
+
+select하는 user들이 변경중인 user작업이 종료될때까지 
+
+변경 작업하려는 user들은 select하는 user들이 검색을 종료할때까지 기다리않고
+
+변경 작업중인 user들은 변경중인 값을 조회 결과로 볼 수 있고,
+
+변경 작업중이 아닌 user들은 DB에 저장된(commit된)데이터 값을 조회 결과
+
+오라클 서버는 읽기 일관성을 위해서 lock,undo segment등을 지원합니다.
+
+
+
+
+
+
+
+### 단위
+
+1개 이상의 DML들로 구성- 명시적 commit, rollback
+
+1개의 DDL-auto commit;
+
+1개의 DCL-auto commit;
+
+### savepoint
+
+```sql
+ create table test(num number(2));
+ insert into test values(1);
+insert into test values(2); 
+ savepoint a;
+ insert into test values(3);
+ insert into test values(4);
+ savepoint b;
+ insert into test values(5);
+ insert into test values(6);
+select*from test; 
+ rollback to savepoint b;
+select*from test;  --지정한 곳 까지 취소가 된다.
+ rollback to savepoint a;
+select*from test;  
+rollback;
+```
+
+palyback...? 기능이 있어 savepoint하지 않아도 볼수 있다! --오라클 전용 지원
+
+## 데이터 정의어
+
+### 객체 생성
+
+#### table
+
+- Row+cloumn
+- 물리적 data 저장
+- heap,IOT,partition
+
+#### table생성하기 위해서
+
+- create table 시스템 권한이 있어야 한다.
+- tablespace(data container)저장소에 quota가 할당되어 있어야 한다.
+- table 또는 컬럼 이름 규칙
+  - 영문자 또는 _,$,# 시작
+  - 두번째 문자부터 숫자 허용
+  - 키워드안되며 중복도 안된다
+  - schema- 서로 연관된 table,index등의 객체를 그룹핑하는 논리적 개념, 객체 명을 재사용할 수 있는 namespace역활을 한다. 오라클은 user명을 schema명으로 사용한다. schema내에서 중복 이름 사용 불가
+  - 길이 제한 30자
+  - DB이름 길이 제한 8자
+- 컬럼타입을 알아야 한다.
+  - char 고정길이 문자열 ~2000byte
+  - varchar2 가변길이 문자열 ~4000byte
+  - number(p,s)
+  - date --__세기 _ 년 _ 월 _ 일 _ 시 _  분 _ 초
+  - timestamp --date타입 확장,1/10^9의 정밀한 초값 저장
+  - timestamp with timezone
+  - interval year to month
+  - interval day to second
+  - rowid
+  - CLOB (character large object)~4G
+  - raw-binary형식의 값 저장 예(지문,,,)~2000byte
+  - BLOB(binary large object)~4G
+  - BFILE- read only 가능한 file을 DB외부에 운영체제의 폴더에 저장,TX처리
+
+```sql
+create table 테이블명(
+컬럼명 컬럼타입(size),
+컬럼명 컬럼타입(size) [default 값],
+컬럼명 컬럼타입(size) [제약조건],--컬럼 레벨에서의 제약조건
+    ......
+[제약조건]--테이블레벨에서 제약 조건
+);
+
+CTAS이용해서 테이블 구조만 복제,테이블 구조+데이터 복제 가능
+create table 테이블이름
+as
+	(subquery);
+as select empno,ename,deptno,sal*12
+from emp
+where deptno=20;--error
+
+create table emp20
+as select empno, ename, deptno, sal*12 salary
+   from emp
+   where deptno = 20;
+desc emp20
+select * from emp20;
+
+
+drop table emp20 purge;--undo생성없이 물리적 삭제(복구불가),구조 삭제 복구하려면 backup이 있어야 한다.
+
+create table emp20 (empid, name, deptid, salary)
+as select empno, ename, deptno, sal*12  
+   from emp
+   where deptno = 20;
+desc emp20
+select * from emp20;
+	
+	
+
+```
+
+#### 제약조건
+
+- constraint-table의 DML 수행시 규칙
+- Primar key
+- not null
+- Unique Key
+- Foreign key
+- check
+
+```sql
+create table userinfo
+(userid varchar2(10) not null,
+username varchar2(15) constraint userinfo_nn not null,
+age number(30)
+);
+
+desc userinfo
+insert into userinfo
+values('tester1','테스터1',20);
+
+insert into userinfo (username,age)
+values('테스터1',20);--에러 발생 컬럼수가 맞지 않기 때문
+select*from userinfo;
+
+select constraint_name,constraint_type
+from user_constraints
+where table_name='USERINFO';
+
+alter table userinfo disable constraint userinfo_nn;--이걸 하고 나서는
+insert into userinfo(userid,age)
+values('test2',30);--삽입가능하다.
+```
+
+```sql
+drop table userinfo;
+select*from userinfo;
+desc userinfo --검색 안됨 삭제되어서
+
+select constraint_name,constraint_type
+from user_constraints
+where table_name='USERINFO';--함께 삭제
+
+select*from recyclebin;
+flashback table userinfo to before drop;
+
+select constraint_name,constraint_type
+from user_constraints
+where table_name='USERINFO';-- 테이블과 함꼐 복원 rename해서 쓰면 된다! 
+```
+
+#### unique제약 조건
+
+```sql
+drop table userinfo purge;--하기 전 삭제!!! 깨끗하게
+create table userinfo
+(userid varchar2(10) constraint userinfo_uk unique,
+username varchar2(15),
+age number(30)
+);
+
+desc userinfo
+insert into userinfo
+values('tester1','테스터1',20);
+
+insert into userinfo (username,age)
+values('테스터1',25);--userid는 null?
+
+insert into userinfo (username,age)
+values('테스터1',30);--userid는 null?
+
+insert into userinfo
+values('tester1','테스터5',35);
+
+select*from userinfo;
+
+select constraint_name, constraint_type
+from user_constraints
+where table_name='USERINFO';--oracle sever는 unique제약조건이 선언된 칼럼에 자동으로 unique index
+
+select index_name,uniqueness
+from user_indexes
+where table_name='USERINFO';
+
+alter table userinfo disable constraint userinfo_uk;
+
+select index_name, uniqueness
+from user_indexes
+where table_name = 'USERINFO';--제약조건 비활성화하면 인덱스 자동 삭제
+
+alter table userinfo enable constraint userinfo_uk;
+
+select index_name, uniqueness
+from user_indexes
+where table_name = 'USERINFO';--다시생성
+```
+
+#### prinary key제약조건
+
+```sql
+drop table userinfo purge;--하기 전 삭제!!! 깨끗하게
+create table userinfo
+(userid varchar2(10) constraint userinfo_pk primary key,
+username varchar2(15),
+age number(30)
+);
+
+desc userinfo
+insert into userinfo
+values('tester1','테스터1',20);
+
+insert into userinfo (username,age)
+values('테스터1',25);--null이 있기 때문이다
+
+insert into userinfo (username,age)
+values('tester1','테스터5',35);-- 값수가 너무 많다?
+
+
+
+select*from userinfo;
+
+select constraint_name, constraint_type
+from user_constraints
+where table_name='USERINFO';
+
+select index_name, uniqueness
+from user_indexes
+where table_name='USERINFO';
+
+```
+
+#### check 제약조건
+
+````sql
+drop table userinfo purge;--하기 전 삭제!!! 깨끗하게
+
+create table userinfo(
+userid  varchar2(10),
+username  varchar2(15),
+gender   char(1) constraint userinfo_ck  check (gender in ('F', 'M')),
+age  number(2) check (age > 0 and age < 100)
+);
+
+
+select constraint_name, constraint_type,search_condition
+from user_constraints
+where table_name='USERINFO';
+
+insert into userinfo values('a001','an','f',20);-- error
+insert into userinfo values('a001','an','w',20);--error
+insert into userinfo values('a001','an',null,20);--
+insert into userinfo values('a002','choi','M',0);--error
+insert into userinfo values('a002','choi','M',100);--error
+insert into userinfo values('a002','choi','M',25);--
+````
+
+
+
+#### view
+
+- table의 data를 보여주는 윈도우 역활
+- 물리적 data없다.(cf, MView-성능때문에 이 경우에는 있다)
+- 논리적 table
+- select문으로 정의
+- 복잡한 query문을 간결하게 사용하기 위해서 사용
+- 보안을 위해 사용
+
+
 

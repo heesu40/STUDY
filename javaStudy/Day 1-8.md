@@ -33,6 +33,18 @@
 - 자바 변수 선언or 실행 문장 한개라도 반드시 클래스 단위로 소스코드 작성
 - 키워드는 식별자(변수,메소드,클래스)로 사용 못한다.
 
+### 상수
+
+- 변하지 않는 변수
+
+#### 리터럴
+
+- 변수의 값이 변하지 않는 데이터
+
+#### 키워드
+
+- 특정 용도로 사용하기 위해서 미리 예약 된 언어
+
 ## 기본형
 
 |        | 1byte  | 2byte | 4byte | 8byte  |
@@ -43,6 +55,26 @@
 | 실수형 |        |       | float | double |
 
 - casting은 byte short (char) int long float double 순서이다. char의 경우 같은 2byte여도 short와 범위가 다르기 때문에(char는 문자이기에 번위에 음수가 없다.) 서로 형변환이 필요하다. 
+
+```java
+byte b=20;
+char n='A';
+int i=100;
+long pi=200000L; 
+
+b=(byte)i;
+n=(char)b;
+short s=(short)n;
+float d=(float)pi;
+i=(int)n; //여기서부터 다시
+```
+
+
+
+## 참조형
+
+- 크기는 4byte
+- class, interface,enum,배열(array)
 
 ```java
 public class Test {
@@ -75,6 +107,25 @@ public class Test {
 
 - 삼항연산자
 
+```java
+public static void main(String[] args) {
+	System.out.println("2"+"4");//24
+	System.out.println("["+true+""+"]");//[true]
+	System.out.println('A'+'C');//132(A=65,C=67)
+	System.out.println('1'+6);//55
+	System.out.println('1'+'6');//103(1=49 6=55)
+	System.out.println('H'+"ello");//Hello
+	//System.out.println(true+null); 오류 발생
+     //문자의 합의 결과는 int 정수값인데 byte,char,short의 경우 자동casting  후 더해지기 때문이다.
+}
+```
+
+```java
+//System.out.println(3&&4); 오류난다.
+System.out.println(3&4);//0
+System.out.println(true && false);//false
+System.out.println(true &false);//false
+```
 ## 반복문
 
 ### if
