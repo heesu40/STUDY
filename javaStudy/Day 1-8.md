@@ -62,14 +62,34 @@ char n='A';
 int i=100;
 long pi=200000L; 
 
-b=(byte)i;
-n=(char)b;
-short s=(short)n;
-float d=(float)pi;
-i=(int)n; //여기서부터 다시
+b=i;//error byte(1byte)<- int(4byte)
+n=b;//error  char(2byte)<-byte(1byte)이지만 범위가 다르다.char는 음수 가 없다.
+short s=n;//error  short(2byte)<-char(2byte)지만 범위가 다르다.
+float d=pi;
+i=n; 
 ```
 
+- byte-> shrot -> int -> long->  float->  double (자동 변환 가능)
 
+- char->int(자동 변환 가능)
+
+- 접미사가 있는 자료형은  long, float,double , 접미사는 대소문자 구별 **X**
+
+  ```java
+  byte a= 300;//범위 초과
+  char ch='';//적어도 한개의 문자 필요
+  char ch1='ch';//두개 이상 안됨
+  float f=1.12;//f붙이거나 형변환 필요
+  double dl= 3.5e3f;
+  ```
+
+- 기본값
+  - boolean - true, false
+  - char - '\u0000'
+  - float- 0.0f or 0.0F
+  - int -0
+  - long -0L or 0l
+  - String- null( 참조형은 기본값이 null이다.)
 
 ## 참조형
 
