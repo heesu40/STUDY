@@ -969,13 +969,14 @@ where 2<=(select count(employee_id)
   [별칭n]as (select문  n)--마지막은 ,를 찍지 않는다.
   select
   from 별칭1, 별칭2, 별칭3....
+  ```
 ```
   
   
 
 부서별 총 급여가 전체 부서의 평균급여보다 큰 부서번호와 총급여를 출력
 
-```sql
+​```sql
 with 
 dept_sum as (select department_id, sum(salary) sum_sal
              from employees
