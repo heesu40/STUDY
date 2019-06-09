@@ -380,11 +380,37 @@ select translate('1111jack','0123456789'||'1111jack','0123456789')from dual;
 
 - null은 연산자 못씀으로 is null과 is not null연산자 사용
 
+  - null 은 '현재 무슨 값인지 확정되지 않은 상태' 혹은 '값 자체가 없는 상태' 이므로 연산자와 null을 결합할시 연산결과값이 모든것이 null이 될 수 있다. null은 무한대와 같은 의미이다.
+  - null+100=null
+  - null>100=null 
+
+  ```sql
+  select*from emp
+  where comm=null;--결과는 아무것도 나오지않는다.
+  
+  selectselect*from emp
+  where comm is null; --is null 연산자를 사용해서 null데이터를 출력한다.
+  ```
+
+  
+
 - in 리스트 연산자 : in(값,값,값) 문장일 경우 '   ' 에 넣어준다. 
 
   - like '%,_': 문자 패턴 비교 연산자 `  like '%,_'
     - %는 문자 종류는 모든 문자, 개수는 0~m
     - _는 문자 종류는 모든 문자, 개수는 1을 의미한다.
+    - _,%를 문자그대로 찾고 싶으면  escape  사용한다.
+    
+    ```sql
+    select*from emp
+    where like '_A%';
+    select*from emp
+    where not like '_A%'; 
+    select*from emp
+    where ename like 'A\_A%' escape '\'; // '\'를 이스케이프로 지정하므로 그 뒤에 오는  _ 를 문자로 인식한다.
+    ```
+    
+    
 
 - 논리연산자  not, and, or
 
@@ -1016,6 +1042,26 @@ where a.sum_sal > b.total_avg;--with를 사용한 것
   ```
 
 - 각 select 문에서 컬럼갯수와 컬럼타입 일치해야한다.
+
+  ```sql
+  select empno,ename,sal,deptno
+  from emp
+  where deptno=30
+  union
+  select empno,ename,sal
+  from emp
+  where deptno=10;--ORA-01789: 질의 블록은 부정확한 수의 결과 열을 가지고 있습니다.
+  
+  select empno,ename,sal,deptno
+  from emp
+  where deptno=10
+  union
+  select empno,deptno,ename,sal
+  from emp
+  where deptno=20;--ORA-01790: 대응하는 식과 같은 데이터 유형이어야 합니다. 
+  ```
+
+  
 
 - 결과는 첫번째 컬럼값을 기준으로 정렬된다. order by절은 맨 마지막에 작성해야한다.
 
