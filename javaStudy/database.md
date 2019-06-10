@@ -321,7 +321,8 @@ from dual;--이정도 다른점은 알아서 처리 한다.
 ## substr,instr
 
 - 문자를 잘라서 출력할 경우와 문자열의 개수를 세는 것으로
-- substr(문자열,시작위치, 갯수)
+- substr(문자열,시작위치, 갯수)-문자열 추출
+  - substr(문자열,시작위치)-시작위치 부터 끝까지 추출
 - instr(문자열,시작위치,몇번째에서 리턴할 것인가) -- 결과값은 위치값으로
 
 ```sql
@@ -346,6 +347,16 @@ from dual;
 `lpad : left padding,  
 rpad : right padding`
 문자열로 변환, 문자열 전체 길이내에 왼쪽 공백 또는 오른쪽 공백에 특정 문자를 padding
+
+```sql
+select 'HI,apple',
+    lpad('HI,apple',10,'#') as lpad,
+    rpad('HI,apple',10,'*') as rpad,
+    lpad('HI,apple',10)as lapd1,
+    rpad('HI,apple',10)as rpad1 from dual;
+```
+
+
 
 ## trim, ltrim,rtrim,replace
 
@@ -445,22 +456,58 @@ departments, dept - 부서정보
 ex) 사원이름, 부서번호, 부서이름
 
 - oracle join syntax -- where절에 조인조건 선언
+
 - sql1999 표준 syntax-- from 절에 조인조건 선언
 
 - 조인 종류
-  - equi join (inner join
-  - non-equi join
+  - equi join (inner join, 등가조인)
+  - non-equi join(비등가조인)
+  
+  ```sql
+  select*from emp a, salgrade b
+where a.sal between b.losal and b.hisal;-- 범위를 이용한 조인이다. 이떄는 between을 사용해 준다.
+  ```
+  
+  
+  
   - self-join (자기참조가 가능한 테이블에서만)
+  
+  ```sql
+  select a.empno,a.ename,a.mgr
+  , b.empno ,b.ename from emp a, emp b where a.mgr=b.empno;
+  --테이블 두개를 만들어 뽑아내는 방법. 같은 테이블에 별칭만 다르게!!
+  ```
+  
+  
+  
   - 조인 조건을 잘못 정의하거나 , 조인 조건을 누락하면 cartesian product (cross join)
-    outer join (조인컬럼값이 null인 경우 결과집합에 포함시키기 위한 조인)
+  
+- outer join (조인컬럼값이 null인 경우 결과집합에 포함시키기 위한 조인)
+  
+  ```sql
+  select a.empno,a.ename,a.mgr,b.empno,b.ename
+  from emp a, emp b where a.mgr=b.empno(+) order by a.empno ;--왼쪽 외부조인(왼쪽의 null값도 모두 출력)
+  
+  select a.empno,a.ename,a.mgr,b.empno,b.ename
+  from emp a, emp b where a.mgr(+)=b.empno order by a.empno ;--오른쪽 외부조인(오른쪽의 null값도 모두 출력)
+  ```
+  
+  
+  
+- empno 사번s
 
-- empno 사번
 - ename 이름
+
 - job 직무
+
 - hiredate 입사날짜
+
 - comm 커미션
+
 - deptno 부서번호
+
 - sal급여
+
 - mgr 관리자번호 
 
 - 원래 정보는 heap메모리에 정렬없이 저장되어 있는데, 메모리에 불려져 buffercache에 의해 함수처리되어 pca..?에서 정렬된다.
@@ -724,6 +771,8 @@ main query = outer query`
 
 3. 단일 행, 단일 컬럼값을 리턴 subquery : scalar subquery
 
+   - select절에 사용되는 subquery
+
 4. 두개 이상의 컬럼값을 리턴하는 subquery : multiple column subquery
 
 5. 상관관계 서브쿼리 :`where exists(co-related subquery)` :서브쿼리에 결과 값이 하나 이상 존재하면 조건식이 모두 true,아니면 false가 되는 연산자(false값을 얻고 싶은 경우 not exists를 사용한다.) 
@@ -753,7 +802,7 @@ main query = outer query`
 
 - where절과 having절에 multiple row subquery를 사용할 경우 반드시 multiple row operator(In, any>,any<, all>,all<)와 함께 사용합니다.
 
-  - any
+  - any(some)
 
     ```sql
     (1000,1500,2000)
@@ -773,9 +822,19 @@ main query = outer query`
     2000<= and
     >all(1000,1500,2000) --모두 만족 시키고 싶을 경우
     ```
+    
+  - exists
   
-
-7. subquerydpsms 모든 select 절, 함수등 제약없이 사용 가능하지만, order by 절은 from절의 inline view에서만 허용된다.
+  ```sql
+  select*from emp
+  where exists (select deptno
+               from dept
+               where deptno=20);--조건식이 하나이상 존재하면 모두 ture가 되어 emp의 모든 행이 출력된다. 존재하지 않으면 아무것도 뜨지않는다.
+  ```
+  
+  
+  
+  7. subquerydpsms 모든 select 절, 함수등 제약없이 사용 가능하지만, order by 절은 from절의 inline view에서만 허용된다.
 
 
 
@@ -1443,7 +1502,7 @@ palyback...? 기능이 있어 savepoint하지 않아도 볼수 있다! --오라�
 
 - Row+cloumn
 - 물리적 data 저장
-- heap,IOT,partition
+- heap,IOT,partition, cluster(종류)
 
 #### table생성하기 위해서
 
@@ -1674,6 +1733,718 @@ insert into userinfo values('a002','choi','M',25);--
 - select문으로 정의
 - 복잡한 query문을 간결하게 사용하기 위해서 사용
 - 보안을 위해 사용
+
+```sql
+select*from VW_EMP20;
+```
+
+##### view 종류
+
+- simple view
+  - 하나의 대상 테이블로부터 view 생성, not null 제약조건이  선언된 컬럼은 모두 포함,컬럼표현식**'X**,그룹함수**X**, rowid**X**,row
+  - DML이 가능한 view(간접적 table access DML 수행)
+- complex view
+  - 하나 이상의 테이블에 대한 select문으로 정의, 컬럼표현식
+  - DML이 불가능한 View
+- create view 권한이 있어야 한다.
+- create or replace view~~~~=>alter view 역할
+
+```sql
+create [or replace][force : noforce] 
+	view ㅂ이름
+```
+
+- 우선 권한이 있어야 한다 
+
+1. 권한 부여 새로운 데이터베이스 접속 선택
+2. 접속이름 local_sys
+3. 사용자이름 sys
+4. 비밀번호 oracle
+5. sid orcl 
+6. 접속 유형 기본, 롤 sysdba
+7. 접속 후 `grant create view to scott,hr;` 작성!! 그럼 권한 부여 된다.
+8. 다시 scott로 돌아가 작업을 계속하자.
+
+```sql
+--------------------------------------------------------------------강제 설정
+create or replace view dept
+as select *from dept10;--dept10이란 테이블이 없기 때문에
+
+create or replace force view dept_vu
+as select *from dept10;
+--경고: 컴파일 오류와 함께 뷰가 생성되었습니다.강제로 테이블 생성
+------------------------------------------------------------------------------
+select object_name,object_type,status 
+from user_objects
+where object_name='DEPT_VU';--dept_vu는 생성되었으나 유효하지 않음.
+
+select*from emp20_vu;--뷰의 데이터 조회
+
+insert into emp20vu values(9005,'Song',20,'SALESMAN',2000);--insert 가능한가 
+--SQL 오류: ORA-00942: 테이블 또는 뷰가 존재하지 않습니다
+
+create view emp20_vu
+as select empno,ename,deptno,job,sal
+from emp
+where deptno=20;--ORA-00955: 기존의 객체가 이름을 사용하고 있습니다.
+create or replace view emp20_vu
+as select empno,ename,deptno,job,sal
+from emp
+where deptno=20; --대체하거나 삭제하거나 해야한다.
+---------------------------------------------------------------------------------
+
+insert into emp20_vu values(9005,'Song',20,'SALESMAN',2000);--삽입
+update emp20_vu set sal=1900 where empno=9005;--변경
+delete from emp20_vu where empno=9005;--삭제
+
+
+----------------------------view 삭제는 table에 영향을 주는가?
+drop view emp20_vu;--view 삭제
+select*from emp20_vu;--삭제 확인
+ select empno,ename,deptno,job,sal
+from emp
+where deptno=20;--하지만 table은 건재함.
+```
+
+- view 객체 삭제는 테이블에 영향을 주지 않고, 메타 정보만 data dictionary로
+
+```sql
+create or replace view emp20_vu
+as select empno,ename,deptno,job,sal
+from emp
+where deptno=20
+with check option;--chect제약조건을 설정(deptno=20인경우에만 insert delete등이 가능)
+
+select constraint_name,constraint_type
+from user_constraints
+where table_name='EMP20_VU';
+
+insert into emp20_vu values(9005,'Song',30,'SALESMAN',2000);--error
+-------------------------------------------------------------------
+create or replace view emp20_vu
+as select empno,ename,deptno,job,sal
+from emp
+where deptno=20
+with read only;--제약조건 설정, select만 가능
+
+select constraint_name,constraint_type
+from user_constraints
+where table_name='EMP20_VU';
+
+insert into emp20_vu values(9005,'Song',30,'SALESMAN',2000);--error
+```
+
+#### 시퀀스
+
+```sql
+create sequence 시퀀스 이름
+[increment by n]--생성한 시퀀스 이름 지정, 뒤에는 지정하지 않는 경우 1부터 시작하여 1만큼 계속 증가하는 시퀀스가 생성
+[start with n]-- 시퀀스에서 생성할 번호의 증가값(기본값은 1)
+[maxvalue n : nomaxvalue]-- 시퀀스에서 생성할 번호의 시작값(기본값은 1)
+[minvalue n : nominvalue]--시퀀스에서 생성할 번호의 최솟값 지정,최솟값은 시작값(START WITH)이하, 최댓값(MAXVALUE)미만 값으로 지정.nominvalue로 지정시 오름차순 이면 1,내림차순이면 10^-26으로 설정
+[cycle:nocycle]--시퀀스에서 생성한 번호가 최댓값에 도달했을 경우 CYCLE이면 시작값(START WITH)에 서 다시 시작,NOCYCLE이면 번호 생성이 중단되고,추가 번호 생성을 요청하면 오류 발생
+[cache n:nocache]--시퀀스가 생성할 번호를 메모리에 미리 할당해 놓은 수를 지정, nochche는 미리 생성하지 않도록 설정. 옵션을 모두 생략하면 기본값은 20
+
+
+```
+
+```sql
+create sequence emp_seq;
+select*from user_sequences;--시퀀스 객체를 생성하면 자동으로 시퀀스의 내장 컬럼 curr_val,next_val을 생성합니다.
+
+select emp_seq.currval
+from dual;--시퀀스를 생성하면 최초값을 생성한 다음에 currval을 확인 가능하다.
+
+select emp_seq.nextval
+from dual;
+
+select emp_seq.currval
+from dual;
+------------------------------------------------
+insert into emp(empno,ename)
+values (emp_seq.nextval,'Kang');
+select empno,ename from emp;
+
+update dept
+set deptno=emp_seq.nextval
+where deptno=50;
+
+select deptno,dname from dept;
+```
+
+```sql
+alter sequence 시쿼스명
+increment by~
+maxvalue~
+minvalue~
+cycle~
+cache~;
+```
+
+```sql
+drop sequence 시퀀스명; --메타 정보만 data dictionary로부터 삭제된다.
+```
+
+#### SYNONYM
+
+- 동의어는 테이블,뷰,시퀀스 등 객체 이름 대신 사용할 수 있는 다른 이름을 부여하는 객체
+- 우선 권한이 있어야 한다 
+  1. 권한 부여 새로운 데이터베이스 접속 선택
+  2. 접속이름 local_sys
+  3. 사용자이름 sys
+  4. 비밀번호 oracle
+  5. sid orcl 
+  6. 접속 유형 기본, 롤 sysdba
+  7. 접속 후 `grant create synonym to scott;` 작성!! 그럼 권한 부여 된다.
+  8. 다시 scott로 돌아가 작업을 계속하자.
+
+```sql
+create [public] synonym 동의어 이름
+for [사용자.][객체 이름];
+
+create synonym d
+for dept;--생성
+select*from d;--확인
+select*from user_synonyms;--생성된 synonyms를 확인해보자.
+drop synonym d;--삭제
+```
+
+
+
+## 순위 관련 함수
+
+- rank() over(partition by 컬럼 order by 컬럼 rows|range  unbounded preceeding|unbounded following| )
+- dense_rank()
+- row_number()
+
+## window 함수
+
+sum(),min(),max(),avg(),count()
+
+### 행순서 관련 함수
+
+first_value()
+
+last_value()
+
+lag(컬럼,n,null 대체값)
+
+lead(컬럼,n,null대체값)
+
+## DML
+
+사원테이터 추가
+
+```sql
+insert into 테이블명(컬럼명 리스트 ) values(컬럼명 리스트의 순서와 타입에)
+insert into 테이블명 values(테이블에 선언된 컬럼순서대로의 모든 값);
+insert into 테이블명 (클럼명 리스트) subquery :--컬럼명 리스트는 subquery의 컬럼 순서
+```
+
+- values절에 null,default,단일행함수 등 사용 가능
+- insert 오류-컬럼타입 불일치, 컬럼크기 불일치, 제약조건 오류
+
+### 컬럼값 변경
+
+```sql
+update 테이블명 set 컬럼명=변경할 값[,컬럼명=변경할 값,...];
+--컬럼값이 동일한 타입으로 변경된다.
+update 테이블명 set 컬럼명=변경할 값[,컬럼명=변경할 값,...] where 조건;
+update 테이블명 set 컬럼명(subquery)[,컬럼명=변경할 값,...] where(subquery) ;
+```
+
+- update 오류-컬럼타입 불일치, 컬럼크기 불일치, 제약조건 오류
+- 변경할 값에 null,default,단일행함수 등 사용 가능
+
+### 테이블의 행 삭제
+
+```sql
+delete from 테이블명; --모든 행 삭제
+delete 테이블명 --oralce에서 from 생략
+delete from 테이블명 where 조건 ; --조건을 만족하는 행만 삭제
+delete from 테이블명 where (subquery);
+```
+
+- 참조부결성제약조건 오류 
+  - 참조하는 자식 레코드가 존재하면 부모 레코드는 삭제 불가(FK오류)
+
+### ETL 작업에 사용되는 병합문
+
+- 하나의 DML로 insert, update,delete수행 
+
+```sql
+merge into 대상테이블 t
+using 소스테이블 s
+on(s.pk컬럼=t.pk컬럼)
+when matched then
+	update set t.컬럼=s.컬럼,....
+	delete where조건 
+when not matched then
+	insert(t.컬럼,t.컬럼,....)
+	values(s.컬럼,s.컬럼,....);
+```
+
+
+
+## TCL (Transaction Control Language)
+
+### Transaction-Unit or Work,all or nothing 
+
+- ACID(A.원자성,C.I,격리성,고립성,D.영속성)
+- DB에서 Transaction단위-하나 이상의 DML,하나의 DDL(auto commit,하나의 DCL)
+- 하나 이상의 DML로 구성된 트랜잭션은 명시적으로 commit;,rollback;해야한다.
+- 트랜잭션 수행중에 DB연결된 세션 정상 종료(exit;)할 경우 oracle server 는 트랜잭션을 commit한다.
+- 트랜잭션 수행중에 DB연결된 세션 비정상 종료(exit;)할 경우 oracle server 는 트랜잭션을 rollback한다.
+- 긴 트랜잭션의 경우 rollback을 일부 할 수 있다. 
+  - savepoint 식별자;
+    - rollback to savepoint 식별자;
+
+### 읽기 일관성
+
+-  변경 중인 user는 자신이  변경중인 값이 조회되고, 변경중이지 않는 user들은 DB에 이전에 commit되서 저장된 값을 조회.
+  - Lock과(변경중인 유저가 사용) undo date(변경중이지 않은 유저데이터)를 이용해서 읽기 일관성을 보장 
+  - undo date는 트랜잭션을 rollback을 하면 변경전값을 undo segement로부터 restore(복원)한다.
+
+## 데이터베이스의 객체 
+
+1. table(데이터저장객체)
+   - 구조,물리적 data저장 , row+col로 구성
+   - heap, partition,IOT,clustered....종류
+2. view-table에 대해서 select로 정의된 table의 window역할
+   - 보안,간결한 select문 사용을 위해서
+   - base가 되는 table이나 view가 있어야 한다.
+   - 예외적으로 성능향상이 목적인 MeterializedView 
+3. index-테이블의 컬럼에 생성
+   - where 절에 검색조건으로 사용되는 컬럼 ,join컬럼, order by절의 컬럼 내부적으로 oracle server가 select수행시 사용
+   - balancetree 구조로 저장되어 비교적 빠르게 검색 가능
+4. Sequence -숫자값이 저장되어야 하는 컬럼(주문번호, 게시판의 글번호등)의 값을 자동으로 발행해주는 객체 
+   -  최소값,최대값,증감값 설정하
+5. Synonym(동의어)  schema명.객체@dblink명 과 같은 객체이름을 간결하게 사용하기 위한 동의어
+   - select, insert, update,delete등 다양하게 사용 
+
+## 테이블 생성
+
+```sql
+create table 테이블명(
+컬럼명 컬럼타입(크기) 제약조건|default 기본값,
+...
+)
+[tablespace 저장소명
+sotrage...];
+```
+
+- 테이블 생성을 위해 필요한 권한
+  - create table권한
+  -  tablespace에 대한 quota
+- 테이블명,컬럼명 이름규칙
+  - 대소문자 구별 안함(Data dictionory에는 대문자로 저장)
+  - 첫문자로 영문자,_,$,# 허용
+  - 두번째부터는 숫자 허용 _,$,#외에는 사용 못함
+  - 키워드 허용 안됨
+  - 동일 schema내에서 중복 안됨
+  - 길이제한 30자(데이터 베이스이름 길이 제한 8)
+
+### schema
+
+- 서로 연관된 객체들을 그룹핑,  오라클에서는 user명을 schema명으로 사용함. user소유의 객체들을 그룹핑해서 다른 user소유의 객체들을 구별하기
+- `schema명.객체명`
+
+### 컬럼타입
+
+- char
+- varchar2
+- number
+- date
+- timestamp
+- timestamp with timezone
+- interval year to month
+- interval day to second
+- Bfile
+- BLOB(LONG RAW)
+- CLOB(LONG)
+- RAW
+- rowid-타입명이자 컬럼명, 행주소(논리적인 행주소)
+  - objectId+ fileid+blockid+행순서번호
+
+```sql
+create table 테이블명(컬럼명 리스트)
+as select~
+from~
+[where~]
+.....;
+--주의점! select절의 컬럼 리스트와 create table절에 선언된 컬럼명 리스트의 순서 개수 일치 
+```
+
+### 테이블 구조 복제
+
+```sql
+create table 테이블명  
+as select ~ 
+   from ~
+   where 1=2;   --false조건
+```
+
+### 제약조건(constrint)
+
+- DML수행시 컬럼값의 허용 또는 제한규칙
+
+- primary key
+
+- not null
+
+- unique
+
+- check
+
+- foreign key
+
+- 컬럼에 index가 자동 생성되는 제약조건-primary key,unique key
+
+- 제약 조건 메타 정보 조회 -user_constraints,all_constraints,dba_constraints
+
+- 테이블의 메타 정보 조회- user_tables(tab),all_tables,dba_tables
+
+- 컬럼 메타 정보 조회- user_tab_cloumns
+
+- 인덱스 메타 정보 조회-user_indexes,user_ind_columns
+
+  - PK와 UK에 index자동 생성 목적-정합성 체크, 중복값 체크를 빠르게 수행
+  - 적합 조건
+    - where 조건에 사용되는 컬럼
+    - join컬럼
+    - order by컬럼
+    - 컬럼중에서 distinct value(선택도)값이 많아야 한다. 예를 들어 deptno은 10,20,30이므로 3이다. 
+    - where절의= 연산조건의 결과 행이 5%이내
+
+  ```sql
+  desc dict--혹은
+  desc dictionary--이렇게 작성
+  select table_name
+  from dict
+  where table_name like 'USER%COLUMNS%';
+  
+  desc user_tab_columns--컬럼 메타 정보 조회
+  select*from user_ind_columns;--생성된 인덱스 살펴보기
+  ```
+
+  
+
+#### primary key
+
+- unique+not null
+- 테이블에 하나만 정의 가능
+
+#### not null
+
+- null 허용 안함, 컬럼레벨에서만 제약조건 선언 가능. 여러개 가능
+
+#### unique
+
+- 중복값 허용 않음, oracle은 null 여러개 허용(unique취급)
+
+#### check
+
+- 특정값의 허용 범위
+
+#### foreign kdy
+
+- foreign key제약조건이 참조하는 부모 컬럼에는 primary key 또는 unique key제약조건이 설정되어 야 한다.
+
+
+
+- 제약조건 예
+
+```sql
+create table emp2(
+	empno number(4)
+	ename varchar2(15) constraint 이름--컬럼 레벨
+	hiredate date,
+    job varchar2(15),
+    sal number(8,2),
+constraint emp2_pk primary key(empno,ename)--테이블  레벨 하나만 정의 가능
+    );
+  
+```
+
+```sql
+create table category(
+cid number(5),
+cname varchar2(20)
+);
+insert into category values(10000,'BOOK');
+insert into category values(20000,'Music');
+insert into category values(30000,'Game');
+insert into category values(40000,'Movie');
+ select*from category;
+ 
+ create table product(
+ prodid number(5),
+ pname varchar2(50),
+ price number(6),
+ cid  number(5) constraint product_fk references category(cid)
+ );--error ORA-02270: 이 열목록에 대해 일치하는 고유 또는 기본 키가 없습니다.
+ 
+ alter table category add constraint category_pk primary key(cid);--추가후! 다시생성하면 만들어진다!
+ 
+ 
+select constraint_name, constraint_type
+from user_constraints
+where table_name = 'PRODUCT';
+
+insert into product values (1, 'java', 5000, 10000);
+insert into product values (2, 'oracle', 5000, 50000);  --error
+insert into product values (3, 'BTS', 15000, 20000);
+update product 
+set cid = 2222 where prodid = 3;   ---error
+
+delete from category where cid = 40000;    
+delete from category where cid = 10000;  ---error
+update category set cid = 15000 where cid = 10000;  ---?
+
+
+
+create table product (
+prodid   number(5),
+pname    varchar2(50),
+price    number(6),
+cid      number(5) ,
+constraint product_fk foreign key (cid) references category(cid)  -- on delete cascade 또는 on delete set null
+);
+```
+
+### alter
+
+```sql
+alter table 테이블명  modify(컬럼 컬럼타입(크기));
+```
+
+- 컬럼 타입 변경할 때  컬럼값이 존재하더라도 char5->varchar2(10) 변경은 가능
+- 컬럼 타입 변경할 때 호환되지 않는 컬럼타입으로 변경할때는 컬럼값을 null로 변경한후에 컬럼타입을 변경할 수 있다.
+- 컬럼 크기를 변경할 때 크기 증가는 항상 가능하지만, 컬럼값이 존재할때 컬럼 크기를 줄이려면 저장된 컬럼값의 최대 길이보다 작게 줄일 수 없다.
+
+```sql
+alter table 테이블명 add constraint~;
+alter table 테이블명 drop constraint~;
+alter table 테이블명 add(컬럼 컬럼타입(크기),컬럼 컬럼타입(크기,....)
+alter table 테이블명 drop(컬럼 컬럼타입(크기),컬럼 컬럼타입(크기,....)
+alter table 테이블명 drop column 컬럼명;
+alter table 테이블명 rename column old명 to new 명;
+alter table 테이블명 enable constraint~;                   
+alter table 테이블명 disable constraint~;                      
+```
+
+
+
+```sql
+truncate table 테이블명 [reuse storage];--구조만 남겨두고, data는 완전 삭제(recyclebine에도 undo data도 생성하지 않음), 정리를 위해 사용했던 것으로 실제 사용은 못(?) 한다. 권한이 없다.
+```
+
+
+
+#### 삭제
+
+```sql
+drop table 테이블명; --테이블이름 rename되어 recyclebin에 저장됨 저장 공간 부족시 oracle server가 삭제
+drop table 테이블명 purge;--recyclebin을 bypass하고 물리적으로 완전 삭제
+purge recyclebine;
+```
+
+- 삭제되는 정보는 table에 대한 메타 정보, data, 제약조건,index도 함께 삭제된다. 
+
+## index
+
+- PK와 UK에 index자동 생성 목적-정합성 체크, 중복값 체크를 빠르게 수행
+
+- 적합 조건
+
+  - where 조건에 사용되는 컬럼
+  - join컬럼
+  - order by컬럼
+  - 컬럼중에서 distinct value(선택도)값이 많아야 한다. 예를 들어 deptno은 10,20,30이므로 3이다. 
+  - where절의= 연산조건의 결과 행이 5%이내 
+    - 인덱스 생성 컬럼으로 조회 결과 행수가 10%를 초과하면 손익분기점으로 table full scan이 유리하다.
+  - 거의 update가 발생하지 않는 컬럼 - 자주 update되는 컬럼은 인덱스 생성하면 성능 저하
+  - 4~6개 블럭이상에  데이터가 저장된 테이블 (보통 4개 블럭)
+
+  
+
+  OLTP-
+
+  - B*tree 인덱스
+  - 소량 bata,빠른 검색
+
+  OLAP ,DW,DSS
+
+  - 분석처리를 하는데
+
+  ​			
+
+  
+
+1. 단일컬럼인덱스
+
+```sql
+create index 인텍스 이름
+on 테이블 이름(열이름);
+
+create index ename on emp(ename desc);--생성
+select*from user_ind_columns;--확인
+drop index ename;--삭제
+```
+
+
+
+2. 복합컬럼 인덱스
+
+3. unique 인덱스
+
+4. non-unique인덱스
+
+5. funcation-based 인덱스(컬럼값이 내림차순으로 생성)
+
+6. bitmap 인덱스
+
+- 데이터 종류가 적고 같은 데이터가 많이 존재할때 주로 사용
+
+
+
+## 사용자 관리
+
+### 사용자란?
+
+- 데이터베이스에 접속하여 데이터를 관리하는 계정
+- 데이터를 사용 및 관리하기 위해 오라클 데이터베이스에 접속하는 개체
+
+### 스키마란?
+
+- 오라클 데이터베이스에 접속한 사용자와 연결된 객체
+
+```sql
+select owner,table_name from all_tables where table_name='DUAL';--sys가 주인이다. public으로 daul테이블에 대한 select권함을 주었다.
+desc dual--dummy컬럼 존재
+select*from dual;--dummy컬럼값은 X
+```
+
+- dual의 목적...from 절이 필수이므로 단순 계산결과, 함수 결과를 확인할때 
+
+```sql
+create user 사용자 이름(필수)
+identified by 패스워드 (필수)
+default tablespace 테이블 스페이스 이름(선택)
+temporary tablespacte 테이블 스페이스(그룹)이름 (선택)
+quota 테이블 스페이스 크기 on 테이블 스페이스 이름(선택)
+profile 프로파일 이름(선택)
+password expire(선택)
+account [lock/unlock](선택);
+```
+
+
+
+### 권한
+
+- 권한 확인 방법
+
+```sql
+select*from session_privs;
+select*from 'user%privs';--user_tab_privs,user_sys_privs
+```
+
+
+
+- sys에서 작성!
+
+```sql
+create user kim
+identified by 1234
+password expire;
+ conn kim/1234
+ --alter user kim identified by 새 비밀번호:
+ --password 명령어로 비밀번호 변경
+ conn kim/oracle--권한(DB connetion권한)없다고 오류
+ 
+ grant create session to kim;--데이터베이스 접속 권한
+ grant create table to kim;--테이블 생성 권한을 줘야
+ 
+ conn kim/oracle
+ create table test(name varchar2(10));--테이블 생성 가능
+ 
+ select user from dual;--권한자 확인
+ 
+ ---------------------------#dual -----소유자? 
+select owner, table_name
+from all_tables
+where table_name='DUAL';   --sys임을 확인
+
+--public으로 dual 테이블에 대한 select권한을 줌
+
+desc dual  -- ?  dummy컬럼 존재
+select * from dual;   ---? dummy컬럼값은 x
+
+--dual의 목적....from절이 필수이므로 단순 계산결과, 함수 결과를 확인할때
+```
+
+#### 시스템 권한
+
+- DB에서 특정 sql을 수행할 수 있는 권한, DBA가 주어야 한다.
+
+#### 객체 권한
+
+- 예)table에는 insert,update,select,alter,delete등을 수행 
+  - view에는 select,drop,insert,update,delete
+  - sequence는 select,alter,drop
+- 객체의 소유자 , DBA
+
+```sql
+conn kim/oracle
+select*from scott.emp;
+
+conn scott/oracle
+grant select on emp to kim;
+
+conn kim/oracle
+select*from scott.emp;
+grant select on scott.emp to hr;--error
+
+comm kim/oracle
+select*from scott.emp;
+grant select on scott.emp to hr;--권한없음(..아마?)
+
+conn hr/oracle
+select*from scott.emp;
+
+conn scott/oracle
+revoke select on emp from hr;--error, 객체 권한은 직접 권한을 준 user가 회수 가능하다.
+revoke select on emp from kim;--권한 회수
+
+conn kim/oracle
+select*from scott.emp;--권한회수로 검색 불가
+conn hr/oracle
+select*from scott.emp;--객체 권한은 cascade로 회수됨.
+```
+
+#### 권한 관리(Role)
+
+- 권한관리를 쉽게 하려면 직무별, 업무별로 필요한 권한을 그룹핑-**Role**
+- role을 생성할 수 있는 권한은 DBA만 가지고 있다.
+- 장점- 동적 권한 관리 가능
+
+```sql
+create role 롤이름;
+grant 시스템권한,객체 권한 to 롤이름;
+grant 롤이름 to 사용자 | 롤이름| public;
+revoke 롤이름 from 사용자|롤이름|public;--권한 취소
+--user_role_privs
+drop role 롤이름--권한 삭제
+```
+
+##### 사전 정의된 롤
+
+- connect 롤
+  - create session권한이 있다.
+- resource 롤
+  - 테이블,시퀀스를 비롯한 여러 객체를 생성할 수 있는 기본 시스템 권한을 묶어 놓은 롤
+- DBA 롤
+  - 데이터베이스 관리 시스템 권한을 대부분 소유
 
 
 
