@@ -173,10 +173,12 @@ null- 아직 값이 할당되지 않음을 의미, 0 아니며, " "와 다르며
 
 ![1559183020867](C:\Users\student\AppData\Roaming\Typora\typora-user-images\1559183020867.png)
 
-- ```cmd
+- ```sql
    alter session set nls_date_format ='YYYY/MM/DD HH24:MI:SS';
-  ```
-
+  alter session set nls_date_format='DD-MON-RR';
+--   결과값은 01-jun-94
+   ```
+   
 - 이것으로 변경 가능하지만 만약 세션을 종료한 후에 다시 시작하면 세션의 기본 날짜 출력 형식으로 변경 ,세션에 설정된 기본 날짜 출력 형식은  RR/MM/DD이다.
   
   - exit; ---db disconnection. 세션 종료!
@@ -555,8 +557,31 @@ from~
 - `select concat(concat(ename, ' is '), job)
   from emp;` concat는 문자열을 결합하는 것으로 가로 안의 내용부터 처리한다.
 - round(값,반올림 위치) 반올림
+
+```sql
+select round(12.345, 2), round(12.345, 0), round(12.345, -1)
+from dual;-- 결과는 12.35   12   10
+```
+
+
+
 - trunc()  버림
+
+```sql
+select trunc(12.345,2),trunc(12.345),trunc(12.345,-1)
+from dual;-- 결과는 12.34  12   10 
+```
+
+
+
 - mod() 나머지
+
+```sql
+select mod(99,4), mod(11,5) from dual;--결과는 3   1
+```
+
+
+
 - ceil()가장 가까운 큰 정수
 - floor()가장 가까운 작은 정수
 - power()  제곱
