@@ -177,8 +177,8 @@ null- 아직 값이 할당되지 않음을 의미, 0 아니며, " "와 다르며
    alter session set nls_date_format ='YYYY/MM/DD HH24:MI:SS';
   alter session set nls_date_format='DD-MON-RR';
 --   결과값은 01-jun-94
-   ```
-   
+  ```
+  
 - 이것으로 변경 가능하지만 만약 세션을 종료한 후에 다시 시작하면 세션의 기본 날짜 출력 형식으로 변경 ,세션에 설정된 기본 날짜 출력 형식은  RR/MM/DD이다.
   
   - exit; ---db disconnection. 세션 종료!
