@@ -223,3 +223,110 @@ css 는 너무 양이 방대하기 때문에 필요할떄마다 찾아 쓰도록
 - html5는 다음과 같은 시멘틱 공간 분할 태그를 가지고 있다.
 
 ![1560411576964](../../sole/1560411576964.png)
+
+- div 공간 차지 
+- embed  별도의 플러그인 영역을 넣어준다. 혹은 외부 어플리케이션이 들어갈 영역
+- fielset  범례제목과 테두리를 넣어서 그룹핑 해준다. 테두리 넣어주는 기능
+- figcaption ,figure img와 figcaption을 figure로 쌓아주어야 한다. 이 기능으로 인해 이미지와 글이 관련이 있음을 알 수 있게 해 준다. 
+- iframe   다른 사이트 넣어주기!
+- label   특정 input태그를 연결시킬 때 라벨링 한다. 관련있음을 알수 있다.
+- link    head 태크안에 css파일을 적용시킬때 사용 type은 생략하면 text/css
+- mian   article작성시 결론에 해당하는 내용
+- map    image-map은 클릭가능한 이미지의 maping을 보여준다.(이미지 클릭시 그 관련 이미지를 보여 줄 수 있다.)
+- mark   형광펜 같은 효과
+- meta   html를 실행시키는 환경에 따라 (모바일,pc등) 적절하게 변하는 것, 크기가 다른 html를 여러개 만드는 것이 아니다.
+
+### footer 하단 에 놓기
+
+```html
+      <div class="clear"></div>
+<footer>
+        꼬리말입니다. 회사 연락처 등
+ </footer>
+```
+
+- 웹사이트 구조 만들어 보기
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>semantic3</title> 
+	<style>
+		header { background:yellow; border:2px solid blue;
+		    position:relative;
+			margin-bottom:10px;}
+		nav { background:lime; border:1px solid red;position:absolute;
+			right:5px;bottom:2px;width:300px; }
+		section { padding:10px;maring:10px;border:1px solid black;
+			background:lightgray;width:70%; }
+		article { padding:20px;margin:10px;border:1px solid black;
+			border-radius:8px;background:beige; }
+		aside { float:right;width:20%;background:orange;
+		padding:10px; }
+		footer { background:yellow; border:1px solid blue;
+		margin-top:10px; }
+
+	</style>
+<body>
+	<header> <h2>머리말입니다.</h2>
+		<nav> 내비게이션 영역. 이전, 이후, 홈</nav>
+	</header>
+	<aside> 광고입니다. 계란 사세요. 계란</aside>
+	<section>
+		<article> 첫 번째 기사 </article>
+		<article> 두 번째 기사 </article>
+		<article> 세 번째 기사 </article>
+	</section>
+	<footer> 꼬리말입니다. 회사 연락처 등</footer>
+</body>
+</html>
+
+```
+
+### 가볍게 강아지 설명 만들어보기
+
+```html
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>강아지 키우기</title>
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<header>
+		<h1>입양하기</h1>
+		<nav>
+			<ul>
+				<li><a href="#">애완견 종류</a></li>
+				<li><a href="#">입양하기</a></li>
+				<li><a href="#">건강돌보기</a></li>
+				<li><a href="#">더불어살기</a></li>
+			</ul>
+		</nav>
+	</header>
+	<section>
+		<h2>강아지 용품 준비하기</h2>
+		<img src="puppy.png" id="puppy">
+		강아지 집
+		강아지가 편히 쉴 수 있는 포근한 집이 필요합니다. 강아지의 집은 강아지가 다 큰 후에도 계속 쓸 수 있는 집으로 구입하세요.집을 구입하실 때는 박음질이 잘 되어 있는지, 세탁이 간편한 제품인지 꼭 확인하시고 고르시는 것이 좋습니다.
+		
+		강아지 먹이
+		강아지의 먹이는 꼭 어린 강아지용으로 나와있는 사료를 선택하세요. 강아지들은 사람에 비해 성장속도가 8배정도 빠르답니다. 따라서 강아지에게는 성장속도에 맞는 사료를 급여하셔야 합니다. 사람이 먹는 음식을 먹게 되면 양념과 향신료에 입맛이 익숙해지고, 비만이 될 가능성이 매우 높아집니다. 강아지용 사료는 생후 12개월까지 급여하셔야 합니다.
+		
+		밥그릇, 물병
+		밥그릇은 쉽게 넘어지지 않도록 바닥이 넓은 것이 좋습니다.물병은 대롱이 달린 것으로 선택하세요. 밥그릇에 물을 주게 되면 입 주변에 털이 모두 젖기 때문에 비위생적이므로 대롱을 통해서 물을 먹을 수 있는 물병을 마련하시는 것이 좋습니다.
+		
+		이름표, 목줄
+		강아지를 잃어버릴 염려가 있으니 산책할 무렵이 되면 이름표를 꼭 목에 걸어주도록 하세요. 그리고 방울이 달린 목걸이를 하고자 하실 때는 신중하셔야 합니다. 움직일 때마다 방울이 딸랑 거리면 신경이 예민한 강아지들에게는 좋지 않은 영향을 끼칠 수 있기 때문입니다.
+	</section>
+	<footer>
+		<p>Copyright 2012 funnycom</p>
+	</footer>
+</body>
+</html>
+```
+
