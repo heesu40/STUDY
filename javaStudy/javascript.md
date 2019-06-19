@@ -9,24 +9,33 @@
    - 클래스가 아닌 프로토타입을 상속하는 프로토타입 기반 객체 지향 언어
 3. 동적 타입 언어
    - 타입 선언을 하지 않고, 저장되는 값에 따라 그때그때 달라진다.
-4. 함수가 일급 객체
-   - 함수가 
-5. 함수가 클로저 정의
-   - 클로저로 변수 은닉 하거나 영속성을 보장한다.
+4. 함수가 일급 객체(function)
+   - 함수가 중심이 되며 함수가 객체다.=>함수형 프로그래밍 언어
+   - 함수를 변수에 저장, 함수의 인수로 함수를 전달, 함수 내부에 함수 정의 가능, 함수에서 함수 정의를 리턴(반환 가능)
+5.  클로저 정의
+   - 클로저로 변수 은닉 하거나 영속성을 보장한다. 함수를 외부에서 사용가능하게도 한다.
 
 #### 기술적 요소
 
-1. 코어 언어
-   - ECMAScript
+1. 구성 기술 요소
+   
+   - ECMAScript : 코어 언어(자바스크립트 핵심 언어)
+   - 웹 브라우저의 API
+     - Window 인터페이스 :  브라우저 최상위 객체
+     - DOM  :  HTML문서의 요소 제어(document)
+     - XMLHttpRequest : 서버와 비동기 통신 기능 제공
+   - HTML5에 규정된 API
+     - Geolocation,webworks,Canvas,video,audio,dragndrop,....등 
 2. 클라이언트 측의 고유한 기술 목록
-   - ECMAScript와 웹 브라우저의 API로 구성
-     - Window 인터페이스
-     - DOM
-     - XMLHttpRequest
+   - jQuery,Vue.js,React.js,.....
 3. 서버 측 자바스크립의 고유한 기술 요소
    - Node.js   =>웹 어플리케이션 만들때 가장 많이 사용
+   
    - Rhino
+   
    - Aptana Jaxer
+   
+     
 
 ### 1.2자바스크립트 역사
 
@@ -43,7 +52,7 @@
 
 - 저장시
   - 파일 이름 끝에 확장자는 .js
-  - 파일
+  - 파일 문자 인코딩은 UTF-8로 설정
 
 #### 2.1.2 저장시
 
@@ -169,13 +178,16 @@ window.alert("first.js파일에 저장된 javascript코드 실행");//파일이�
 
 - 대소문자 구별
 - 유니코드 문자로 작성
+- 인코딩은 utf-8권장
+- .js 파일로 저장
+- 한 문장 단위로 ;으로 구분
 
 # 3장 변수와 값
 
 ### 3.1변수
 
 - 변수란 값을 담기 위해 이름 붙인 상자의 이름이 변수다.
-- var 선언자
+- var 선언자(키워드)
 - sum 변수이름
 - var sum; 로 선언한다.
 -   자바 스크립트에서 문자열은 "" 또는 '' 로 감싸 준다.
@@ -209,7 +221,7 @@ window.alert("first.js파일에 저장된 javascript코드 실행");//파일이�
   var 변수명=초기값; 자바 스크립트에서 문자열은 "" 또는 '' 로 감싸 준다. sum=undefined` 이다.
 - 변수를 선언하고 초기화 하지 않으면, 아직 메모리에 생성되지 않은 상태이므로 출력을 하면 undifired로 출력된다.  여기서는 자바 스크립트가 사용하는 브라우저 프로그램의 메모리에 a변수와 sum 변수로 저장된 값이 없으므로 undifired로 출력된다.
 
-#### 3.1.2 전역변수
+#### 3.1.2 전역변수(Global Object)
 
 - var 선언 안하고 y=3   document.write(y); 는 3으로 나온다. 실행시에 전역객체(Global Object는 window객체의 속성으로 추가된다.) 
 
@@ -244,7 +256,7 @@ window.alert("first.js파일에 저장된 javascript코드 실행");//파일이�
 - 결과값 y=3 =>window에 추가가 되어 f12를 누르고 console창에서 window. 를 작성하면 window함수 안에 y가 들어있음을 알 수 있다. 
 - Uncaught ReferenceError: x is not defined  at 변수.html:18 =>x는 오류가 뜬다.
 
-#### 3.1.3 변수 끌어올림, 중복 선언
+#### 3.1.3 변수 끌어올림, 중복 선언 , hoisting
 
 - 변수와 함수 선언이 있으면 아무리 밑에 있어도 먼저 처리를 한다. hoisting 이라고 한다.(변수 선언의 끌어올림)
 - 중복 선언시 오류가 뜨지 않는다. 같은 이름으로 선언된 변수는 모두 호이스팅 한 후 단 하나의 영역에만 할당.
@@ -254,6 +266,10 @@ window.alert("first.js파일에 저장된 javascript코드 실행");//파일이�
 #### 3.1.5 명명규칙
 
 - 자바와 동일하다
+- _,$,영문자로 시작
+- 두번째부터  숫자 가능
+- 길이 제한 없음
+- 키워드**X**, 내장함수명, 내장객체명 사용 권장 안하는데 사용하면 이름 충돌로 인해 기본 기능을 하지 못한다.
 
 ##### 캐멀 표기법
 
@@ -333,13 +349,17 @@ window.alert("first.js파일에 저장된 javascript코드 실행");//파일이�
 #### 3.2.1 데이터 타입의 분류
 
 - primitive 원시 타입
-  - String,number,boolean,undefined,null
-- 객체타입
-  - funcion,object 
+  - String,number,boolean,undefined,null,symbol
+- reference 객체타입
+  - funcion,object ,interface,inNum..? 추가되었고, 배열 Array은 객체 취급(=object 유형)이다.
+- 구별해보자!
+  - 선언되지 않는 변수를 참조하면 반환되는 값은?    **ReferenceError**
+  - 선언만 된 변수, 초기값이 할당되지 않은 변수를 참조하면 반환되는 값은? **undefined**
+  - 객체를 메모리에서 검색을 했는데, 검색되지 않으면 반환되는 값은? **null**
 
 #### 3.2.2 문자열, 논리값
 
-- " " 나 ' ' 사이는 문자열로 취급한다
+- " " or ' ' 사이는 문자열로 취급한다
 
 ```html
 <script>
@@ -378,12 +398,13 @@ a='"java"'
 #### 3.3.1 심벌
 
 - 심벌은 자기 자신을 제외한 그 어떤 값과도 다른 유일무이한 값.
-- 상수를 정의하겠다.
+- 상수를 정의하겠다.란 의미이다.
 - Symbol.for()를 활용하며 문자열과 연결된 심벌 생성가능
 
 #### 3.3.2 탬플릿 리터럴
 
 - 일부만 변경해서 반복하거나 재사용 가능한 틀
+- 포맷형식 문자열에 실행시에 인수를 전달해서 출력할때 사용
 -  ex)java에서 printf("%1$d",5) 가 그 예시이다.
 - 간단한 템플릿 리터널은 역따옴표(키보드 1번옆의)
 - \n 줄바꿈
@@ -391,11 +412,581 @@ a='"java"'
 
 ##### 보간 표현식
 
-- ${} 안에 든 표현식이 문자열로 바뀐다.
+- ${변수} 안에 든 표현식이 문자열로 바뀐다.
+
+
+
+# 4장 객체와 배열, 함수기초
+
+### 4.1 함수
+
+#### 4.1.1객체
+
+- 객체는 이름과 값을 한쌍으로 묶은 데이터를 다양하게 모든 것(= 연관 배열, 사전), java에서는 map하고 비슷
+- 객체의 데이터 하나 -**프로퍼티**
+- 프로퍼티 이름- **키**
+- 객체 생성방법
+  1. 객체 리터럴 사용 -JSON, 하나의 객체만 생성해서 사용하는 경우
+  2. 생성자 함수 사용 - new 사용, 필요할때마다 생성자함수로부터 객체 생성
+- 변수에 대입된 객체 안의 프로퍼티 값을 읽거나 쓸때
+  1. 마침표(.)연산자
+  2. 대괄호([])연산자 사용
+
+
+
+ <문> 객체 안의 프로퍼티 값을 읽어 보자 마침표와 대괄호를 사용하고 key를 사용해서!
+
+- 또한 내장객체의 상속을 받았는지확인을 해보자 (true이면 자동으로 상속을 받는 것!)
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <h3>객체 리터럴방식으로 객체 생성</h3>
+    <script>
+    var employee ={};//빈 객체 생성, var emp= new Object();
+    employee.ename='Scott';
+    employee.job='Developer';
+    employee.salary=5000;
+    employee.hiredate='2013/01/01';
+    employee.address='삼성동';
+
+    document.write("emloyee.ename="+employee.ename+"<Br>");
+        document.write("employee['job']="+employee['job']+"<Br>");
+
+    for(var key in employee){
+        document.write(key+" :"+employee[key]+"<br>")
+    }
+    document.write("employee instanceof Object =>"+(employee instanceof Object)+"<br>");
+    //내장객체중 최상위 Object 상속 확인
+    </script>
+
+</body>
+</html>
+```
+
+#### 4.1.2 in 연산자로 프로퍼티 있는지 확인
+
+- for in 반복문을 통해 객체의 속성에 접근할때 사용 가능
+
+```html
+<script>
+document.write("employee instanceof Object =>"+(employee instanceof Object)+"<br>");
+    //내장객체중 최상위 Object 상속 확인
+    console.dir(Object);
+    document.write(employee+"<br>");
+
+    employee.toString=function(){
+        var output="";
+        for(var key in this){
+            if(key !='toString'){
+                output+=key+":"+this[key]+"\n";
+            }
+        }
+        return output;
+    }
+    document.write(employee+"<Br>");
+    document.write(employee.toString()+"<br>");
+    //toString 오버라이딩 했을떄 안했을때 비교하면 안하면 
+    //document.write(employee+"<Br>"); 이 [object Object] 뜨지만
+    //오버라이딩 후에는 ename:Scot job:Developer salary:5000 hiredate:2013/01/01 address:삼성동 요렇게 뜬다!
+
+
+    </script>
+```
+
+
+
+문>삭제후 객체 안에 있는지 없는지 확인해 보자.
+
+- 객체에 대해서 사용하는 in 키워드는 속성 존재 여부를 체크할 떄 사용
+
+```html
+  <script>
+  delete(employee.address);
+        document.write(employee+"<Br>");
+            document.write("address in employee=>"+('address' in employee)+"<BR>");
+                document.write("hiredate in employee=>"+('hiredate' in employee)+"<br>");
+    </script>
+```
+
+
+
+<문> 총점과 평균을 구해보자
+
+- with 를 사용하여 간략하게 작성가능하다.
+- 객체의 속성을 객체.속성 대신 속성명으로만 사용할떄 with(객체){}사용
+
+```html
+  <script>
+        var student={이름:'홍길동', 영어:88,국어:90,수학:77,과학:79};
+        document.write(student.이름+"의 총점 :"+(student.과학+student.수학+student.국어+student.영어)+"<br>");//이름과 총점 출력
+        with(student){
+            document.write(이름+"의 평균 :"+(영어+국어+수학+과학)/4+"<br>");
+        }
+        </script>
+```
+
+
+
+객체 리터럴 방식으로 정의되는 객체는 동적으로 속성, 메소드를 추가하거나, 제거 할 수 있다.
+
+
+
+### 4.2 함수
+
+#### 4.2.1함수
+
+- 함수는 일련의 처리를 하나로 모아 언제든 호출할 수 있도록 만들어 둔것
+- 함수 입력값 **인수** 출력값 **반환 값**
+
+#### 4.2.2 함수 선언문으로 함수 정의
+
+function square(x){return x*x;}
+
+- return값이 없는 경우 undefind로 출력
+- var 변수=funcion(){}; //익명(anonymous) 함수
+- function 이름 (){}//named function, 선언적 함수
+- 사용자 정의 함수는 소스가 공개되지만, 내장함수등은 소스는 native code로 공개하지 않는다
+- 자바스크립트 엔진은 실행코드보다 먼저 선언적 함수를 읽는다.(hoisting)
+- 선언적 함수는 defintion전에 호출을 하더라도 실행 순서상 문제가 되지 않는다.
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+
+<body>
+<h3>자바스크립트 함수</h3>    
+<script>
+    // func1();//변수에 저장된 함수 호출 먼저 익명함수 정의 하면 오류뜬다!
+     func2();//선언적 함수(named funcion)호출
+var func1=function(){
+        var input=Number(window.prompt("정수를 입력하시오.",0));
+        (input%2==0)? alert("짝수") :alert("홀수");
+}//출력안된다.
+func1(); //뒤에 해야 한다. 이렇게 되면 결과 확인시 func2가 먼저 실행되고 func1이 늦게 실행된다.
+function func2(){
+    var input=Number(window.prompt("1~100사이의 수를 입력",0));
+    (input%2==0)? alert("짝수"):alert("홀수");
+}//출력된다. 얘는 호이스팅 때문에 오류가 안뜬다.
+</script>
+</body>
+</html>
+```
+
+#### 함수 리터럴로 함수 정의
+
+- var student=function(num){return num*num;};
+- 함수 리터럴은 익명 함수 또는 무명 함수라고 한다.
+- student(5)라 하면 함수 실행 가능. 가능한 이유는 리텉럴과 함수 선언문 모두 내부적으로 square변수에 함수 객체를 참조로 저장하기 떄문. 하지만 함수 리터럴로 정의한 함수는 *끌어올리지 않기 때문에 함수 정의 후 사용*
+- 동일한 속성을 가지는 객체를 하나 이상 생성해야 하는 겨우 객체 리터럴 방식보다 **생성자 함수**를 정의
+- 생성자 함수로부터 property값만 전달해서 객체 생성
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    var student={
+        이름:'홍길동'
+        ,영어:55,국어:90,수학:77,과학:75 ,
+        total : function(){ //총점 반환
+      return this.영어+this.국어+this.수학+this.과학
+
+    },
+    average : function(){//평균 반환
+        return this.total()/4
+    }}
+document.write(student.total()+"<Br>");
+document.write(student.average());
+        </script>
+    
+</body>
+</html>
+```
+
+- 생성자 함수 이용
+- 생성자 함수로 생성된 객체들의 기능은 모두 동일하므로 객체 생성시마다 메모리에 객체의 메서드가 생성되는 것이 아닌  function객체로 메모리에 생성될때 프로토타입으로 메모리에 자동으로 생성 (f12클릭후 console.dir()해서 보면 프로토타입 속성객체가 생성되어 있다. 생성자를 만들면)
+- 프로토타입에 생성되면 전역 메서드처럼 사용 가능하기에 메모리 절약이 가능.
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //객체 생성을 위한 생성자 함수 정의
+        function Student(name,ko,math,en,sci){//생성자 만들기(대문자로 시작)
+            this.name= name; //참조 하고 싶으면 this를 사용한다
+            this.ko=ko;
+            this.math=math;
+            this.en=en;
+            this.sci=sci;
+            this.total=function(){
+                return this.en+this.ko+this.math+this.sci;
+            },
+            this.average=function(){
+                return this.total()/4;
+            }
+        }
+
+        //객체 생성
+        var students =[new Student('장기영',87,98,88,95),
+                        new Student('연하진',96,84,12,75),
+                        new Student('구지연',97,44,12,75),
+                        new Student('나선주',16,49,78,67),
+                        new Student('윤아린',100,100,100,100),
+                        new Student('윤명원',5,10,15,20),
+                        new Student('김미화',65,85,25,15),
+                    new Student('김연화',1,2,3,4),
+                    new Student('박아현',5,6,7,8),
+                    new Student('서준서',10,10,10,10),
+                    new Student('10',90,90,90,90)];
+
+        for(var idx in students){
+            document.write(students[idx].name+"의 총점:"+students[idx].total()+"평균:"+students[idx].average()+"<Br>")
+        }
+
+        </script>
+</body>
+</html>
+```
+
+- 생성자를 average와 total을 프로토타입에 넣어서 사용 가능.
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        //객체 생성을 위한 생성자 함수 정의
+        function Student(name,ko,math,en,sci){//생성자 만들기(대문자로 시작)
+            this.name= name; //참조 하고 싶으면 this를 사용한다
+            this.ko=ko;
+            this.math=math;
+            this.en=en;
+            this.sci=sci;
+           
+        }
+        Student.prototype.total=function(){
+            return this.en+this.ko+this.math+this.sci;
+        }
+        Student.prototype.average=function(){
+            return this.en+this.ko+this.math+this.sci;
+        }
+        console.dir(Student);
+
+        //객체 생성
+        var students =[new Student('장기영',87,98,88,95),
+                        new Student('연하진',96,84,12,75),
+                        new Student('구지연',97,44,12,75),
+                        new Student('나선주',16,49,78,67),
+                        new Student('윤아린',100,100,100,100),
+                        new Student('윤명원',5,10,15,20),
+                        new Student('김미화',65,85,25,15),
+                    new Student('김연화',1,2,3,4),
+                    new Student('박아현',5,6,7,8),
+                    new Student('서준서',10,10,10,10),
+                    new Student('10',90,90,90,90)];
+
+        for(var idx in students){
+            document.write(students[idx].name+"의 총점:"+students[idx].total()+"평균:"+students[idx].average()+"<Br>")
+        }
+
+        </script>
+</body>
+</html>
+```
+
+
+
+#### 4.2.3 함수 인수
+
+- 모든 함수 가변인자를 가지는 함수로 정의
+- 함수가 실행될때 실행 컨텍스트에서는 함수 내부에 arguments배열과 유사한 타입의 속성이 생성
+- arguments에 함수를 호출할때 입력값인 인수가 저장
+- 함수에 정의된 매개변수의 개수보다 많거나 적은 매개변수로 호출시 많으면 무시, 적으면 undefined로 전달
+
+```
+
+```
+
+#### 4.2.4 호출
+
+```html
+               <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function hap(a,b){
+            document.write("함수의 인수개수:"+arguments.length+"<br>");//arguments는 함수의 인수 개수 확인할때
+            var sum=0;
+            for(var item in arguments){
+                document.write("item의 인수개수:"+arguments[item]+"<br>");//arguments는 함수의 인수 개수 확인할때
+                sum+= arguments[item];
+            }
+            document.write("함수의 a,b:"+a+" "+b+"<br>");
+            return sum;
+        }
+    //함수 호출 해보자
+    document.write("hap(3,5) 호출 :"+hap(3,5)+"<BR>");//인수 개수에 맞춰 호출
+        document.write("<BR>");
+         document.write("hap(1,3,5,7,9) 호출 :"+hap(1,3,5,7,9)+"<BR>");//인수 개수보다 많이
+         document.write("<BR>");     
+        document.write("hap(9) 호출:"+hap(9)+"<br>");//인수 개수보다 적게
+        document.write("<BR>");
+            var nums=[2,4,6,8,10];
+            
+            document.write("hap(nums) 호출 :"+hap(nums)+"<Br>"); //배열을 한번 넘겨본것 넘어갈까?  
+                //0,2,4,6,8,10으로 호출되는데 0이 나오는 이유는 sum이 호출되기 때문!
+                console.dir(hap);
+
+                var arrays=[1,'hello',true,function(){},{name:'korea'},[100,200]];
+                for(var index in arrays){
+                    document.write(index+":"+arrays[index]+"<Br>");
+                }
+    </script>
+</body>
+</html>
+```
+
+#### 4.2.5 전역  변수,지역 범수의 유효 범위
+
+- 함수 내부에 함수를 정의 가능=>외부 함수와 충돌이 발생되는 경우, 함수를 사용하는 내부에 정의할 수 있으며, 내부함수가 정의된 함수 내부에서만 호출 가능.
+
+```html
+<script>  
+// function square(x){//인수의 제곱을 반환
+    //     return x*x;
+    // }
+    function pythagoras(width,height){//직각삼각형의 빗변의 길이
+        function square(x){//인수의 제곱을 반환 오류를 피하기 위해 내부에 넣어준다.
+        return x*x;
+    }
+        return Math.sqrt(square(width)+square(height));
+    }
+    document.write("밑변3, 높이 4인 삼각형의 빗변의 길이 :"+ pythagoras(3,4)+"<Br>");
+
+    
+       
+    //나중에 다른 사람이 만든 것을 가져왔다. 충돌이 일어나 값이 제대로 안나온다. 자바의 오버라이딩 같은 상태
+    function square(width,height,hypotenuse){
+        if(width*width+height*height==hypotenuse*hypotenuse){
+        return true;
+    } else {
+        return false;
+    }
+}
+    </script>
+```
+
+
+
+- 함수를 매개변수로 전달하고 함수를 리턴하는 함수를 정의 가능
+- var키워드를 생략한 함수 내부에 선언된 변수는 함수호출후에 전역변수로 Global실행 컨텍스트에 추가. 함수외부에서 참조가 가능해진다.
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    var globalVar='korea';
+    function test(name){
+        globalVar2=name;//var 키워드를 생략한 함수 내부에 선언된 변수는 함수호출후에
+        //전역변수 Global 실행 컨텍스트에 생성됩니다. 함수외부에서 참조가 가능해진다.
+        var localVar="Hello~"+name+"!!";//로컬변수
+        return function(){
+            return localVar;
+        }
+    }
+    document.write("전역변수 globalVar :"+globalVar+"<br>");
+    //document.write("전역변수 globalVar2:"+globalVar2+"<Br>");//매개변수 에러?
+        test('독도');//함수 호출 후
+        document.write("전역변수 globalVar2 :"+globalVar2+"<br>");
+        //document.write("지역변수 localVar :"+localVar+"<Br>");오류뜬다.매개변수 에러?
+            document.write("지역변수 localVar 를 클로저 함수를 통해 참조 가능"+ test('제주도')()+"<br>");
+    </script>
+</body>
+</html>
+```
+
+#### 4.2.7 참조에 의한 호출과 값에 의한 호출
+
+- 함수는 원시 값을 인수로 넘겼을 때와 객체를 인수로 넘겼을때 다르게 동작한다.
+- 원시 값일때 -- call by value
+- 객체 값일때 -- call by reference
+
+#### 4.2.8 블록 유효 범위 
+
+1. **let** 은 블록 유효 범위를 갖는 **지역변수** 선언
+2. **const** 는 블록 유효 범위를 갖는 **상수** 선언
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let x="outer x";
+        {
+            let x= "inner x";
+            let y="inner y";
+            document.write("블럭 내부에서 x:"+x+"<br>");
+            document.write("블럭 내부에서 y:"+y+"<br>");
+        }
+        document.write("블럭 외부에서 x:"+x+"<br>");
+       // document.write("블럭 외부에서 y:"+y+"<br>");referenceerror
+    {
+        const c= 3;
+        document.write("블럭 내부에서 c:"+c+"<br");
+       // c=5;//typeError
+    }
+        </script>
+</body>
+</html>
+```
+
+### 4.4 내장객체
+
+- 처음부터 사용 가능한 내장객체가 자바스크립트에 마련되어 있다.
+- 내장객체 확인은 `console.dir(생성자이름)` 으로 확인한다.
+
+#### 4.4.1 객체 분류
+
+1. 네이티브 객체
+2. 호스트 객체
+   - 브라우저 객체를 호스트 객체라 한다.
+3. 사용자 정의 객체
+
+### 4.5배열
+
+- 배열은 생성시 length프로퍼티가 자동 생성된다.
+- java와 다르게 배열 추가, 삭제 가능
+- 방법은 아래를 확인하자.
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var array1=new Array();
+        var array2=new Array(10);
+        var array3=new Array(10,20,30,40,50);
+        document.write("*array1.length :"+array1.length+"<br>");
+        document.write("*array2.length :"+array2.length+"<br>");
+        document.write("*array3.length :"+array3.length+"<br>");
+        document.write("<hr>");
+        array3[5]=60;//배열 추가 방법 1
+        array3.push(70);//배열 추가 방법 2
+        for(var idx in array3){
+            document.write("*array3[idx]="+array3[idx]+"<br>")
+        }
+        document.write("<hr>");
+        delete array3[1];//배열 삭제
+        for(var idx in array3){
+            document.write("*array3[idx]="+array3[idx]+"<br>")
+        }
+        </script>
+</body>
+</html>
+```
+
+#### 4.5.1 배열메서드()
+
+- concat()
+- `var 새로운배열이름=합칠배열1.concat(합칠배열 2,합칠배열3,...);`
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <script>
+     var array1=[1,2,3,4,5,6,7,8,9];
+     var array2=[3.14,"pi",true,{x:5,z:10},[5,6]];
+     var array3=[9,10,11,12];
+     var array4=array1.concat(array2,array3);
+     for(var n in array4)   {
+         document.write(array4[n]);
+     }
+     
+        </script>
+</body>
+</html>
+```
+
+
+
+
 
 # 5장 연산자
 
 ### 5.1연산자
+
+1. 산술연산자
+   - *,/,%,+,-
+2. 단항연산자
+   - ~,!,+,-,++,--
+     - ~ 비트 전환을 한다. (+은 -로 -는 +로)
+3. 비교연산자
+   - <.<=,>=,!=,===,!== (세개의 ===은 타입까지 비교)
+4. 비트 연산자
+   - &,|,^
+5. 논리연산자
+   - &&,||
+6. shift 연산자-
+   - <<,>>,>>>
+7. 삼항 연산자
+   - 조건? 항1:항2  조건이 참이면 항1 거짓이면 항2
+8. 기타 연산자
+   - typeof,in,instanceof.....
 
 #### 5.1.1표현식과 연산자
 
@@ -792,9 +1383,9 @@ eval(a);//인수로 받은 문자열을 자바스크립트 코드로 실행
 
 ##### 논리값으로 변환
 
-!! x
+!! 값
 
-Boolean (x)
+Boolean (값)
 
 - 어떤 값이든 논리값으로 바꾸는 방법은 위의 두 가지이다. ! 연산자는 논리 타입이 아닌 값의 타입을 논리 타입으로 바꾼다. 그 후 !를 하나 더 붙여 참과 거짓을 뒤바꾼다. 
 
@@ -850,6 +1441,24 @@ Boolean (x)
 ##### switch문
 
 - javascript에서는 범위 비교 연산 가능
+- if문보다 가독성이 좋다.
+
+```javascript
+switch(포현식){
+    case 값 : 문장; break;
+        case 값 : 문장; break;
+        case 값 : 문장; break;
+        default : 문장;
+        
+}
+switch(true){
+    case 조건:문장;break;
+    case 조건 : 문장;break;
+        default : 문장;
+}//java와는 다르게 조건사용이 가능
+```
+
+
 
 ##### 삼항 연산자
 
@@ -924,7 +1533,10 @@ switch(sum){
 
 ### 7.3 반복문
 
-
+- **for 문**은 반복 횟수를 명확히 알때 사용한다.
+- **while**문의 경우  반복 횟수를 모를때 사용한다. 조건에 따른 반복 수행 여부 결정할때 사용
+- 최초 1번은 무조건 수행후에 조건에 따라 반복 수행 여부를 결정해야 할때 **do while문**을 사용
+- 배열의 요소, 객체의 속성을 순차적으로 꺼내올때 사용하는 반복문은 **for(var 변수 in 배열or 객체)** 사용
 
 ```javascript
 for(var i=0;i<10;i++){
@@ -998,7 +1610,406 @@ for(var i=2;i<10;i++){
 
 
 
-# 연산자
+
+
+# 13장 웹 브라우저 객체
+
+### 13.1 클라이언트 측 자바스크립트
+
+- 웹 브라우저에서 자바스크립트가 하는 일
+  1. 웹 페이지의 document 객체 제어(HTML요소와 CSS스타일 작업)
+  2. 웹페이지의 Window 객체 제어 및 브라우저 제어
+  3. 웹 페이지에서 발생하는 이벤트 처리
+  4. HTTP이용한 통신 제어
+
+#### 13.1.1 window객체
+
+##### 새창열기
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+        <script>
+                window.onload=function(){
+                    var btn=document.getElementById("newOpen");
+                    btn.onclick=function(){
+                        window.open("웹브라우저 객체.html","","width=300 height=300");
+                    }
+                }
+                </script>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <button id="newOpen">새창열기</button><br>
+</body>
+</html>
+```
+
+##### 새창에서 위아래업다운 버튼 클릭해서 움직이기
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+        <script>
+                window.onload=function(){
+                    var btn=document.getElementById("newOpen");
+                    btn.onclick=function(){
+                        window.open("12.html","","width=300 height=300");
+                    }
+                }
+                </script>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <button id="newOpen">새창열기</button><br>
+</body>
+</html>
+```
+
+
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.onload= function(){
+            var upBtn=document.getElementById("up");
+            var leftBtn=document.getElementById("left").onclick=function(){
+                window.moveBy(-20,0);
+            };
+            var rightBtn=document.getElementById("right").onclick=function(){
+                window.moveBy(20,0);
+            };
+            var downBtn=document.getElementById("down").onclick=function(){
+                window.moveBy(0,20);
+            };
+            upBtn.onclick=function(){
+                window.moveBy(0,-20);
+            };
+        }
+           
+        
+        </script>
+    <title>Document</title>
+</head>
+<body>
+  <input type="button" id="up" value="              UP           "     /><br  />
+  <input type="button" id="left" value="   LEFT    "     />
+  <input type="button" id="right" value="  RIGHT   "     /><br />
+  <input type="button" id="down" value="            DOWN         "   />
+</body>
+</html>
+```
+
+
+
+##### 새창 5초 후에 닫기
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <script>
+        window.onload=function(){
+            setTimeout(function(){
+                window.close();
+            },5000);
+        }
+        </script>
+    <meta charset="UTF-8">
+
+    <title>Document</title>
+</head>
+<body>
+    <h3>5초 후에 window창 종료됩니다.</h3>
+</body>
+</html>
+```
+
+
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+        <script>
+                window.onload=function(){
+                    var btn=document.getElementById("newOpen");
+                    btn.onclick=function(){
+                        window.open("13.html","","width=300 height=300");
+                    }
+                }
+                </script>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <button id="newOpen">새창열기</button><br>
+</body>
+</html>
+```
+
+
+
+##### 11초동안 숫자를 하나씩 출력 하는
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+        <script>
+                window.onload=function(){
+                    var con=0;
+                    var intervalID=setInterval(function(){
+                        
+                            document.write(++con+"<br>");},1000);
+                    setTimeout(function(){
+                        clearInterval(intervalID);
+                    },11000);
+                }
+                   
+                
+                </script>  
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+ <h3>1초 마다 숫자 출력하고 10까지 출력후 window종료</h3>
+</body>
+</html>
+```
+
+#####  새창에서 11까지 출력하고 창 끄기
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+        <script>
+                window.onload=function(){
+                    var con=0;
+                    var intervalID=setInterval(function(){
+                        
+                            document.write(++con+"<br>");},1000);
+                    setTimeout(function(){
+                        clearInterval(intervalID);
+                        window.close()
+                    },11000);
+                    // setTimeout(function(){
+                    //     window.close()},11000);
+                    
+                }
+                    
+                </script>  
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+ <h3>1초 마다 숫자 출력하고 10까지 출력후 window종료</h3>
+</body>
+</html>
+```
+
+
+
+##### 웹브라우저에 요소를 추가 하기
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <script>
+        window.onload=function(){
+            var h1=document.createElement("h1");
+            var text1=document.createTextNode("새 요소 추가");
+            h1.appendChild(text1);
+            document.body.appendChild(h1);
+            
+            var img1=document.createElement("img");
+            img1.src="강아지.jpg";
+            img1.width=300;
+            img1.height=300;
+            document.body.appendChild(img1);
+
+            var img2=document.createElement("img");
+            img2.setAttribute('src','고양이.jpg');
+            img2.setAttribute('width',300);
+            img2.setAttribute('height',300);
+            console.log(img2.getAttribute("src"));
+            document.body.appendChild(img2);
+        }
+
+        </script>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+    <h3>Document 객체를 이용한 문서 구조 변경</h3>
+</body>
+</html>
+```
+
+#####  요소 일일이 바꾸기
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <script>
+        window.onload=function(){
+            var h1=document.createElement("h1");
+            var text1=document.createTextNode("새 요소 추가");
+            h1.appendChild(text1);
+            document.body.appendChild(h1);
+            
+            var img1=document.createElement("img");
+            img1.src="강아지.jpg";
+            img1.width=300;
+            img1.height=300;
+            document.body.appendChild(img1);
+
+            var img2=document.createElement("img");
+            img2.setAttribute('src','고양이.jpg');
+            img2.setAttribute('width',300);
+            img2.setAttribute('height',300);
+            console.log(img2.getAttribute("src"));
+            document.body.appendChild(img2);
+
+            console.log(document.getElementById("j1").innerHTML);
+        var nodelist=document.getElementsByName("j2");
+        console.log(nodelist.length);
+        console.log(nodelist[0].innerHTML+","+nodelist[1].innerHTML);
+        nodelist=document.getElementsByTagName("p");
+        console.log(nodelist.length);
+        console.log(nodelist[0].innerHTML+","+nodelist[1].innerHTML);
+        var p1=document.getElementById("j1");
+        p1.style.border="2px solid blue";
+        p1.style.color="orange";
+        p1.style.fontSize="20";
+        console.log(document.getElementById("j1").parentNode.nodeName);
+        }
+
+       
+    
+
+        </script>
+    <meta charset="UTF-8">
+   
+    <title>Document</title>
+</head>
+<body>
+    <h3>Document 객체를 이용한 문서 구조 변경</h3>
+    <p id="j1">javaScipt</p>
+    <p name="j2">jQuery</p>
+    <p name="j2">SencaTouch</p>
+    <p>Node.js</p>
+    <p>Angular.js</p>
+</body>
+</html>
+```
+
+
+
+getElementById()
+
+getElementByName()
+
+getElementTagName()
+
+getElementByClassName()
+
+는  귀찮기때문에 document.querySelector() 를 사용한다. querySelector()는 특정 name이나 id를 제한하지 않고 css선택자를 사용하여 요소를 찾는 것
+
+문제는 여러가지를 선택후 클릭하면 상자안의 내용이 씌이는 것
+
+```html
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Query Selector All Demo</title>
+
+  <style type="text/css">
+    td {
+      border-style: solid;
+      border-width: 1px;
+      font-size: 200%;
+    }
+
+
+    #checkedResult {
+      color: green;
+      font-size: 200%;
+    }
+  </style>
+<script>
+ window.onload=function(){
+     document.getElementById("findChecked").onclick=function(){
+         var selected=document.querySelectorAll("*:checked");
+         var result="Selected boxes are:";
+         for(var i=0;i<selected.length;i++){
+             result+=(selected[i].name+" ");
+           
+         }
+         document.getElementById("checkedResult").innerHTML=result;
+     }
+ }
+</script>
+</head>
+
+<body>
+
+  <section>
+
+    <table>
+      <tr>
+        <td><input type="checkbox" name="A1">A1</td>
+        <td><input type="checkbox" name="A2">A2</td>
+        <td><input type="checkbox" name="A3">A3</td>
+      </tr>
+
+      <tr>
+        <td><input type="checkbox" name="B1">B1</td>
+        <td><input type="checkbox" checked name="B2">B2</td>
+        <td><input type="checkbox" name="B3">B3</td>
+      </tr>
+
+      <tr>
+        <td><input type="checkbox" name="C1">C1</td>
+        <td><input type="checkbox" name="C2">C2</td>
+        <td><input type="checkbox" name="C3">C3</td>
+      </tr>
+
+    </table>
+    <div>Select various checkboxes, then hit the button to identify them using querySelectorAll("*:checked").</div>
+    <button type="button" id="findChecked" autofocus>Find checked boxes</button>
+    <div id="checkedResult"></div>
+
+     
+  </section>
+
+</body>
+
+</html>
+```
+
+
+
+# 모르는 것 자세하게!
 
 ##### 삼항연산자
 
@@ -1016,12 +2027,16 @@ a>b? document.write("a가 크다"):document.write("b가 크다");
 ```javascript
 var input=window.prompt("정수를 입력하시오",0);
 // prompt(입력창에 띄울 메세지,기본값으로 들어가있을 문자열);
+//반환 타입은 문자열
+window.confirm("메세지") //반환타입은 boolean
 ```
 
-##### 출력문
+##### 출력 하기
 
 ```javascript
-
+document.write(), document.writeln() // html 문서의 body영역 출력
+console.log(), console.dir()//dir 은 내부의 계층 구조를 볼때, 브라우저 or node같은 자바스크립트 실행환경에서 제공하는 콘솔창에 출력
+window.alert("메세지")
 ```
 
 ##### 경고장 띄우기
@@ -1030,7 +2045,18 @@ var input=window.prompt("정수를 입력하시오",0);
 alert("경고장 띄우기")
 ```
 
+##### 배열
 
+- 자바스크립트에서 배열은 모든 타입을 요소로 저장가능
+
+```html
+<script>
+var arrays=[1,'hello',true,function(){},{name:'korea'},[100,200]];
+                for(var index in arrays){
+                    document.write(index+":"+arrays[index]+"<Br>");
+                }
+        </script>
+```
 
 
 
