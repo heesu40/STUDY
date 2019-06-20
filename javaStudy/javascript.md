@@ -20,22 +20,18 @@
 1. 구성 기술 요소
    
    - ECMAScript : 코어 언어(자바스크립트 핵심 언어)
-   - 웹 브라우저의 API
+   - 웹 브라우저의 API(클라이언트 측 고유한 기술 요소)
      - Window 인터페이스 :  브라우저 최상위 객체
      - DOM  :  HTML문서의 요소 제어(document)
      - XMLHttpRequest : 서버와 비동기 통신 기능 제공
-   - HTML5에 규정된 API
+     - 그외 : jQuery,Vue.js,React.js,.....
+   - HTML5에 규정된 API(서버측 자바스크트의 고유 기술 요소)
+     - Node.js   =>웹 어플리케이션 만들때 가장 많이 사용
+     - Rhino
+     - Aptana Jaxer
      - Geolocation,webworks,Canvas,video,audio,dragndrop,....등 
-2. 클라이언트 측의 고유한 기술 목록
-   - jQuery,Vue.js,React.js,.....
-3. 서버 측 자바스크립의 고유한 기술 요소
-   - Node.js   =>웹 어플리케이션 만들때 가장 많이 사용
    
-   - Rhino
    
-   - Aptana Jaxer
-   
-     
 
 ### 1.2자바스크립트 역사
 
@@ -56,7 +52,11 @@
 
 #### 2.1.2 저장시
 
-- 
+- 대소문자 구별
+- 유니코드 문자로 작성
+- 인코딩은 utf-8권장
+- .js 파일로 저장
+- 한 문장 단위로 ;으로 구분
 
 #### 2.1.3 HTML문서에 자바스크립트 포함 위치
 
@@ -174,13 +174,7 @@ window.alert("first.js파일에 저장된 javascript코드 실행");//파일이�
 
 - 허나 요즘은 브라우저가 오류를 잘잡아서 오류 안뜬다......
 
-### 2.2 프로그램 작성
 
-- 대소문자 구별
-- 유니코드 문자로 작성
-- 인코딩은 utf-8권장
-- .js 파일로 저장
-- 한 문장 단위로 ;으로 구분
 
 # 3장 변수와 값
 
@@ -260,6 +254,20 @@ window.alert("first.js파일에 저장된 javascript코드 실행");//파일이�
 
 - 변수와 함수 선언이 있으면 아무리 밑에 있어도 먼저 처리를 한다. hoisting 이라고 한다.(변수 선언의 끌어올림)
 - 중복 선언시 오류가 뜨지 않는다. 같은 이름으로 선언된 변수는 모두 호이스팅 한 후 단 하나의 영역에만 할당.
+- var 문을 사용하여 같은 이름을 가진 변수를 여러 개 선언해도 문제 발생 **x**
+
+```javascript
+//var n; 밑에 있는 선언이 호이스팅 된다. 그래서 오류 x
+console.log(n);
+var n;
+
+console.log(n); //undefined
+var n=5;
+console.log(n); // 5 선언과 동시에 대입하는 코드는 호이스팅 안한다.
+
+```
+
+
 
 
 
@@ -391,7 +399,13 @@ a='"java"'
 
   팝업과 동시에 undefined 창 로드
 
-- 값이 없음에는 null과 undefined가 있는데 undefined는 정의되지 않음이고 null은 아무것도 없음이란 뜻이다.
+- 값이 없음에는 null과 undefined가 있는데
+
+  -  undefined는 정의되지 않음이며 데이터 타입이자, 값이다. 
+    -  `var n;` n변수에 undefined란 값을 가진다는 것. 그렇기에 데이터 타입이다.
+
+  -  null은 아무것도 없음이란 뜻이다. 아무것도 참조 하지 않는 다는 의미임으로 객체 변수 초기화시 많이 사용
+    - null또한 값이며 데이터 타입이지만 undefined는 변수 선언만 해도 할당되지만 null은 변수 선언 후 null로 값을 바꾼다.
 
 ### 3.3 ECMAScript 6 추가된 데이터타입
 
@@ -423,14 +437,31 @@ a='"java"'
 #### 4.1.1객체
 
 - 객체는 이름과 값을 한쌍으로 묶은 데이터를 다양하게 모든 것(= 연관 배열, 사전), java에서는 map하고 비슷
+
 - 객체의 데이터 하나 -**프로퍼티**
+
 - 프로퍼티 이름- **키**
+
+  - `var student={one :"하리오", two:"아리자"};` 의 경우 프로퍼티는 "하리오" ,"아리자", 키는 one,two이다.
+
 - 객체 생성방법
   1. 객체 리터럴 사용 -JSON, 하나의 객체만 생성해서 사용하는 경우
   2. 생성자 함수 사용 - new 사용, 필요할때마다 생성자함수로부터 객체 생성
-- 변수에 대입된 객체 안의 프로퍼티 값을 읽거나 쓸때
+  
+- 변수에 대입된 객체 안의 프로퍼티 값(key)을 읽거나 쓸때
   1. 마침표(.)연산자
   2. 대괄호([])연산자 사용
+  
+- 프로퍼티 추가,삭제
+
+  1. 추가 
+
+  ```
+  student.value="오리카";
+  console.log(student); //
+  ```
+
+  
 
 
 
@@ -547,7 +578,7 @@ document.write("employee instanceof Object =>"+(employee instanceof Object)+"<br
 
 #### 4.2.2 함수 선언문으로 함수 정의
 
-function square(x){return x*x;}
+`function square(x){return x*x;}`
 
 - return값이 없는 경우 undefind로 출력
 - var 변수=funcion(){}; //익명(anonymous) 함수
@@ -586,11 +617,33 @@ function func2(){
 
 #### 함수 리터럴로 함수 정의
 
-- var student=function(num){return num*num;};
+- `var student=function(num){return num*num;};`
+
 - 함수 리터럴은 익명 함수 또는 무명 함수라고 한다.
+
+- 전역객체에 저장
+
 - student(5)라 하면 함수 실행 가능. 가능한 이유는 리텉럴과 함수 선언문 모두 내부적으로 square변수에 함수 객체를 참조로 저장하기 떄문. 하지만 함수 리터럴로 정의한 함수는 *끌어올리지 않기 때문에 함수 정의 후 사용*
-- 동일한 속성을 가지는 객체를 하나 이상 생성해야 하는 겨우 객체 리터럴 방식보다 **생성자 함수**를 정의
-- 생성자 함수로부터 property값만 전달해서 객체 생성
+
+  
+
+##### 즉시 실행 함수
+
+- 익명 함수를 정의하고 바로 실행하는 함수
+
+- 한번 실행하므로 초기화 작업시 사용하며, 전역 유효 범위를 오염시키지 않는다.
+
+  
+
+  ```javascript
+   function(x) {return x*x})(5); //즉시 실행 함수다. 
+  document.write((function(x) {return x*x})(5);
+  document.write((function(x) {return x*x}) (5));//값 확인시 25임을 알 수 있다. 위아래 둘다 가능
+  (function square(x) {return x*x})(5) ;//이름 정의할 수 있지만 가로안에서만 소용있기때문에 굳이..? 할 필요 없다. 일회용이다.
+  
+  ```
+
+  
 
 ```html
 <!DOCTYPE html>
@@ -620,9 +673,33 @@ document.write(student.average());
 </html>
 ```
 
-- 생성자 함수 이용
+##### Function 생성자로 정의 가능
+
+` var square=new Function("x","return x*x");
+
+square(5) // 호출
+
+##### 화살표 함수 표현식(람다식)으로 정의
+
+```javascript
+ var square= x => x*x;
+    document.write(square(5)); //결과값 25
+```
+
+
+
+
+
+##### 생성자 함수 이용
+
+- 동일한 속성을 가지는 객체를 하나 이상 생성해야 하는 겨우 객체 리터럴 방식보다 **생성자 함수**를 정의
+- 생성자 함수로부터 property값만 전달해서 객체 생성
+
 - 생성자 함수로 생성된 객체들의 기능은 모두 동일하므로 객체 생성시마다 메모리에 객체의 메서드가 생성되는 것이 아닌  function객체로 메모리에 생성될때 프로토타입으로 메모리에 자동으로 생성 (f12클릭후 console.dir()해서 보면 프로토타입 속성객체가 생성되어 있다. 생성자를 만들면)
+
 - 프로토타입에 생성되면 전역 메서드처럼 사용 가능하기에 메모리 절약이 가능.
+
+  
 
 ```html
 <!DOCTYPE html>
@@ -726,19 +803,50 @@ document.write(student.average());
 
 #### 4.2.3 함수 인수
 
-- 모든 함수 가변인자를 가지는 함수로 정의
+- 모든 함수 **가변인자**를 가지는 함수로 정의
 - 함수가 실행될때 실행 컨텍스트에서는 함수 내부에 arguments배열과 유사한 타입의 속성이 생성
-- arguments에 함수를 호출할때 입력값인 인수가 저장
+- 함수를 호출할때 입력값인 함수의 property는  arguments에 저장된다.
+  - arguments.length,arguments[index]
 - 함수에 정의된 매개변수의 개수보다 많거나 적은 매개변수로 호출시 많으면 무시, 적으면 undefined로 전달
-
-```
-
-```
 
 #### 4.2.4 호출
 
+- 함수가 호출되어 실행되는 시점에 this값이 결정된다.
+- 최상위 레벨의 코드에서 this는 Window객체의 참조변수 window
+
+```javascript
+ document.write((function(x) {return x*x})(5));
+   document.write(this);
+//25   [object Window]
+```
+
+```javascript
+ document.write((function(x) {return x*x})(5));
+   document.write(this);//window
+    console.log(this==window);
+    function f(){document.write(this);}//전역 유효 범위의 namespace 에 추가된다.
+   f();//window
+```
+
+
+
+- 이벤트 핸들러 함수 내부에서 this는 이벤트 소스 객체
+
+```javascript
+window.onload=이벤트핸들러 함수(){};
+window.onload=function(){
+ this.....//?
+};
+button.onclick=function(){
+this.......///클릭이벤트가 발생한 버튼
+};
+
+```
+
+- 생성자 함수 안에서 this는 생성자 함수로부터 생성되는 객체 자신
+
 ```html
-               <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -809,9 +917,93 @@ document.write(student.average());
     </script>
 ```
 
+##### 클로저 함수
+
+- 자기 자신이 정의된 환경에서 함수 안에 있는 자유 변수의 식별자 결정을 실행한다.
+
+```javascript
+function makeCounter(){
+       var count=0;
+       return g;
+       function g(){ //클로저 함수
+           return count++;
+       }
+   }
+   var ct =makeCounter();
+   document.write((ct()));
+   document.write((ct()));
+   document.write((ct()));
+//결과값 0 1 2
+```
+
+<문> 클릭시 console에 버튼이 찍히는가 방법 1
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <SCRipt>  
+window.onload=function(){
+            var buttons =document.getElementsByTagName("input");
+            for(var i=0;i<buttons.length;i++)(function (_i){
+                buttons[_i].onclick=function(){
+                    console.log(_i);
+                }
+            })(i);
+        };
+                </SCRipt>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h3>클로저 함수를 사용해야 하는 예제</h3>
+    <input type="button" value="0">
+    <input type="button" value="1">
+    <input type="button" value="2"> 
+    <script>
+        
+        </script>
+</body>
+</html>
+```
+
+<문>방법 2
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <SCRipt>
+window.onload=function(){
+    var buttons=document.getElementsByTagName("input");
+    for(var i=0;i<buttons.length;i++){
+        let _i=i;
+        buttons[_i].onclick=function(){
+            console.log(_i);
+        }
+    }
+};
+                </SCRipt>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h3>클로저 함수를 사용해야 하는 예제</h3>
+    <input type="button" value="0">
+    <input type="button" value="1">
+    <input type="button" value="2"> 
+    <script>
+        
+        </script>
+</body>
+</html>
+```
 
 
+
+- 함수 수행이 끝나면 Garbage Collect되어야 하지만 클로저 함수를 리턴하는 함수의 실행 Context는 메모리에 계속 남아 있다.
 - 함수를 매개변수로 전달하고 함수를 리턴하는 함수를 정의 가능
+
 - var키워드를 생략한 함수 내부에 선언된 변수는 함수호출후에 전역변수로 Global실행 컨텍스트에 추가. 함수외부에서 참조가 가능해진다.
 
 ```html
@@ -884,6 +1076,18 @@ document.write(student.average());
 </html>
 ```
 
+#### 4.2.9함수적 프로그래밍 특성
+
+1. 변수에 함수를 저장 할 수 있다.
+2. 배열의 요소로 함수를 저장 가능
+3. 함수 내부에 함수 정의(nested function)
+4. 함수에서 함수 반환 가능.
+   - 내부에 함수를 정의하거나, 함수를 반환 하는 함수를 **고차 함수**
+5. 함수의 인수로 함수를 전달 가능.
+   - 인수로 전달되는 함수는 **콜백 함수**
+
+
+
 ### 4.4 내장객체
 
 - 처음부터 사용 가능한 내장객체가 자바스크립트에 마련되어 있다.
@@ -891,10 +1095,55 @@ document.write(student.average());
 
 #### 4.4.1 객체 분류
 
-1. 네이티브 객체
-2. 호스트 객체
+1. 네이티브 객체(내장 객체)
+
+   - Object, String,Boolean,Number,Array,Date,Regexp,....
+
+2. 호스트 객체(브라우저 객체)
+
    - 브라우저 객체를 호스트 객체라 한다.
-3. 사용자 정의 객체
+
+   - **Window**- close(),open(url, name,{....}),moveBy(),moveTo(),alert(),confirm(),prompt(),
+
+     setTimeout(function(){},time),clearTimeout(id),setInterval(function(){},time),
+
+     clearInterval(id)
+
+   - **document**의 원형은 Document로서 HTML요소 관련 처리 객체
+
+     getElementById(""),getElementsByName(""), getElementsByTagName(""),getElementsByClassName(),querySelector("css의 select형식")
+
+     querySelectorAll("css의 selector형식"),createElement(),creatComment(),createDocumentFagement(),createAttribute(),createTestNode(),setAttribute(),getAttribute(),removeAttribute(),parentNode,childNode,childNodes,body,appendChild(),NodeName()
+
+3. 사용자 정의 객체(ECMAScript)
+
+#### 4.4.2 객체 정의
+
+1. 객체 리터럴로 정의
+
+   `{속성: 값, 속성:값, 속성:function(){},....}
+
+2. 생성자 함수를 정의하고 생성자 함수로부터 객체 생성가능
+
+   ```javascript
+    function Person(name,age){
+   
+   var _name=name; //private 성격의 속성(지역변수 외부에서 참조 불가능)
+   var _age=age;
+   return {
+   getName : function(){return _name;},
+   getAge : function(){return _age;},
+   setAge : function(n){_age=n;}
+   };
+   }
+   var p=new Person("kim",30);
+   console.log(p._name);//오류
+   console.log(p._age);//오류
+   console.log(p.getName());
+   console.log(p.getAge());//여기서도 클로저 사용
+   ```
+
+   
 
 ### 4.5배열
 
@@ -2009,6 +2258,845 @@ getElementByClassName()
 
 
 
+### 13.2 Location 객체
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  window.addEventListener("load",function(){
+      setTimeout(function(){
+          //location.href="http://www.daum.net";
+          //location.assign("http://www.naver.com");
+          location.replace("http://www.youtube.com");//3개다 가능
+      },3000);
+  },false);
+  </script>
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+```
+
+##### 3초후 reload
+
+
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  window.addEventListener("load",function(){
+      var panel=document.getElementById("panel");
+      var nNum=1+Math.floor(Math.random()*100);
+      panel.innerHTML=nNum;
+      panel.style.fontSize=100+(Math.random()*100)+"px";
+      setTimeout(function(){
+//location.reload();
+location.href=location.href;// reload()를 사용해도 되고 요 식을 사용해도 된다.
+      },3000);
+      
+  },false);
+  </script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="panel"></div>
+</body>
+</html>
+```
+
+
+
+### 13.3 History객체
+
+- 페이지 이전, 다음 이동
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <script>
+        window.addEventListener("load",function(){
+    
+        document.getElementById("back").onclick=function(){
+        history.back();
+      
+        };
+        document.getElementById("next").onclick=function(){
+       history.forward();
+      
+            };
+        document.getElementById("goBack").onclick=function(){
+       history.go(-2);
+       
+        };
+        document.getElementById("goNext").onclick=function(){
+        history.go(3);
+        
+        };
+
+        },false);
+
+        </script>
+    <meta charset="UTF-8">
+ 
+    <title>Document</title>
+</head>
+<body>
+    <button id="back">이전</button><br>
+    <button id="next">다음</button><br>
+    <button id="goBack">go(-2)</button><br>
+    <button id="goNext">go(3)</button><br>
+</body>
+</html>
+```
+
+### 13.4 Navigator 객체
+
+- 반응형 웹 컨텐츠를 위해 스크립트가 실행 중인 웹 브라우저 등의 애플리케이션 정보 관리
+
+### 13.5 Screen 객체
+
+- 모니터 크기와 색상 정보 관리
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+  
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        document.write("화면해상도:"+screen.width+"x"+screen.height);
+        document.write("<br>색상수 화면해상도수(비트):"+screen.colorDepth);
+        </script>
+</body>
+</html>
+```
+
+
+
+##### 물고기 움직이기
+
+```html
+
+<!DOCTYPE html >
+<html>
+<head>
+	<meta  charset="UTF-8">
+	<title></title>
+	<style>
+		body{
+			font-size:9pt;
+		
+		}
+		#panel{
+			width:600px;
+			height:300px;
+			border:1px solid #999;
+			position:relative;
+		}
+		
+		#bar{
+			position:absolute;
+			left:50px;
+			top:190px;
+			width:500px;
+			height:20px;
+			
+			background:#F30;
+		}
+		
+		#img1{
+			position:absolute;
+			left:50px;
+			top:120px;		
+		}
+		
+		#nav{
+			text-align:center;
+			width:600px;
+		}
+	</style>
+	
+	<script>
+		 // 시작위치 구하기.
+		 // 마지막 위치.(시작위치 + bar의 넓이 - 이미지 넓이)
+		 // 이미지의 현재 위치를 시작위치로 설정.
+		 // 사용하게 될 이미지(물고기) 엘리먼트를 변수에 저장.
+		 // 시작버튼 이벤트 리스너 등록.
+		 // 정지버튼 이벤트 리스너 등록.
+		 // 타이머 실행.
+		 // 이미지 움직이기. -  2px만큼 이동합니다.
+         //  위치값이 마지막 위치값을 넘어가는 순간, 
+		//  시작 위치<--- 마지막 위치로 이동될수 있도록 방향을 바꿔준다.
+		// 위치값이 시작위치값을 넘어가는 순간,
+		// 시작위치 ---->마지막 위치로 이동될수 있도록 방향을 바꿔준다.
+		// 최종적으로 조절된 위치값을 left에 적용시켜 준다.
+		// 타이머 정지시키기.
+	</script>
+</head>
+
+<body>	
+	<div> 
+		<h4>#img1을 #bar의 영역에서 계속 좌우로 움직이도록 만들어주세요.</h4>
+		<div id="panel">
+			<div id="bar"> </div>
+			<div id="img1">
+				<img src="fish.png">
+			</div>
+		</div>
+		<div id="nav">
+			<button id="btn_start">시작</button>
+			<button id="btn_stop">멈춤</button>
+		</div>
+	</div>       
+</body>
+</html>
+
+```
+
+
+
+```html
+
+<!DOCTYPE html  >
+<html>
+<head>
+	<meta  charset="UTF-8">
+	<title></title>
+	<style>
+		body{
+			font-size:9pt;		
+		}
+		
+		#panel{
+			width:600px;
+			height:300px;
+			border:1px solid #999;
+			position:relative;
+		}
+		
+		#bar{
+			position:absolute;
+			left:50px;
+			top:190px;
+			width:500px;
+			height:20px;
+			
+			background:#F30;
+		}
+		
+		#img1{
+			position:absolute;
+			left:50px;
+			top:120px;		
+		}
+		
+		#nav{
+			text-align:center;
+			width:600px;
+		}
+	</style>
+	
+	<script>
+		var nEndX;
+		var nCurrentX;
+		var nStartX;
+		var nTimerID;
+		var nStep;
+		var objIMG;
+	
+		window.onload=function(){
+			var objBar = document.getElementById("bar");
+			
+			// 시작위치 구하기.
+			this.nStartX = objBar.offsetLeft;
+	
+			// 마지막 위치.(시작위치 + bar의 넓이 - 이미지 넓이)
+			this.nEndX = objBar.clientWidth;
+			this.nEndX += this.nStartX;		
+			this.nEndX -= 128;
+	
+			// 이미지의 현재 위치를 시작위치로 설정.
+			this.nCurrentX = this.nStartX;
+			
+			this.nStep = 2;
+			this.nTimerID = 0;
+			
+			// 계속해서 사용하게 될 이미지 엘리먼트를 변수에 저장.
+			this.objIMG = document.getElementById("img1");
+		 
+			// 시작버튼 이벤트 리스너 등록.
+			document.getElementById("btn_start").addEventListener("click",function(){
+				start();
+			},false);
+			
+			// 정지버튼 이벤트 리스너 등록.
+			document.getElementById("btn_stop").addEventListener("click",function(){
+				stopMove();
+			},false);
+		}
+		 
+		
+		// 타이머 실행.
+		function start(){
+			if(this.nTimerID==0)
+				this.nTimerID = setInterval(this.startMove,30);
+			
+		}
+		
+		// 이미지 움직이기.
+		function startMove(){
+			// nStep만큼 이동합니다.
+			this.nCurrentX += this.nStep;
+			
+			//  위치값이 마지막 위치값을 넘어가는 순간, 
+			//  시작 위치<--- 마지막 위치로 이동될수 있도록 방향을 바꿔준다.
+			if(this.nCurrentX>this.nEndX){
+				this.nCurrentX=this.nEndX;
+				this.nStep=-2;
+			}
+			// 위치값이 시작위치값을 넘어가는 순간,
+			// 시작위치 ---->마지막 위치로 이동될수 있도록 방향을 바꿔준다.
+			if(this.nCurrentX<this.nStartX){
+				this.nCurrentX=this.nStartX;
+				this.nStep=2;
+			}
+			
+			// 최종적으로 조절된 위치값을 left에 적용시켜 준다.
+			this.objIMG.style.left=this.nCurrentX+"px";		
+		}
+		
+		// 타이머 정지시키기.
+		function stopMove(){
+			if(this.nTimerID!=0){
+				clearInterval(this.nTimerID);
+				this.nTimerID=0;
+			}
+		}
+	</script>
+</head>
+
+	<div> 
+		<h4>#img1을 #bar의 영역에서 계속 좌우로 움직이도록 만들어주세요.</h4>
+		<div id="panel">
+			<div id="bar"> </div>
+			<div id="img1">
+				<img src="fish.png">
+			</div>
+		</div>
+		<div id="nav">
+			<button id="btn_start">시작</button>
+			<button id="btn_stop">멈춤</button>
+		</div>
+	</div>       
+</body>
+</html>
+
+```
+
+
+
+# 14장 문서제어
+
+### 14.4 HTML요소 내용 읽고 쓰기
+
+1. innerHTML 프로퍼티
+
+2. textContedt와  innerText프로퍼티
+
+   
+
+### 14.5 노드 생성/삽입/삭제
+
+1. 노드생성
+
+   ```javascript
+   var el=document.createElment(요소 이름);//노드 생성
+   var textnode=document.createTextNode(텍스트);//새로운 텍스트 생성
+   ```
+
+2. 노드 삽입
+
+   ```javascript
+   요소 노드.appendChild(삽입할 노드)
+   ```
+
+<문>중간에 불독을 삽입해 보기
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  
+  </script>
+    <title>Document</title>
+</head>
+<body>
+    <ul id="doglist">
+        <li>포메라이안</li>
+        <li>달라미안</li>
+    </ul>
+    <script>
+        var doglist=document.getElementById("doglist");
+        var e1=document.createElement("li");
+        var te=document.createTextNode("불독");
+        doglist.insertBefore(e1,doglist.children[1]);
+         e1.appendChild(te);
+     
+    </script>
+</body>
+</html>
+```
+
+
+
+
+
+### 14.6 HTML요소의 위치
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+ <style>
+   .box{
+       display :inline-block;
+       padding:100px;
+       margin:100px;
+       margin-left:0;
+       background-color:yellow;}
+ </style>
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="box" id="sec1">#sec1</div>
+    <br/>
+    <div class="box" id="sce2">#sec2</div>
+    <br/>
+    <div class="box" id="sec3">#sec3</div>
+    <script>
+            function getScrollTop(){
+                if(window.pageYOffset !== undefined){
+                    return window.pageYOffset;
+                }else{
+                    return document.documentElement.scrollTop || document.body.scrollTop;
+                }
+            }
+            function getScrollLeft(){
+                if(window.pageXOffset !== undefined){
+                    return   window.pageXOffset;
+                    
+    }else{
+        return document.documentElement.scrollLeft || document.body.scrollLeft;
+    }
+}
+if('scrollRestoration' in history){
+    history.scrollRestoration='manual';
+}
+var element=document.getElementById("sec3");
+var rect =element.getBoundingClientRect();
+scrollTo(rect.left+getScrollLeft(),rect.top+getScrollTop());
+</script>
+</body>
+
+
+</html>
+```
+
+
+
+
+
+### 14.7HTML 폼
+
+<문>비밀번호 확인
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>폼 태그</title>
+<script>
+ function whenSubmit(){
+     //변수 선언
+     var pass=document.getElementById('pass').value;
+     var pass_check=document.getElementById('pass_check').value;
+     //비밀번호 같은지 확인
+     if(pass ==pass_check){
+         alert('성공');
+     }else{
+         alert('다시입력해주세요');
+         return false;
+     }
+ }
+</script>
+</head>
+<body>
+<form id="my_form" action="data.jsp" method="" onsubmit="return whenSubmit()">
+        <label for="name">이름</label><br/>
+        <input type="text" name="name" id="name"/><br/>
+        <label for="pass">비밀번호</label><br/>
+        <input type="password" name="pass" id="pass"/><br/>
+        <label for="pass_check">비밀번호 확인</label><br/>
+        <input type="password" id="pass_check"/><br/>
+        <input type="submit" value="제출"/>
+    </form>
+
+</body>
+</html>
+```
+
+# 15장 이벤트
+
+- DOM level 0 이벤트 모델 : on 이벤트명=function(){} =>이벤트당 하나의 이벤트 핸들러만 연결
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+   <script>
+   window.onload=function(){
+       alert("load event harler1")
+   }
+   window.onload=function(){
+       alert("load event harler2")
+   }
+   window.onload=function(){
+       alert("load event harler3")
+   }//얘만 실행
+
+
+   </script>
+    <title>Document</title>
+</head>
+<body>
+    
+    
+</body>
+</html>
+```
+
+- DOM Level 2 이벤트 모델:
+
+  - 이벤트 소스(태그객체).addEventListener("이벤트명",function(){},이벤트캡처여부)-이벤트 캡처여부값은 기본이 false
+
+     이벤트당 하나 이상의 이벤트 핸들러 연결
+
+```html
+ <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+   <script>
+window.addEventListener("load",function(){
+     alert("load event handler1");
+ },false);
+ window.addEventListener("load",function(){
+     alert("load event handler2");
+ },false);
+ window.addEventListener("load",function(){
+     alert("load event handler3");
+ },false);
+
+   </script>
+    <title>Document</title>
+</head>
+<body>
+    
+    
+</body>
+</html>
+```
+
+- 이벤트 대한 이벤트 핸들러가 한번만 수행후 이벤트 핸들러 취소하려면
+  - 이벤트 소스.on이벤트속성=null;
+- 이벤트 핸들러 함수 내부에서 이벤트 객체의 속성들을 핸들링할때 이벤트 소스 객체를 this참조한다.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+   <script>
+ window.addEventListener("load", function(){
+	  var h3 = document.querySelector("#evt");	 
+	  h3.onclick =function(){
+		   alert("까꿍");
+		   //h3.onclick =null;
+		  this.onclick = null;
+	 } ; 
+	 document.querySelector("#evt2").onclick = function(){
+	   this.style.color = 'blue';
+	   this.style.backgroundColor = 'orange';
+	};
+
+}, false);
+
+   </script>
+    <title>Document</title>
+</head>
+<body>
+        <h3 id="evt"> 이벤트 핸들러 한번만 </h3>
+        <h3 id="evt2"> 클릭이벤트가 발생하면 배경색은 오렌지색, 글자색상은 파란색으로 변경하는 핸들러 실행 </h3>
+       
+        
+        
+    
+</body>
+</html>
+```
+
+
+
+<문제>강제이벤트 버튼을 누르면 숫자를 카운트 한다.
+
+``` html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+<script>
+window.onload=function(){
+    document.getElementById("btn1").onclick=function(){
+        var n1=document.getElementById("count1");
+        n1.innerHTML=Number(n1.innerHTML)+1;
+    }
+    var count=0;
+    document.getElementById("btn2").onclick=function(){
+        var n1=document.getElementById("count2");
+       count++;
+        n1.innerHTML=count;
+        document.querySelector("#btn1").onclick();//강제이벤트 발생
+
+    }
+}
+</script>
+    <title>Document</title>
+</head>
+<body>
+<button id="btn1">Button 1</button>
+<button id="btn2">Button 2</button>
+<h3>Button 1 Click Count:<span id="count1">0</span></h3>
+<h3>Button 2 Click Count:<span id="count2">0</span></h3>
+    
+</body>
+</html>
+```
+
+
+
+### 15.4 버블링과 캡처링
+
+- 이벤트 **버블링**은 자식 태그객체에서 발생된 이벤트가 부모 태그 객체로 이벤트 전파되는 것
+- 이벤트 **캡처링**은 부모 태그객체에서 발생된 이벤트가 자식 태그 객체로 이벤트 전파되는 것
+- 이벤트 버블링을 막으려면
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>이벤트</title>
+<style>
+div, h1, p { border:2px solid black;
+             padding : 10px;
+             margin : 10px; }
+</style>
+<script>
+ window.addEventListener("load", function(){
+	document.getElementById("outerDiv").onclick= function(){
+		this.style.backgroundColor='gray';
+	}
+	document.getElementById("innerDiv").onclick= function(){
+		this.style.backgroundColor='cyan';
+	}
+	document.getElementById("header1").onclick= function(){
+		this.style.backgroundColor='magenta';
+	}
+    document.getElementById("p1").onclick= function(evt){	//이벤트 객체를 사용하기 위해서 이름 지정
+        var event= evt //|| window.event; 비교는 IE일때만 
+       // event.cancelBubble=true;//IE의 이벤트 전파 취소 함수
+        if(event.stopPropagation){
+            event.stopPropagation();//w3c 표준 이벤트 전파 취소 함수, 뭐가 작동할지 몰라 두개 다 작성
+        }	 //크롬의 경우 if를 안 사용해도 된다.
+		this.style.backgroundColor='orange';
+	}
+}, false);
+</script>
+</head>
+<body>
+ <h3> 자바스크립트 버블링과 캡처링 </h3>
+자바스크립트 버블링 : html문서내에서 자식 태그객체에서 발생된 이벤트가 부모 태그 객체로 이벤트 전파되는 것 <br>
+자바스크립트 캡처링 : html문서내에서 부모 태그객체에서 발생된 이벤트가 자식 태그 객체로 이벤트 전파되는 것 <br>
+<div id="outerDiv">
+  <div id="innerDiv">
+    <h1 id="header1">
+       <p id="p1">이벤트 전파</p>
+    </h1>
+  </div>
+</div>
+</body>
+</html>
+```
+
+### 15.5 이벤트 취소
+
+- 브라우저에서 제공하는 기본 취소
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>이벤트</title>
+<script>
+window.addEventListener("load", function(){
+ //브라우저 기본 이벤트 핸들러 취소
+ document.getElementById("searchForm").onsubmit=function(){
+    return false;
+    //event.preventDefault();
+ }//sumit 될때 false를 리턴하여 이벤트 실행취소시킨다.
+ document.getElementById("link1").onclick=function(){
+    // return false;
+    event.preventDefault();//표준 권장 취소 메서드
+}
+}, false);
+</script>
+</head>
+<body>
+ <h3> 브라우저에 정의된 기본 이벤트 취소 </h3>
+ 브라우저에서 자동으로 처리해주는 기본 이벤트 핸들러를 취소하려면 이벤트 핸들러 함수를  override해서 false를 리턴합니다.<br>
+<a id="link1" href="http://www.google.com">구글</a><br>
+<form id="searchForm" action="data.jsp" method="GET">
+찾기 <input type="search">
+<input type="submit" value="검색">
+</form>
+</body>
+</html>
+```
+
+
+
+##### 경품추천기 
+
+- 초기화는 한번만 돌게 하기 위해서 와 if문을 실행하기 위해서.......?
+
+```html
+
+<!DOCTYPE html >
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style>
+		body{
+			font-size:9pt;
+		}
+		#panel1{
+			border:1px #000000 solid;
+			line-height:400px;
+			font-size:100px;
+			width:400px;
+			height:400px;
+			text-align:center;
+			vertical-align:middle;		
+		}
+	
+	</style>
+	<script>
+		 
+		var panel1;//숫자 출력할 영역 div객체
+		var nTimerID;//반복수행될 intervalId값 저장 변수
+		var labTotal;//참여 인원수 입력input태그 객체 저장할 변수
+		var nTotalMember;
+		window.onload=function(){
+			// 숫자가 출력될 #panel1을 찾아 전역변수에 담아둡니다.
+			panel1 = document.getElementById("panel1");
+			nTimerID = 0;
+			// 참여인원 정보가 입력된 패널을 찾아 전역변수에 담아둡니다.
+			labTotal = document.getElementById("lab_total");//input 태그 객체
+			nTotalMember = 0;
+			// 이벤트 초기화 실행.
+			var btnStart = document.getElementById("btn_start");
+			btnStart.addEventListener("click", function(){
+				if(nTimerID==0){
+					//입력된 참여인원수를 구해옵니다.
+					nTotalMember = Number(labTotal.value);
+					// 타이머 시작시 #panel1의 글자색을 초기화 시켜 줍니다.
+					panel1.style.color = "#000000";	//검은색		
+					nTimerID = setInterval(createNumber,20);	
+				}
+			}
+			,false);
+			var btnStop = document.getElementById("btn_stop");
+			btnStop.addEventListener("click",function(){
+				if(nTimerID){
+					clearInterval(nTimerID);
+					nTimerID = 0;
+					//출력효과 추가.
+					panel1.style.color = "#ff0000";	
+					panel1.style.fontSize = "200px";
+				}
+			},false);
+		}		
+		 
+		
+		// 랜덤하게 1에서 참여인원수 사이의 숫자를 만들어 냅니다.
+		function createNumber(){	
+			var nNum = 1+Math.floor(Math.random()*this.nTotalMember);
+			//만들어진 숫자를 innerHTML에 대입시켜 줍니다.
+			panel1.innerHTML = nNum;
+			// 폰트 크기를 100~200으로 랜덤하게 설정해줍니다.
+			panel1.style.fontSize = 100+(Math.random()*100)+"px";//font size는 199...?까지?
+		}
+			
+		 
+		
+		 
+	</script>
+</head>
+
+<body>
+	<div> 
+		<h4>경품추첨기-ver 0.1</h4>
+	
+		<div id="panel1" > 1
+			<!-- 이곳에 숫자가 출력됩니다. -->
+		</div>
+	
+		<div id="nav">
+			참여인원 : <input type="text" id="lab_total" value="100">
+			<button id="btn_start">시작</button>
+			<button id="btn_stop">멈춤</button>
+		</div>
+	</div>
+</body>
+</html>
+
+```
+
+
+
 # 모르는 것 자세하게!
 
 ##### 삼항연산자
@@ -2058,5 +3146,13 @@ var arrays=[1,'hello',true,function(){},{name:'korea'},[100,200]];
         </script>
 ```
 
+##### 함수적 프로그래밍 특성
 
+1. 변수에 함수를 저장 할 수 있다.
+2. 배열의 요소로 함수를 저장 가능
+3. 함수 내부에 함수 정의(nested function)
+4. 함수에서 함수 반환 가능.
+   - 내부에 함수를 정의하거나, 함수를 반환 하는 함수를 **고차 함수**
+5. 함수의 인수로 함수를 전달 가능.
+   - 인수로 전달되는 함수는 **콜백 함수**
 
