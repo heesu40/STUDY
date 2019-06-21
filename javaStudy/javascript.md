@@ -619,7 +619,7 @@ function func2(){
 
 - `var student=function(num){return num*num;};`
 
-- 함수 리터럴은 익명 함수 또는 무명 함수라고 한다.
+- 함수 리터럴은 익명 함수 또는 무명 함수라고 한다. 함수 선언문 끝에는 세미콜론을 붙일 필요 없지만 함수 리터럴 사용시 끝에 반드시 세미콜론 붙여야 한다.
 
 - 전역객체에 저장
 
@@ -831,6 +831,7 @@ square(5) // 호출
 
 
 - 이벤트 핸들러 함수 내부에서 this는 이벤트 소스 객체
+- load는 html호출을 요청시 Css,js,등등 다양하게 실행되는데 이게 끝나면 load가 수행된다.
 
 ```javascript
 window.onload=이벤트핸들러 함수(){};
@@ -1655,6 +1656,14 @@ Boolean (값)
   false
   false
 
+# 6장 웹브라우저에서의 입출력
+
+### 6.2 console
+
+
+
+
+
 # 7장 제어문
 
 ### 7.1 제어문
@@ -1856,6 +1865,177 @@ for(var i=2;i<10;i++){
 </body>
 </html>
 ```
+
+
+
+# 8장 함수
+
+#### 이터레이션
+
+- 반복 처리라는 뜻으로 데이터 안의 요소를 연속적으로 꺼내는 행위
+
+```javascript
+var a=[5,4,3];
+a.forEach(function(val){ console.log(val);});
+```
+
+#### 이터레이터
+
+- 반복 처리 가능한 객체로 한국어로는 반복기라고 한다.
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+ 
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function makeIterator(array){//배열을 받아서 그 배열의 요소를 열거하는 이터레이터 생성
+            var index=0;
+            return{
+                next: function(){
+                    if (index<array.length){
+                        return {value:array[index++],done:false};
+                    }else{
+                        return {value:undefined,done:true};
+                    }
+                    
+                }
+            };
+        }
+        var iter=makeIterator(["A","B","C"]);
+        console.log(iter.next());
+        // console.log(iter.next());
+        // console.log(iter.next());
+        // console.log(iter.next());
+
+        </script>
+</body>
+</html>
+```
+
+
+
+#### 반복 가능한 객체와 for/of 문
+
+- symbol.iterator메서드를 가진 객체를 **반복 가능(이터러블,iterable)한 객체**라 한다.
+
+```html
+Array,String,TypedArray,Map,Set
+
+for(var n of "ABC")console.log(n);//"A","B","C"를 순서대로 표시
+```
+
+
+
+#### 8 제너레이터
+
+- 반복 가능한 이터레이터를 값으로 반환
+- 작업의 일시 정지와 재시작이 가능하며 자신의 상태 관리
+
+#### 제너레이터의 정의와 실행
+
+`function*`문으로 정의
+
+
+
+# 11장 버그 대처
+
+### 11.1 버그 대처
+
+- 스크립트 모드 사용(참고만 하자)
+- 스타일 가이드 활용(버그를 피하고 가독성을 높이기 위한 권장 코딩규칙)
+- console디버깅
+
+#### 11.1 프로그램 테스트
+
+1. 단위 테스트
+
+   ​	각 함수 동작 확인 테스트
+
+2. 통합 테스트
+
+   ​	단위 테스트를 통과한 프로그램을 결합해서 수행하는 테스트
+
+3. 시스템 테스트
+
+   ​	전체 프로그램이 사양에 따라 작동하는지 확인하는 테스트
+
+4. 운용 테스트
+
+   ​	완성된 프로그램을 실제 사용자가 테스트.
+
+### 11.2 예외처리
+
+#### 11.2.1 예외
+
+#### 11.2.2 throw문
+
+`throw 표현식`
+
+- 타입의 판정
+
+  ```javascript
+  //함수가 받은 인수의 타입이 적절한지 확인하고 아니면 오류를 던지기 위해 먼저 타입 판정
+  if(typeof callback !="function")throw new Error(callback + "is not a function");
+  
+  if(!(map instanceof Map)) throw new Error(map +"is not a Map object");
+  
+  Array.isArray(a)//
+  ```
+
+#### 11.2.3 try/catch/finally문
+
+try 안에 예외 발생가능성이 있는 코드 작성
+
+ct
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+<script>
+
+</script>
+    <title>Document</title>
+</head>
+<body>
+<script>
+    function permutation(a){
+        if(!(a instanceof Array)){
+            throw new Error(a+"is not an array");
+        }
+        return a;
+    }
+  var a=["a","b","c"]; //이곳을 블락처리하면 오류가 뜨니 확인해보자.
+     try{
+         var p=permutation(a);
+         p.forEach(function(v){console.log(v) });
+        }catch(e){
+            alert(e);
+     
+     }
+    </script>
+   
+</body>
+</html>
+```
+
+##### 예외가 여러 개 발생했을 때 대처하는 방법
+
+##### 예외의 전파
+
+예외는 호출 스택의 위 단계로 차례차례 전파된다.
+
+##### 비동기 처리의 콜백 함수가 던진 예외의 처리
+
+비동기 처리의 콜백 함수(다른 함수의 인수로 전달되는 함수)가 던진 예외는 전파되지않는다.
+
+
 
 
 
@@ -2260,6 +2440,18 @@ getElementByClassName()
 
 ### 13.2 Location 객체
 
+- 브라우저 객체 중 문서의 URL을 관리를 위해 사용-Location(location) 
+
+- location.href
+
+- assign(url)
+
+- replace(url)
+
+- reload
+
+  
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -2317,6 +2509,12 @@ location.href=location.href;// reload()를 사용해도 되고 요 식을 사용
 ### 13.3 History객체
 
 - 페이지 이전, 다음 이동
+- 웹페이지의 이력을 관리
+- length 얼마나 움직였는지
+- back() 이전페이지
+- forward() 이전갔다가 다시 돌아오는 것
+- go(n|-n) 
+-   
 
 ```html
 <!DOCTYPE html>
@@ -2361,10 +2559,20 @@ location.href=location.href;// reload()를 사용해도 되고 요 식을 사용
 ### 13.4 Navigator 객체
 
 - 반응형 웹 컨텐츠를 위해 스크립트가 실행 중인 웹 브라우저 등의 애플리케이션 정보 관리
+- 브라우저 정보를 얻을 수 있는 객체로  html문서에 포함된 자바스크립트는 클라이언트에 보내져서 클라이언트의 브라우저
+- geolocation - 위치정보 
+- appName-웹브라우저이름
+- onLine-네트워크 연결상태인지 확인
+- platform-웹브라우저의 OS확인
 
 ### 13.5 Screen 객체
 
 - 모니터 크기와 색상 정보 관리
+- width
+- height
+- orientation
+- colorDepth
+- picelDepth
 
 ```html
 <!DOCTYPE html>
@@ -2607,15 +2815,63 @@ location.href=location.href;// reload()를 사용해도 되고 요 식을 사용
 
 
 
+
+
 # 14장 문서제어
 
 ### 14.4 HTML요소 내용 읽고 쓰기
 
 1. innerHTML 프로퍼티
 
+   - `문서의 요소 객체.innerHTML="< strong>강조체< /strong>"`
+   - 요소 안의 코드를 읽거나 쓸 수 있다. 
+
 2. textContedt와  innerText프로퍼티
 
-   
+   - 요소의 내용을 웹 페이지에 표시했을 때 텍스트 정보 표시
+
+   - `문서의 요소 객체.textContent="내용"`
+
+3. 아래는 비교해 보고 빈칸에 대한 반환을 확인해 보자.
+
+   - textContent는 script 요소 안의 텍스트를 반환하지만 innerText는 반환하지 않는다.
+   - textContent는 공백 문자를 그대로 반환하지만  innerText는 남는 공백 문자 제거
+   - innerText는 table,tbody,tr요소 등의 테이블 요소 수정 할 수 없다.
+
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+  <script>
+  window.onload=function(){
+      document.getElementById("d1").innerHTML="<strong>강조체</strong>     <i>이탤릭</i>     ";
+      document.getElementById("d2").textContent="<strong>강조체</strong>   <i>이탤릭</i>   ";
+        document.getElementById("d3").innerText="<strong>강조체</strong>   <i>이탤릭</i>  "; 
+        console.log(document.getElementById("d4").innerHTML);
+  console.log(document.getElementById("d4").textContent);
+    }
+ 
+
+  </script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="d1"></div>
+    <div id="d2"></div>
+    <div id="d3"></div>
+    <div id="d4">
+       <div id="d5">내용</div>
+    </div>
+</body>
+</html>
+```
+
+
+
+
+
+
 
 ### 14.5 노드 생성/삽입/삭제
 
@@ -2666,6 +2922,20 @@ location.href=location.href;// reload()를 사용해도 되고 요 식을 사용
 
 
 ### 14.6 HTML요소의 위치
+
+- 뷰포트(윈도우 좌표계)- 웹브라우저에서 문서의 내용을 표시하는 영역
+- 문소의 요소 객체는 박스모델이 적용된다.
+- `var rect=요소 객체.getBoundingClientRect();`는 요소의 위치 와 크기 정보를 담은 객체를 반환한다. 아래와 같은 프로퍼티를 갖는다.
+  - 왼쪽  X좌표는 left
+  - 왼쪽  Y좌표는 top
+  - 오른쪽 X좌표는 right 
+  - 오른쪽 Y좌표는 bottom
+  - 너비 width
+  - 높이 height
+
+- 뷰포트의 너비 속성은 clientWidth, innerWidth(스크롤 막대 포함)
+- 뷰포트의 높이 속성은 clientHeight, innerHeight(스크롤 막대 포함)
+- 
 
 ```html
 <!DOCTYPE html>
@@ -2765,7 +3035,7 @@ scrollTo(rect.left+getScrollLeft(),rect.top+getScrollTop());
 
 # 15장 이벤트
 
-- DOM level 0 이벤트 모델 : on 이벤트명=function(){} =>이벤트당 하나의 이벤트 핸들러만 연결
+- DOM level 0 이벤트 모델 : 이벤트소스객체.on 이벤트명=function(){} =>이벤트당 하나의 이벤트 핸들러만 연결
 
 ```html
 <!DOCTYPE html>
@@ -2795,10 +3065,8 @@ scrollTo(rect.left+getScrollLeft(),rect.top+getScrollTop());
 ```
 
 - DOM Level 2 이벤트 모델:
-
-  - 이벤트 소스(태그객체).addEventListener("이벤트명",function(){},이벤트캡처여부)-이벤트 캡처여부값은 기본이 false
-
-     이벤트당 하나 이상의 이벤트 핸들러 연결
+  - 이벤트 소스(태그객체).addEventListener("이벤트명",function(){},이벤트캡처여부)-이벤트 캡처여부값은 기본이 false);
+  - 이벤트당 하나 이상의 이벤트 핸들러 연결
 
 ```html
  <!DOCTYPE html>
@@ -2826,9 +3094,13 @@ window.addEventListener("load",function(){
 </html>
 ```
 
+##### 이벤트 핸들러 취소
+
 - 이벤트 대한 이벤트 핸들러가 한번만 수행후 이벤트 핸들러 취소하려면
   - 이벤트 소스.on이벤트속성=null;
 - 이벤트 핸들러 함수 내부에서 이벤트 객체의 속성들을 핸들링할때 이벤트 소스 객체를 this참조한다.
+
+
 
 ```html
 <!DOCTYPE html>
@@ -2903,11 +3175,15 @@ window.onload=function(){
 
 
 
-### 15.4 버블링과 캡처링
+### 15.4 버블링과 캡처링(이벤트 전파)
 
 - 이벤트 **버블링**은 자식 태그객체에서 발생된 이벤트가 부모 태그 객체로 이벤트 전파되는 것
+
 - 이벤트 **캡처링**은 부모 태그객체에서 발생된 이벤트가 자식 태그 객체로 이벤트 전파되는 것
+
 - 이벤트 버블링을 막으려면
+
+  `이벤트객체.stopPropagation();`
 
 ```html
 
@@ -2958,9 +3234,29 @@ div, h1, p { border:2px solid black;
 </html>
 ```
 
-### 15.5 이벤트 취소
+### 15.5 브라우저 제공 기본 이벤트 취소
 
 - 브라우저에서 제공하는 기본 취소
+
+- < a href="" > < /a >의 클릭 이벤트
+
+- form태그의 submit 이벤트
+
+- 취소방법 1
+
+  ```javascript
+   이벤트 소스객체.on이벤트=function(){
+   ....
+   return false;}
+  ```
+
+- 취소방법2
+
+  ```javascript
+  이벤트객체.preventDefault()
+  ```
+
+  
 
 ```html
 
@@ -3097,6 +3393,621 @@ window.addEventListener("load", function(){
 
 
 
+# flle
+
+- 파일 속성 읽기
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>
+window.onload = function(){
+var fileElement=document.getElementById("f1");
+fileElement.addEventListener("change",function(){
+    var files=fileElement.files;
+    var output="";
+    for( var i=0; i<files.length; i++){
+        var file=files[i];
+    output += "파일 이름 :" +file.name+",크기 : "+file.size+", 타입 : "+file.type
+    + "<br>"; 
+}
+document.getElementById("result").innerHTML=output;
+},false);
+ 
+}
+
+</script>
+</head>
+<body>
+  <input id="f1" type="file" multiple accept="image/*"><!--이미지필터제한-->
+  <div id="result"></div>
+ </body>
+
+```
+
+
+
+- 파일 drop and drag
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<script>
+var dropbox;
+window.addEventListener("load",function(){
+    dropbox=document.getElementById("dropbox");
+    //이벤트 핸들러 할당
+    dropbox.addEventListener("drop",drop,false);
+    dropbox.addEventListener("dragenter",dragenter,false);
+    dropbox.addEventListener("dragover",dragover,false);
+    
+},false);
+function dragenter(event){
+    event.stopPropagation();//이벤트 버블링 막기
+    event.preventDefault();//이벤트 취소
+
+
+}
+function dragover(event){
+    event.stopPropagation();//이벤트 버블링 막기
+    event.preventDefault();//이벤트 취소
+
+
+}
+function drop(event){
+    event.stopPropagation();//이벤트 버블링 막기
+    event.preventDefault();//이벤트 취소
+    var files=event.dataTransfer.files;
+    var count=files.length;
+    if(count>0){
+        var file=files[0];
+        document.getElementById("droplabel").innerHTML
+        ="Processing"+file.name;
+        var reader=new FileReader();
+        //파일 리더의 이벤트 핸들러 정의
+        reader.onloadend=function(event){
+            var img=document.getElementById("preview");
+            img.src= event.target.result;//event.target는 FileReader객체
+            img.style="width: 360px; height: 360px;"
+        };
+        reader.readAsDataURL(file);
+    }
+
+}
+
+</script>	
+</head>
+<body>
+<h1>Drag and Drop Demo</h1>
+	<div id="dropbox"
+		style="width: 360px; height: 80px; border: 1px solid #aaa;">
+		<span id="droplabel"> 이곳에 파일을 드랍해 주세요... </span>
+	</div>
+	<img id="preview" alt="[ preview will display here ]" />
+</body>
+</html>
+```
+
+### FileReader 객체
+
+- 동기 방식(FileReaderSync)- 읽기를 시키면 다른 작업 불가능
+  - 메서드의 처리 결과를 반환 값이나 예외 형태로 얻을 수 있지만 백그라운드 워커 안에서만 사용 가능하며 **리턴값**이 필요하다.
+- 비동기 방식(FileReader)- 읽기를 시키고 다른 작업 가능
+  - 언제든지 사용할 수 있지만 메서드의 이벤트 처리 결과를 이벤트 핸들러로 얻어야만 하므로 코딩이
+    복잡하다.
+    
+    
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script>
+//1. new FileReader()
+
+//2. onload, onloadend이벤트에 대한 핸들러 : result속성에 저장낸 내용을 textarea에..
+//3. readAsText()사용  내용 읽기
+function readFile(){
+    var file=document.getElementById("file").files[0];
+    document.getElementById("fileName").innerHTML=file.name;
+    document.getElementById("fileSize").innerHTML=file.size+"Bytes";
+
+    var reader=new FileReader();
+    reader.onloadend=function(){//loadend는 읽기가 다 끝났을때란 뜻
+        document.getElementById("content").innerHTML=reader.result;
+    }
+    var encodingList= document.getElementById("encoding");
+    var encoding=
+    encodingList.options[encodingList.selectedIndex].value;
+    reader.readAsText(file,encoding);
+}
+</script>
+</head>
+<body>
+ <h1> FileReader Interface : readAsText()</h1>
+       <input id="file" type="file">
+       <select id="encoding">
+           <option>UTF-8</option>
+		   <option>euc-kr</option>
+        </select>
+        <button onclick="readFile()">읽기</button><br />
+        <div>
+            <span id="fileName">File Name</span>
+            <span id="fileSize">File Size</span>
+        </div>
+        <textarea id="content" readonly style="width:600px; height:400px;"></textarea>
+</body>
+</html>
+```
+
+
+
+### Canvas 객체
+
+- Canvas 이미지 저장
+  - toDataULR()  은 이미지 데이터 문자열을 반환한다.
+- Canvas 이미지 복사
+
+```html
+
+```
+
+
+
+### Drag&Drop 
+
+- dragenter -드래그 중 마우스 포인터가 요소와 겹치는 순간 호출되는 이벤트
+- dragover-드래그 중 마우스 포인터가 요소 위를 가로지를 떄 단속적으로 발생하는 이벤트
+- drop-드랍 처리를 실행할 때 발생하는 이벤트
+- `DataTransfer`은 Drag&Drop API 를 사용시 Drag&Drop되는 요소들의 Data를 담는 역할
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+div#Red {border:2Px solid #F00;}
+div#Blue {border:2Px solid #00F;}
+div {width:400px;height:266px;}
+a {margin:50px;display:block;}
+</style>
+<script>
+function drag(source,event){
+    //event.preventDefault();
+    event.stopPropagation();//기본값은 drop를 허용하지 않기때문에 이벤트버블링 방지위해 한번은 꼭 써야한다.
+    event.dataTransfer.setData("text",source.id);
+}
+function drop(source,event){
+    //event.preventDefault();
+    event.stopPropagation();
+    var imgId=event.dataTransfer.getData("text");
+    console.log(event.dataTransfer.getData("text"));
+    source.appendChild(document.getElementById(imgId));
+}
+</script>
+</head>
+<body>
+<div id="Red" ondrop="drop(this, event);" 
+     ondragenter="return false;" 
+     ondragover="return false;"></div>
+<div id="Blue" ondrop="drop(this, event);" 
+	ondragenter="return false;" 
+	ondragover="return false;"></div>
+<img draggable="true" id="textlink" 
+     ondragstart="drag(this, event);" 
+     src="드래곤.png" width="400" height="266"></img>
+</body>
+</html>
+```
+
+
+
+# JQuery(자바스크립트 라이브러리)
+
+- 모든 브라우저에서 동작하는 클라이언트 자바스크립트 라이브러리
+- 무료로 사용가능한 오픈소스 라이브러리
+- 특징
+  1. DOM과 관련된 처리 쉽게 구현
+  2. 일관된 이벤트 연결 쉽게 구현
+  3. 시각적 효과 쉽게 구현
+  4. Ajax 애플리케이션 쉽게 개발
+- 장점
+  1. 웹표준만으로도 플래시와 실버라이트로 구현한 웹 사이트와 비슷한 수준의 시각적 효과 구현
+  2. 아이폰 아이패드 같은 장치에서도 작동
+
+### 1.다운로드
+
+1. 
+2. CDN(Content Delevery Network)
+3. jquery.com 에 들어가서 download에서 googleCDN을 클릭해서 가장 최신버전을 드래그 복사하여 이용중인 visual studio의 html파일안의 < head>안에 붙여넣기 한다. 연결 완료
+4. jQuery() 객체가 전역변수에 들어가있는데, **jQuery(대상객체)**로 호출할수 있고 **$(대상객체)**로도 호출 가능
+   - 대상객체를 넣을떄는 CSS명칭 이용(id=># )
+   - js에 사용되는 이벤트 핸들러 load대신 비슷한 **ready**사용한다.
+   - 기본적으로 연결해서 사용한다.
+   - JQuery는 JavaScript보다 코드가 간결해서 코드량을 1/3로 줄어든다.
+   - jQuery 기본 효과를 조합하면 멋진 효과를 만들 수 있다.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+    jQuery(document).ready(function(){alert("ready event handler2");})
+    $(document).ready(function(){alert("ready event handler1");})
+    $(function(){alert("즉시 실행될 함수");});//$()도 가능하다.
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+```
+
+**반복문을 사용안해도 자동으로 적용이 된다.**
+
+- .css를 계속 붙일 수 있다.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+   
+    $(document).ready(function(){
+        $("h3").css("color","red").css("backgroundColor","black")//주구장창 연결 가능
+    }
+    );//ready함수 닫기
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <h3> JQuery</h3>
+    <h3> JQuery는 JavaScript보다 코드가 간결해서 코드량을 1/3로 줄어든다.</h3>
+</body>
+</html>
+```
+
+
+
+##### 전체 선택자
+
+$("*") 를 쓰면 전체 선택이 된다.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+    
+    $(document).ready(function(){
+        $("*").css("color","skyblue").css("backgroundColor","yellow")
+    }
+    );//ready함수 닫기
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <h3> JQuery</h3>
+    <h3> JQuery는 JavaScript보다 코드가 간결해서 코드량을 1/3로 줄어든다.</h3>
+    <div>
+        1. 좀 쉬기
+    </div>
+    <p>
+        2. 많이 먹기
+    </p>
+    <article>
+        3.많이 공부하기
+    </article>
+    <ul>
+        <li>4.사회관계망 튼튼하게 하기</li>
+        <li>5.긍정적 마인드 컨트롤</li>
+    </ul>
+</body>
+</html>
+```
+
+
+
+##### 태그선택자
+
+- 자식 선택시 공백...? 한번 해보자
+- $("div,p")
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+    
+    $(document).ready(function(){
+        $("div,p").css("color","skyblue").css("backgroundColor","yellow")
+    }
+    );//ready함수 닫기
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <h3> JQuery</h3>
+    <h3> JQuery는 JavaScript보다 코드가 간결해서 코드량을 1/3로 줄어든다.</h3>
+    <div>
+        1. 좀 쉬기
+    </div>
+    <p>
+        2. 많이 먹기
+    </p>
+    <article>
+        3.많이 공부하기
+    </article>
+    <ul>
+        <li>4.사회관계망 튼튼하게 하기</li>
+        <li>5.긍정적 마인드 컨트롤</li>
+    </ul>
+</body>
+</html>
+```
+
+
+
+##### 아이디선택자
+
+$("#id")
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+    
+    $(document).ready(function(){
+        $("#simple").css("color","skyblue").css("backgroundColor","yellow")
+    }
+    );//ready함수 닫기
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <h3> JQuery</h3>
+    <h3 id="simple"> JQuery는 JavaScript보다 코드가 간결해서 코드량을 1/3로 줄어든다.</h3>
+    <div>
+        1. 좀 쉬기
+    </div>
+    <p>
+        2. 많이 먹기
+    </p>
+    <article>
+        3.많이 공부하기
+    </article>
+    <ul>
+        <li>4.사회관계망 튼튼하게 하기</li>
+        <li>5.긍정적 마인드 컨트롤</li>
+    </ul>
+</body>
+</html>
+```
+
+##### 클래스 선택
+
+1. $(".class이름")
+2. $(".class이름.class이름2.....")
+
+
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+    
+    $(document).ready(function(){
+        $(".todo").css("color","skyblue").css("backgroundColor","yellow")
+    }
+    );//ready함수 닫기
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <h3> JQuery</h3>
+    <h3 id="simple"> JQuery는 JavaScript보다 코드가 간결해서 코드량을 1/3로 줄어든다.</h3>
+    <div class="todo">
+        1. 좀 쉬기
+    </div>
+    <p>
+        2. 많이 먹기
+    </p>
+    <article>
+        3.많이 공부하기
+    </article>
+    <ul>
+        <li>4.사회관계망 튼튼하게 하기</li>
+        <li>5.긍정적 마인드 컨트롤</li>
+    </ul>
+</body>
+</html>
+```
+
+##### 자식선택자
+
+$("body>p")
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+    
+    $(document).ready(function(){
+        $("body>p").css("color","skyblue").css("backgroundColor","yellow")
+    }
+    );//ready함수 닫기
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <h3> JQuery</h3>
+    <h3 id="simple"> JQuery는 JavaScript보다 코드가 간결해서 코드량을 1/3로 줄어든다.</h3>
+    <div class="todo">
+        1. 좀 쉬기
+        <p>
+                6.많이 자기
+            </p>
+    </div>
+    <p>
+        2. 많이 먹기
+    </p>
+    <article>
+        3.많이 공부하기
+    </article>
+    <ul>
+        <li>4.사회관계망 튼튼하게 하기</li>
+        <li>5.긍정적 마인드 컨트롤</li>
+    </ul>
+</body>
+</html>
+```
+
+##### 속성 선택자
+
+` $("input[type=text]").val("Hello,everyone"); }` 
+
+` $("input:password").css("backgroundColor","cyan");`
+
+두가지 방법으로 사용!
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <script>
+    
+    $(document).ready(function(){
+        $("input[type=text]").val("Hello,everyone");
+        $("input:password").css("backgroundColor","cyan");
+        $("input:focus").css("backgroundColor","lightgray");
+    }
+    );//ready함수 닫기
+    </script>
+    <title>Document</title>
+</head>
+<body>
+  
+   text:        <input type="text"><br>
+   password:    <input type="password"><br>
+   search:      <input type="search" autofocus><br>
+    tel:        <input type="tel"><br>
+   url:         <input type="url"><br>
+</body>
+</html>
+```
+
+
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝--></script>
+
+<script>
+$(document).ready(function(){
+    //5초 후에 코드를 실행
+    setTimeout(function(){
+        var value=$('select>option:selected').val();
+        alert(value);
+    },5000);
+});
+</script>
+    <title>Document</title>
+</head>
+<body>
+   <select >
+       <option >Apple</option>
+       <option >Bag</option>
+       <option >Cat</option>
+       <option>Dog</option>
+       <option >Elephant</option>
+   </select>
+</body>
+</html>
+```
+
+
+
+##### body 태그 구성
+
+- odd 홀수 번째에 위치한 문서 객체를 선택
+- even 짝수 번째에 위치한 문서 객체를 선택
+- first 첫번째 위치한 문서 객체를 선택
+- last 마지막 위치한 문서 객체를 선택
+
+```html
+
+<!doctype html>
+<html lang="ko">
+ <head>
+  <meta charset="UTF-8">  
+  <title>jQuery 기본</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>   
+    $(document).ready(function(){
+        $('tr:odd') .css('background','#F9F9F9');
+        $("tr:even").css("background","#9F9F9F");
+
+        $("tr:first").css('color',"red",'background',"black");
+		}	);
+  </script>
+ </head>
+ <body>
+     <table>
+        <tr><th>이름</th><th>혈액형</th><th>지역</th></tr>
+        <tr><td>강민수</td><td>AB형</td><td>서울특별시 송파구</td></tr>
+        <tr><td>구지연</td><td>B형</td><td>미국 캘리포니아</td></tr>
+        <tr><td>김미화</td><td>AB형</td><td>미국 메사추세츠</td></tr>
+        <tr><td>김선화</td><td>O형</td><td>서울 강서구</td></tr>
+        <tr><td>남기주</td><td>A형</td><td>서울 노량진구</td></tr>
+        <tr><td>윤하린</td><td>B형</td><td>서울 용산구</td></tr>
+    </table>
+ </body>
+</html>
+
+```
+
+
+
+
+
+#### jQuery(docu)
+
 # 모르는 것 자세하게!
 
 ##### 삼항연산자
@@ -3155,4 +4066,211 @@ var arrays=[1,'hello',true,function(){},{name:'korea'},[100,200]];
    - 내부에 함수를 정의하거나, 함수를 반환 하는 함수를 **고차 함수**
 5. 함수의 인수로 함수를 전달 가능.
    - 인수로 전달되는 함수는 **콜백 함수**
+
+##### 테스트 이 문서를 고쳐주세요!
+
+답
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style>
+		body{
+			font-size:9pt;
+		
+		}
+		
+		div{
+			border: 1px solid #999999;
+			margin:20px;
+			margin-bottom:20px;
+		}
+		div div{
+			border: 1px dotted #CCC;
+			
+		}
+		
+		.active{
+			font-size:20pt;
+			color:#090;
+			border:5px solid #ff0000;
+		}
+	</style>
+	<script>
+	window.onload=function(){			
+		 solveM1();
+		 solveM2();
+		 solveM3();
+		 solveM4();
+		 solveM5();
+		 solveM6();
+	}
+	
+	function solveM1(){
+		// 노드 찾기
+		var m1 = document.getElementById("m_1");
+		// 스타일 변경하기.
+		m1.style.color = "#ff0000";
+	}
+	
+	function solveM2(){
+		// 노드 찾기.
+		var m2 = document.getElementById("m_2");
+		// 클래스 이름 변경하기.
+		m2.className = "active";
+	}
+	
+	function solveM3(){
+		// 노드 찾기.
+		var m2 = document.getElementById("m_3");
+		// 자식노드중에서 img 태그만을 찾은 후 첫번째 태그를 얻어온다. 
+		var img = m2.getElementsByTagName("img")[0];
+		// HTMLImageElement의 src 프로퍼티를 이용해서 이미지를 변경하는 경우.
+		img.src	= "ch3.png"
+		// Element의 setAttribute 메소드를 이용해서 이미지를 변경하는 경우.
+		img.setAttribute("src", "ch3.png");
+	}
+	
+	function solveM4(){
+		// p태그 노드 생성하기.
+		var p4 = document.createElement("p");
+		// 텍스트 설정하기.
+		p4.innerHTML = "항목4";
+		// 신규로 생성한 p태그를 추가할 부모 노드 찾기.
+		var m4 = document.getElementById("m_4");
+		// p태그를 부모노드에 추가하기.
+		m4.appendChild(p4);
+	}
+	
+	function solveM4_2(){
+		// p태그 노드 생성하기.
+		var p4 = document.createElement("p");
+		// text 노드 생성하기.
+		var text = document.createTextNode();
+		// 텍스트 설정하기.
+		text.nodeValue = "항목4";
+		p4.appendChild(text);
+
+		// 신규로 생성한 p태그를 추가할 부모 노드 찾기.
+		var m4 = document.getElementById("m_4");
+		// p태그를 부모노드에 추가하기.
+		m4.appendChild(p4);
+	}
+	
+	function solveM5(){
+		//부모노드 찾기.
+		var m5 = document.getElementById("m_5");
+		// m5의 자식노드에서 <p>태그만을 모두 찾기.
+		var ps = m5.getElementsByTagName("p");
+				
+		for(var i=0;i<ps.length;i++){
+			var p = ps[i];
+			
+			//p.firstChild는 text node 입니다.
+			var text = p.firstChild.nodeValue;
+		
+			// p요소중 텍스트값이 항목4를 가지고 있는 노드를 찾아 삭제.	
+			if(text.indexOf("항목4")!=-1){
+				m5.removeChild(p);
+				break;
+			}
+		}
+	}
+	
+	function solveM5_2(){
+		var m5 = document.getElementById("m_5");
+		var ps = m5.getElementsByTagName("p");
+		
+		m5.removeChild(ps[2]);
+		// 또는 m5.removeChild(ps.item(2))
+	}
+
+	
+	function solveM6(){
+		// 제거할 노드와 가장 근접한 노드를 찾습니다.
+		var m6 = document.getElementById("m_6");
+		// 제거하기.
+		document.body.removeChild(m6.parentNode);
+	}
+	
+	function solveM6_2(){
+		// 제거할 노드와 가장 근접한 노드를 찾습니다.
+		var divs = document.getElementsTagName("div");
+		// 제거하기.
+		document.body.removeChild(divs[11]);
+	}
+	</script>
+</head>
+
+<body>
+	<div> 
+		<h4>테스트1</h4>
+		<div id="m_1">
+			#m_1 : 글자색을 빨간색으로 변경해주세요.
+		</div>
+	</div>
+	<div> 
+		<h4>테스트2</h4>
+		<div id="m_2">
+			#m_2 : 클래스 active를 적용시켜 주세요.
+		</div>
+	</div>
+	<div> 
+		<h4>테스트3</h4>
+		<div id="m_3">
+			#m_3 : 에고 이 이미지가 아닌데... 이미지를 ch3.png로 변경해주세요"<br>
+			<img src="ch2.png">
+		</div>
+	</div>
+	<div> 
+		<h4>테스트4</h4>
+		<div id="m_4">
+			#m_ 4 :  홋! 항목4까지 있어야 하는건데, 바쁜나머지 실수를 했군요. 항목4를 제일 뒤에 추가해주시겠어요?
+			<p>
+				항목1
+			</p>
+			<p>
+				항목2
+			</p>
+			<p>
+				항목3
+			</p>
+		</div>
+	</div>
+	<div> 
+		<h4>테스트5</h4>
+		<div id="m_5">
+			#m_ 5 :  이번에는 항목4가 더 추가되었네요. 즉시 삭제해주세요.
+			<p>
+				항목1
+			</p>
+			<p>
+				항목4
+			</p>
+			<p>
+				항목2
+			</p>
+		</div>
+	</div>
+	<div> 
+		<h4>테스트6</h4>
+		<div id="m_6">
+			#m_ 6 : 이런이런! 이 부분은 전혀 필요없는 내용들인데 왜 있는거죠? #m_6부터 헤더태그까지 모두 삭제해주세요.
+			<p>
+				DOM(Document Object Model)이란?<br>
+				웹페이지 문서를 조작하기 위해서 지켜야될 약속(interface)만 딸랑 적혀있는 문서랍니다.
+				약속만 있을뿐 내부는 텅빈 상자랍니다.
+				우리가 알고있는 W3C DOM에는 구현소스가 한줄도 존재하지 않습니다.
+				그럼 실제 구현소스는??
+			</p>
+		</div>
+	</div>
+</body>
+</html>
+
+```
 
