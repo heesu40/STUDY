@@ -3498,6 +3498,7 @@ function drop(event){
 ### FileReader 객체
 
 - 동기 방식(FileReaderSync)- 읽기를 시키면 다른 작업 불가능
+  
   - 메서드의 처리 결과를 반환 값이나 예외 형태로 얻을 수 있지만 백그라운드 워커 안에서만 사용 가능하며 **리턴값**이 필요하다.
 - 비동기 방식(FileReader)- 읽기를 시키고 다른 작업 가능
   - 언제든지 사용할 수 있지만 메서드의 이벤트 처리 결과를 이벤트 핸들러로 얻어야만 하므로 코딩이
@@ -3615,7 +3616,7 @@ function drop(source,event){
 
 
 
-# JQuery(자바스크립트 라이브러리)
+# 1.JQuery(자바스크립트 라이브러리)
 
 - 모든 브라우저에서 동작하는 클라이언트 자바스크립트 라이브러리
 - 무료로 사용가능한 오픈소스 라이브러리
@@ -4004,9 +4005,1246 @@ $(document).ready(function(){
 
 
 
+# 2.jQuery
 
 
-#### jQuery(docu)
+
+### each()
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+    var arry =[{name: "네이버",link:"http://www.naver.com"},
+              {name:"구글",link:"http://www.google.com"}];
+    var output ="";
+    $.each(arry,function(index,item){
+        output+= "<a href="+item.link+"><h1>"+item.name+"</h1></a><br>";
+    });
+    document.body.innerHTML+=output;
+});
+</script>
+    </head>
+<body>
+
+</body>
+</html>
+```
+
+
+
+-  each() 각 문서 객체에  다른 클래스를 적용
+- addClass() 매서드의 매개변수 활용(함수 입력 가능)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <title>Document</title>
+    <style>
+    .high_light1{background :Red;}
+    .high_light2{background:Orange;}
+    .high_light3{background: Yellow;}
+    .high_light4{background: Green;}
+    .high_light5{background: Blue;}
+
+
+    </style>
+    <script>
+    $(document).ready(function(){
+        $("h1").each(function(index,item){//index.item 각각 배열의 인덱스와 값을 가리킨다.
+            $(this).addClass("high_light"+(index+1));
+        });
+    });
+    </script>
+</head>
+<body>
+    jQuery:jquery 배열관리
+    <h1>item - 0</h1>
+    <h1>item - 1</h1>
+    <h1>item - 2</h1>
+    <h1>item - 3</h1>
+    <h1>item - 4</h1>
+    
+
+</body>
+</html>
+```
+
+
+
+### $.extend() 메서드
+
+- 기본 객체에  많은 수의 속성 추가시 사용
+
+### $.noConflict()
+
+- 충돌 방지 때 사용하는 메서드
+- `$.noConflict(); var j=jquery;` 하면 $가 아닌 j를 사용한다.
+
+### remove()
+
+- 선택한 요소의 내용만 지울 때는 [.empty()](https://www.codingfactory.net/10272)를 사용
+- 선택한 요소의 속성(attribute)를 제거할 때는 [.removeAttr()](https://www.codingfactory.net/10200)를 사용
+- 선택한 요소의 클래스(class)의 값을 제거할 때는 [.removeClass()](https://www.codingfactory.net/10198)를 사용
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script><!--jquery사용준비 끝-->
+    <title>Document</title>
+    <style>
+    .high_light1{background :Red;}
+    .high_light2{background:Orange;}
+    .high_light3{background: Yellow;}
+    .high_light4{background: Green;}
+    .high_light5{background: Blue;}
+
+
+    </style>
+    <script>
+    $.noConfict();
+    var J=Jquery;
+    j(document).ready(function(){
+        J("h1").each(function(index,item){
+            J(item).removeClass("high_light"+index);
+        });
+    });
+    </script>
+</head>
+<body>
+    jQuery:jquery 배열관리
+    <h1 class="high_light1">item - 0</h1>
+    <h1 class="high_light2">item - 1</h1>
+    <h1 class="high_light3">item - 2</h1>
+    <h1 class="high_light4">item - 3</h1>
+    <h1 class="high_light5">item - 4</h1>
+    
+
+</body>
+</html>
+```
+
+
+
+# 3. jQuery
+
+### filter()
+
+```html
+<!DOCTYPE html>
+<html >
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  $(document).ready(function(){
+      $('h3:even').css({
+          backgroundColor:'Black',
+          color:'white'
+      });
+  });
+  </script>
+    <title>Document</title>
+</head>
+<body>
+    <h3>Header-0</h3>
+    <h3>Header-1</h3>
+    <h3>Header-2</h3>
+    <h3>Header-3</h3>
+    <h3>Header-4</h3>
+    <h3>Header-5</h3>
+</body>
+</html>
+```
+
+
+
+```html
+<!DOCTYPE html>
+<html >
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  $(document).ready(function(){
+      $("h3").filter(function(index){
+          return index%3==0;
+      }).css({backgroundColor:'black',color: 'white'});
+      $('input').fliter(function(index){
+          return this.type=='search';
+      }).css('background-color','megenta');
+  });
+  </script>
+    <title>Document</title>
+</head>
+<body>
+   <h3>item-0</h3>
+   <h3>item-1</h3>
+   <h3>item-2</h3>
+   <h3>item-3</h3>
+   <h3>item-4</h3>
+   <h3>item-5</h3>
+
+</body>
+</html>
+```
+
+
+
+#### 적용시 주의점
+
+```html
+<!DOCTYPE html>
+<html >
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  $(document).ready(function(){
+      $('h3').css('background','Orange').filter(':even').css('color','green').filter(':odd').css('color','blue');
+      
+  });
+  </script>
+    <title>Document</title>
+</head>
+<body>
+   <h3>item-0</h3>
+   <h3>item-1</h3>
+   <h3>item-2</h3>
+   <h3>item-3</h3>
+   <h3>item-4</h3>
+   <h3>item-5</h3>
+
+</body>
+</html>
+```
+
+.end()를 붙이면 달라진다. 필터를 (even 짝수를 선택하고 필터 된 것에 한하여 odd홀수 를 고른다. 하지만 end()를 붙이면 필터 된 것을 초기화 시킨다.)
+
+```html
+<!DOCTYPE html>
+<html >
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  $(document).ready(function(){
+      $('h3').css('background','Orange').filter(':even').css('color','green').end().filter(':odd').css('color','blue');
+      
+  });
+  </script>
+    <title>Document</title>
+</head>
+<body>
+   <h3>item-0</h3>
+   <h3>item-1</h3>
+   <h3>item-2</h3>
+   <h3>item-3</h3>
+   <h3>item-4</h3>
+   <h3>item-5</h3>
+
+</body>
+</html>
+```
+
+
+
+### 특정 위치의 문서 객체 선택 
+
+#### eq()
+
+- 특정 위치에 존재하는 문서 객체 선택
+- eq(0)과 first()
+- eq(-1)과 last()가 같음을 확인해보자.
+
+```html
+<!DOCTYPE html>
+<html >
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+  <script>
+  $(document).ready(function(){
+     
+      $('h3').eq(0).css('color','Green');
+    
+      $('h3').eq(-1).css('color','Blue');
+   //   $('h3').first().css('color','Cyan');
+     // $('h3').last().css('color','magenta');
+
+    
+  });
+  </script>
+    <title>Document</title>
+</head>
+<body>
+   <h3>item-0</h3>
+   <h3>item-1</h3>
+   <h3>item-2</h3>
+   <h3>item-3</h3>
+   <h3>item-4</h3>
+   <h3>item-5</h3>
+
+</body>
+</html>
+```
+
+#### add() 메서드
+
+- 추가 할때 사용
+
+#### is(expr)
+
+- 하나라도 만족하면 true 리턴 아니면 false리턴
+- 판별할떄 사용한다.
+
+#### find(expr)
+
+- 특정 태그를 선택한다.
+- 입력 값으로 받은 표현식에 해당하는 모든 DOM 요소를 검색
+- parseXML()메서드를 사용해 문자열을 XML 문서 객체로 변경
+- XML로 검색할떄 유용하다.
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+ div{  margin:10px;
+       border:3px Solid Black;
+       border-radius:10px;
+       float:left;
+       width:120px; height:120px;
+       text-align:center;
+        }
+    </style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+        // 변수를 선언합니다.
+        var xml = '';
+        xml += '<friends>';
+        xml += '    <friend>';
+        xml += '        <name>연하진</name>';
+        xml += '        <language>Ruby</language>';
+        xml += '    </friend>';
+        xml += '    <friend>';
+        xml += '        <name>윤명월</name>';
+        xml += '        <language>Basic</language>';
+        xml += '    </friend>';
+        xml += '    <friend>';
+        xml += '        <name>윤하린</name>';
+        xml += '        <language>C#</language>';
+        xml += '    </friend>';
+        xml += '</friends>';
+
+        $(document).ready(function () {
+           var xmlDoc=$.parseXML(xml);
+           $(xmlDoc).find('friend').each(function(index){
+            var output='';
+             output +='<div>';
+            output+='      <h1>'+$(this).find('name').text()+'</h1>';
+            output+='      <p>'+$(this).find('language').text()+'</p>';
+            output+='</div>';
+            document.body.innerHTML+= output;
+           });
+        });
+    </script>
+</head>
+<body>
+
+</body>
+</html>
+```
+
+# 4. jquery
+
+### attr()메서드
+
+- 주석 처리한 것도 가능하니 한번 해보자.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <script>
+ $(document).ready(function(){
+     $('img').attr('width',function(index){
+        return (index+1)*100;
+     });
+  
+     
+ });//1번쨰 방법
+//  $(document).ready(function(){
+//      $('img').attr({
+//        width:function(index){
+//            return(index+1)*100;
+//        } ,
+//        height:100 
+//      });
+//  }); 두번쨰 방법
+ </script>
+    <title>Document</title>
+</head>
+<body>
+    <img src='1.jpg'>
+    <img src="2.jpg" >
+    <img src="3.jpg" >
+</body>
+</html>
+```
+
+
+
+### (selector).css(name,function(index,...))
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <!-- <script>
+$(document).ready(function(){
+    $('h1').css('color','Red');
+});
+ </script> -->
+ <script>
+ $(document).ready(function(){
+     var color=['Red','White','Purple'];
+     $('h1').css('color',function(index){
+         return color[index];
+     }
+     );
+     
+ });
+ </script>
+    <title>Document</title>
+</head>
+<body>
+    <h1>Header-0</h1>
+    <h1>Header-1</h1>
+    <h1>Header-2</h1>
+</body>
+</html>
+```
+
+
+
+잘안되니 되게 해보자
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <script>
+var color=['Blue','Cyan','Magenta'];
+$('h1').css({
+    'color':function(index){
+        return color[index];
+    },
+    'backgroundColor':'Black'
+});
+
+ </script>
+    <title>Document</title>
+</head>
+<body>
+ 
+    <h1>Header-1</h1>
+    <h1>Header-2</h1>
+
+</body>
+</html>
+```
+
+
+
+### html()
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <script>
+$(document).ready(function(){
+    
+
+    var headers= $('h1').html();
+    alert(headers);
+    
+    var texts=$('h1').text();
+    alert(texts);
+
+    $('div').html(function(index){
+        return ("<h3>Header-"+index+"</h3>");
+    });
+    $('div').text(function(){
+        return ("<h3>Header-"+index+"</h3>");
+    });
+});
+
+ </script>
+    <title>Document</title>
+</head>
+<body>
+    <h1>Header-0</h1>
+    <h1>Header-1</h1>
+    <h1>Header-2</h1>
+    <div></div>
+    <div></div>
+    <div></div>
+
+</body>
+</html>
+```
+
+### Remove()
+
+- 한개의 객체만 지운다
+
+### empty()
+
+- 객체의 후손을 모두 제거
+
+
+
+### 문서 객체 조작
+
+html()
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+div { border: 1px solid black;
+      width : 300px;
+      height : 300px;}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script> 
+ $(document).ready(function () {
+       $('<p></p>').html("<mark>appendTo b의 마지막 요소로 A추가</mark").appendTo('div');
+        $('<p></p>').html("<mark>prependTo b 첫번째 요소로 A추가</mark").prependTo('div');
+       $('<p></p>').html("<mark>insertAfter  b의 형제노트로 A요소를 B다음에 추가</mark").insertAfter('div');
+       $('<p></p>').html("<mark>insertbefore b의 형제 노드로 A요소를 B전에 추가</mark").insertBefore('div'); 
+    $('div').append(function(){
+        return $('<p></p>').html('<mark>append A의 마지막 자식 요소로 B요소 추가</mark>');
+    });
+     $('div').prepend(function(){
+        return $('<p></p>').html('<mark>prepend B의 첫번째 요소로 A추가</mark>');
+    });
+    $('div').before(function(){
+        return $('<p></p>').html('<mark>before A의 형제 노트로 B요소를A다음에 추가</mark>');
+    });
+    $('div').after(function(){
+        return $('<p></p>').html('<mark>after A의 형제 노트로 B요소를A 전에 추가</mark>');
+    });
+             });
+    </script>
+</head>
+<body>
+ <h3>문서 객체를 추가<h3>
+ A.appendTo(B) : B의 마지막 자식 요소로 A요소를 추가 <br>
+ A.prependTo(B) : B의 첫번째 자식 요소로 A요소를 추가 <br>
+ A.insertAfter(B) : B의 형제노드로서 A요소를 B의 다음에 추가<br>
+ A.insertBefore(B) : B의 형제노드로서 A요소를 B의 앞에 추가<br>
+ A.append(B) : A의 마지막 자식 요소로 B요소를 추가 <br>
+ A.prepend(B) : A의 첫번째 자식 요소로 B요소를 추가 <br>
+ A.after(B) : A의 형제노드로서 B요소를 A의 다음에 추가<br>
+ A.before(B) : A의 형제노드로서 B요소를 A의 앞에 추가<br> 
+ <div>내용</div>
+   
+    
+</body>
+</html>
+```
+
+문서 이동하기(사진이 2초마다 뒤로 움직인다.)
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+div { border: 1px solid black;
+      width : 300px;
+      height : 300px;}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script> 
+$(document).ready(function(){
+    $('img').first().appendTo('body');
+});
+$(document).ready(function(){
+    //이미지 크기 조정
+    $('img').css('width',250);
+    //함수를 2초마다 실행
+    setInterval(function(){
+        $('img').first().appendTo('body');
+    },2000);
+});
+    </script>
+</head>
+<body>
+<script>
+
+    
+    </script>
+   <img src="1.jpg" alt="">
+   <img src="2.jpg" alt="">
+   <img src="3.jpg" alt="">
+    
+</body>
+</html>
+```
+
+### 종합적 문제
+
+- 지금까지를 이용하여 전에 했었던 테스트 고치기를 jquery로!
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<style>
+		body{
+			font-size:9pt;
+		
+		}
+		
+		div{
+			border: 1px solid #999999;
+			margin:20px;
+			margin-bottom:20px;
+		}
+		div div{
+			border: 1px dotted #CCC;
+			
+		}
+		
+		.active{
+			font-size:20pt;
+			color:#090;
+			border:5px solid #ff0000;
+		}
+	</style>
+	<script>
+	 $(document).ready(function(){
+         $("#m_1").css('color','Red');
+        $('#m_2').addClass('active');
+        $("img").attr('src',function(index){
+            return (src="1.jpg");
+        });
+            //$("img:first-child").attr('scr','1.jpg');
+          
+          $("#m_4").append("<p>항목4</p>");
+          
+     $('#m_5>p').eq(1).remove();
+      
+        
+         $("#m_6").parent().remove();
+    
+        
+        });
+     
+
+	</script>
+</head>
+
+<body>
+	<div> 
+		<h4>테스트1</h4>
+		<div id="m_1">
+			#m_1 : 글자색을 빨간색으로 변경해주세요.
+		</div>
+	</div>
+	<div> 
+		<h4>테스트2</h4>
+		<div id="m_2">
+			#m_2 : 클래스 active를 적용시켜 주세요.
+		</div>
+	</div>
+	<div> 
+		<h4>테스트3</h4>
+		<div id="m_3">
+			#m_3 : 에고 이 이미지가 아닌데... 이미지를 ch3.png로 변경해주세요"<br>
+			<img src="2.jpg">
+		</div>
+	</div>
+	<div> 
+		<h4>테스트4</h4>
+		<div id="m_4">
+			#m_ 4 :  홋! 항목4까지 있어야 하는건데, 바쁜나머지 실수를 했군요. 항목4를 제일 뒤에 추가해주시겠어요?
+			<p>
+				항목1
+			</p>
+			<p>
+				항목2
+			</p>
+			<p>
+				항목3
+			</p>
+		</div>
+	</div>
+	<div> 
+		<h4>테스트5</h4>
+		<div id="m_5">
+			#m_ 5 :  이번에는 항목4가 더 추가되었네요. 즉시 삭제해주세요.
+			<p>
+				항목1
+			</p>
+			<p>
+				항목4
+			</p>
+			<p>
+				항목2
+			</p>
+		</div>
+	</div>
+	<div> 
+		<h4>테스트6</h4>
+		<div id="m_6">
+			#m_ 6 : 이런이런! 이 부분은 전혀 필요없는 내용들인데 왜 있는거죠? #m_6부터 헤더태그까지 모두 삭제해주세요.
+			<p>
+				DOM(Document Object Model)이란?<br>
+				웹페이지 문서를 조작하기 위해서 지켜야될 약속(interface)만 딸랑 적혀있는 문서랍니다.
+				약속만 있을뿐 내부는 텅빈 상자랍니다.
+				우리가 알고있는 W3C DOM에는 구현소스가 한줄도 존재하지 않습니다.
+				그럼 실제 구현소스는??
+			</p>
+		</div>
+	</div>
+</body>
+</html>
+
+```
+
+
+
+### 이벤트
+
+- 이벤트 횟수 제한
+- off 나 one이 있으면 한번만 실행
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<style>
+.reverse {
+   background:black;
+   color:white;
+}
+</style>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+	$("h1").on("click",function(){
+        $(this).html(function(index,html){
+            return html+"+";
+        });
+        $(this).off("click");//이벤트가 한번만 발생하게!
+    });
+    $("h1").one("click",function(){
+        $(this).html(function(index,html){
+            return html+"+";//one 이 쓰이면 on 과 다르게 한번만 실행된다.
+        });
+    });
+        $("h1").on({
+        mouseenter:function(){$(this).addClass("reverse");},
+        mouseleave:function(){$(this).removeClass("reverse");}
+        });
+        $("h1").hover(function(){
+        $(this).addClass("reverse"); },
+        function(){
+            $(this).removeClass("reverse"); }
+
+    );
+    });
+    
+
+</script>
+</head>
+<body>
+<h1>Click</h1>
+</body>
+</html>
+```
+
+### 이벤트 연결
+
+- 이벤트를 연결하여 동시 발생
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+    
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //이벤트를 연결한다.
+        $('h1').click(function(){
+            $(this).html(function(index,html){
+                return html+'★';
+            });
+        });
+        //1초마다 함수를 실행합니다.
+        setInterval(function(){
+            //$('h1').last().click();
+            $('h1').last().trigger('click');
+        },1000);	
+        });
+    </script>
+</head>
+<body>
+    <h1>Start: </h1>
+    <h1>Start: </h1>
+</body>
+</html>
+```
+
+### preventDefault()
+
+```html
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>javascript:event</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+	$('a').click(function(event){
+        event.preventDefault();
+    });
+    $('#f1').submit(function(event){
+        event.preventDefault();
+    });
+});
+ 
+</script>
+</head>
+<body>
+ 
+
+<a href="http://www.multicampus.co.kr">www.multicampus.co.kr</a><br>
+<form  id = "f1" method="get" action="data.jsp">
+email : <input type=email name="email" id="email"><br>
+<input type="submit">
+</form>
+</body>
+</html>
+
+
+
+```
+
+### 키보드 이벤트
+
+- keydown 키보드가 눌러질 떄 발생
+- keypress 글자가 입력될 떄 발생
+- keyup 키보드가 떼어질 때 발생 (주로 많이 사용 , 글자 입력되는 순간)
+
+```html
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>javascript:event</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+	 $('textarea').keyup(function(){
+         //남은 글자 수를 구한다.
+         var inputLength=$(this).val().length;
+         var remain=150-inputLength;
+         //문서 객체에 입력
+         $('h1').html(remain);
+         //문서 객체에 색상 변경.
+         if(remain>=0){
+             $('h1').css('color','Block');
+         }else{
+             $('h1').css('color','cyan');
+         }
+     });
+});
+ 
+</script>
+</head>
+<body>
+<div>
+        <p>지금 내 생각을</p>
+        <h1>150</h1>
+        <textarea cols="70" rows="5"></textarea>
+    </div>
+</body>
+</html>
+
+
+
+```
+
+
+
+### 윈도우 이벤트
+
+#### scroll 이벤트
+
+- 사용자가 마우스 스크롤 움직이면 무조건 scroll 이벤트 발생
+-  무한 스크롤을 만들려면 화면 끝까지 스크롤이 도달했다는 사실 인식 필요
+  1. document 객체의 height 속성은 문서 전체의 높이 의미
+  2. 스크롤이 끝까지 내려가면
+     » window 객체 scrollTop +height =document 객체 높이
+
+무한스크롤을 만들어 보자
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>javascript:event</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+<script>
+//테스트를 위해 내부에 공간을 채워둡니다.
+$(document).ready(function(){
+    for(var i=0;i<20;i++){
+        $('<h1>Infinity Scroll</h1>').appendTo('body');
+    }
+    //스크롤 이벤트 발생시
+    $(window).scroll(function(){
+        //필요한 변수를 구한다.
+        var scrollHeight=$(window).scrollTop()+$(window).height();
+        var documentHeight =$(document).height();
+        //스크롤의 높이와 문서의 높이가 같을 떄
+        if(scrollHeight== documentHeight){
+            for(var i=0;i<10;i++){
+                $('<h1>Infintity Scroll</h1>').appendTo('body');
+            }
+        }
+
+    });
+});
+
+</script>
+</head>
+<body>
+
+</body>
+</html>
+```
+
+### change 이벤트
+
+
+
+# 5. jquery
+
+- innerPlugin
+
+- animate()
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+div{ width:50px;
+     height:50px;
+     background:cyan;
+     position:relative;
+     }
+</style>
+<meta charset="utf-8">
+<title>Insert title here</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function () {
+	$('div').hover(function(){
+        $(this).animate({left:500},'fast');
+    },function(){
+        $(this).animate({left:0},'slow');
+    })
+});
+</script>
+</head>
+<body>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</body>
+</html>
+```
+
+상대적 애니메이션
+
+- 클릭시 커진다
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+div{ width:50px;
+     height:50px;
+     background:cyan;
+     position:relative;
+     }
+</style>
+<meta charset="utf-8">
+<title>Insert title here</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function (){
+    $('div').click(function(){
+        var width=$(this).css('width');
+        var height=$(this).css('height');
+        $(this).animate({
+            width:parseInt(width)+50,
+            height:parseInt(height)+50
+        },'slow');
+    })
+});
+</script>
+</head>
+<body>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</body>
+</html>
+```
+
+### Queue()
+
+###  clearQueue()
+
+- 현재 실행되는 애니메이션 정지 기능 없다.
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+    <style>
+        div {
+            width:100px; height:100px;
+            background-color:Orange;
+            position:relative;
+        }
+    </style>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {           
+            //이벤트를 연결합니다.
+            $('button').click(function(){
+                //변수 선언
+                var html=$(this).html();
+                var evalText="$('div')."+html;
+                //메서드를 실행
+                eval(evalText);
+            });
+            //애니메이션을 시작
+            $('div').animate({
+                left:'500'
+            },5000).animate({
+                left:'0'
+            },5000);
+        });
+    </script>
+</head>
+<body>
+    <button>stop()</button>
+    <button>stop(true)</button>
+    <button>stop(false, true)</button>
+    <button>stop(true, true)</button>
+    <div></div>
+</body>
+</html>
+```
+
+
+
+### 지연메서드
+
+- delay
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+div{ width:50px;
+     height:50px;
+     background:cyan;
+     position:relative;
+     }
+</style>
+<meta charset="utf-8">
+<title>Insert title here</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(document).ready(function (){
+    $('div').each(function(index){
+        //(index*500)초 후 animate() 메서드를 실행
+     
+        $(this).delay(index*1000).animate({
+           left:500
+        },'slow');
+    });
+});
+</script>
+</head>
+<body>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</body>
+</html>
+```
+
+### 경품추첨기 jquery로 해보자
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+ <style>
+		body{
+			font-size:9pt;
+		}
+		#panel1{
+			border:1px #000000 solid;
+			line-height:400px;
+			font-size:100px;
+			width:400px;
+			height:400px;
+			text-align:center;
+			vertical-align:middle;		
+		}
+	</style>
+<meta charset="utf-8">
+<title>Insert title here</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+ var panel1;
+ var nTimerID;
+ var labTotal;
+ var nTotalMember;
+ 	
+	$(document).ready(function(){
+			// 요소 초기화 실행.	
+			nTimerID = 0;
+			panel1 = $("#panel1");
+			labTotal = $("#lab_total");
+			nTotalMember = 0;
+			// 이벤트 초기화 실행.
+			var btnStart = $("#btn_Start");
+			btnStart.on("click", function(){
+				if(nTimerID==0){
+				//입력된 참여인원수를 구해옵니다.
+	 
+				nTotalMember = Number(labTotal.val());
+				// 타이머 시작시 #panel_1의 글자색을 초기화 시켜 줍니다.
+				panel1.css({color:"#000000"});		
+				nTimerID=setInterval(createNumber,20);	
+			}
+			});
+		    var btnStop = $("#btn_Stop");
+			btnStop.on("click",function(){
+				if(nTimerID){
+				clearInterval(nTimerID);
+				nTimerID = 0;
+				//출력효과 추가.
+				panel1.css({color:"#ff0000",fontSize:"200px"});	
+			}
+			});
+		});			
+		
+		// 랜덤하게 1~100 숫자를 만들어 냅니다.
+		function createNumber(){	
+			var nNum = 1+Math.floor(Math.random()*nTotalMember);	
+			panel1.html(nNum);	
+			// 폰트 크기를 100~200으로 랜덤하게 설정해줍니다.
+			panel1.css("fontSize", 100+(Math.random()*100));
+		}
+			
+		 
+	  
+
+ 
+</script>
+</head>
+<body>
+ <div> 
+		<h4>경품추첨기-ver 0.1</h4>
+		<div id="panel1" > 	
+		</div>
+
+		<div id="nav">
+			참여인원 : <input type="text" id="lab_total" value="100"></input>
+			<button id="btn_Start">시작</button>
+			<button id="btn_Stop">멈춤</button>
+		</div>
+   </div>
+</body>
+</html>
+```
+
+
 
 # 모르는 것 자세하게!
 
