@@ -674,11 +674,16 @@ location.search : ?wr_id=4&bbs=free (파라미터)
 html의 경우
 
 ```html
+
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <script>
+<meta charset="utf-8">
+<title> </title>
+<style>
+ 
+</style>
+<script>
     function moveR(fr){
         add=new Option(fr.menu[fr.menu.selectedIndex].value,fr.menu[fr.menu.selecedIndex].value);
         fr.my.options[fr.my.length]=add;
@@ -689,20 +694,30 @@ html의 경우
         fr.menu.options[fr.menu.length]=add;
         fr.my.options[fr.my.selectedIndex]=null;
     }
-    </script>
-    <title>Document</title>
+</script>
 </head>
 <body>
+ <form name="form1">
+		listbox에서 항목 이동 예제<br />
 
- <input type="checkbox" name="체크?" id="">체크<br>
- <input type="password" name="" id=""><br>
- <input type="button" value="?"><br>
- <input type="file" name="" id=""><br>
-<input type="submit" value="제출하시오"><br>
-<input type="radio" name="하하호호" id=""><br>
-<input type="reset" value=""><br> 
-<input type="text" name="" id=""><br>
-<input type="hidden" name=""><br>
+		나만의 메뉴를 고르시오.<br /><br />
+		<table><tr><td>
+		메뉴</td><td></td><td>나만의 메뉴</td></tr> 
+		<tr><td> <select name="menu" size="8">
+		<option value="파일">파일</option>
+		<option value="편집">편집</option>
+		<option value="보기" >보기</option>
+		<option value="서식">서식</option>
+		<option value="삽입">삽입</option>
+		<option value="도구">도구</option>
+		<option value="디자인">디자인</option>
+		</select></td>
+		<td align="center" valign="middle">
+		<input type="button" value=">>" onclick="moveR(this.form);" /><br />
+		<input type="button" value="<<"onclick="moveL(this.form);" /> </td>
+		<td> <select name="my" size="8"> 
+		</select> </td></tr></table>
+	</form>
 
 </body>
 </html>
