@@ -45,7 +45,7 @@ readyState프로퍼티 값
 - 3    interative 데이터의 일부를 받은 상태
 - 4    Completed 데이터를 전부 받은 상태, 완전한 데이터 이용 가능 
 
-글 읽어오기
+### 글 읽어오기
 
 같은 파일내에 data.txt 파일을 미리 만들어 놓아야 한다.(아무거나 써놓자)
 
@@ -96,9 +96,7 @@ window.onload=function(){           //이벤트가 발생되면
 </html>
 ```
 
-
-
-jquery로 바꾸기
+#####  jquery로 바꾸기
 
 ```html
 <!DOCTYPE html>
@@ -240,6 +238,89 @@ function createImages(){
 
 ```
 
+##### jquery로 바꿔보자
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<meta  charset="UTF-8">
+	<title></title>
+	<style>
+		.image_panel{
+			border:1px solid eeeeee;
+			text-align:center;
+			margin:5px;
+		}
+		.image_panel .title{
+			font-size:9pt;
+			color:#ff0000;
+			
+		}
+		
+	</style>
+	 
+    
+    <script>
+    $(document).ready(function(){
+        $("#btn_load").click(function(){
+            $.getJSON("images.jsp",null,createImages);
+        });
+    });
+    function createImages(data){
+        var images=data.rows;
+        var strDOM="";
+        for(var i=0;i<images.length;i++){
+            var image=images[i];
+             strDOM+='<div class="image_panel">'
+                strDOM+='     <img src="'+image.url+'">';
+                strDOM+='       <p class="title">'+image.title+'</p>';
+               strDOM+='</div>'
+        }
+       
+        var $imageContainer  =$('#image_container');
+        $imageContainer.append(strDOM);
+
+        $(document).ajaxComplete(function(){
+            console.log("ajax event:complete");
+        });
+        $(document).ajaxSend(function(){
+            console.log("ajax event: send");
+        });
+        $(document).ajaxStart(function(){
+            console.log("ajax evnet: start");
+        });
+        $(document).ajaxSuccess(function(){
+            console.log("ajax event:success");
+        });
+    }
+    </script> 
+</head>
+
+<body>
+	<div>
+		<button id="btn_load">이미지 읽어들이기</button>
+	</div>
+	<div id="image_container">
+		<!-- 1. 이곳에 이미지를 넣어주세요-->
+	</div>
+	
+	<!-- 2. 이 내용은 이미지 패널 템플릿입니다. -->
+	<div style="display:none;" id="image_panel_template">
+		<div class="image_panel">
+			<img >
+			<p class="title"></p>
+		</div>
+	</div>
+</body>
+</html>
+
+```
+
+
+
 ### 부분페이지갱신,POST요청, XML응답
 
 로그인을 해보자
@@ -332,6 +413,72 @@ function cofirmedProcess(){//로그인의 성공과 실패에 따라 표시되�
 }
 
 ```
+
+##### jQUery로 하는 경우
+
+```js
+$(document).ready(function(){
+    $("#login").click(function(){
+         var uid = $("#userid").val();  
+         var upwd = $("#userpwd").val();  
+         $.ajax({
+             url: "partPage.jsp",
+             data: {userid: uid, userpwd:upwd},
+             success : function(data) {	    		
+                 var result = $(data).find("result").text();	    		 
+                 var name = $(data).find("id").text();	    	 
+                 if (result == "1"){//사용자 인증성공시
+                       var str="<table><tr><td align='center'><b>"+name+"</b> 님 오셨구려..</td></tr>"
+                       str+="<tr><td align='center'><input type='button' id='logout' value='로그아웃' onclick ='logoutMethod()'/></td></tr></table>"
+                           $("#confirmed").html( str );
+                 }else if(result=="0"){//사용자 인증실패시 - 비밀번호가 틀림
+                       alert("비밀번호가 맞지 않습니다.\n다시 입력해 주시기 바랍니다.");
+                       $("#userid").val(name);
+                       $("#userpwd").val("");
+                       $("#userpwd").focus();
+                 }else{//사용자 인증실패시 - 아이디가가 틀림
+                       alert("아이디가 맞지 않습니다.\n다시 입력해 주시기 바랍니다.");
+                       $("#userid").val("");
+                       $("#userpwd").val("");
+                       $("#userid").focus();
+                 }
+             }
+         });
+         
+     });
+ });
+  /*
+  
+ function logoutMethod(){	 
+     var url = "partPagelogout.jsp?timestamp="+ new Date().getTime(); //요청 URL설정
+     xhr.onreadystatechange = logoutProcess; //응답결과를 처리메소드인 logoutProcess()메소드 설정 
+     xhr.open("Get", url, "true");//서버의 요청설정 - url변수에 설정된 리소스를 요청할 준비
+     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
+     xhr.send(null);//서버로 요청을 보냄
+ }
+ 
+  
+      
+     
+  
+  
+ 
+ function logoutProcess(){//partPageDBUselogout.jsp페이지에서 응답결과가 오면 자동으로 실행
+     if(xhr.readyState == 4){ //요청객체의 상태가 모든 데이터를 받을 수 있는 상태로 완료된 경우
+       if(xhr.status == 200){ //서버로부터 응답받는 HTTP상태가 정상인 경우 수행
+            
+          var str="<table><tr><td>아이디</td><td><input type='text' id='id' size='15' maxlength='12'/></td></tr>";
+          str+="<tr><td>비밀번호</td><td><input type='password' id='passwd' size='15' maxlength='12'/></td></tr>";
+          str+="<tr><td colspan='2' align='center'><input type='button' id='login' value='로그인' onclick ='startMethod()'/></td></tr></table>" ;          
+          
+          document.getElementById("confirmed").innerHTML = str;
+       }
+     }
+ }
+ */
+```
+
+
 
 parPage.css
 
@@ -437,11 +584,38 @@ url를 따올 시 다른 포트의 주소에서 따왔기에 만약 자신의 �
 
 `Access-Control-Allow-Origin`이라는 hTTP헤더 추가가 필요
 
+```html
+<!DOCTYPE html>
+<html >
+<head>
+    <meta charset="UTF-8">
+    <script >//type="text/javascript"
+    window.onload=function(){
+        setInterval(send,1000);
+        //1초마다 IFrame에 메시지를 보냄.
+    }
+    function send(){
+        var ifrm=document.getElementById("ifrm");
+        var MyOrigin=location.protocol+"//"+location.host;
+        var date=new Date();
+        var dateStr=date.getFullYear()+"/"+(date.getMonth()+1)+date.getMinutes()+" "+date.getHours+":"
+        +date.getMinutes()+":"+date.getSeconds();
+        var number=Math.floor(Math.random()*100);
+
+        ifram.contentWindow.postMessage({date:dateStr,number:number},"http://70.12.50.130:9000");
+        document.getElementById("msg").innerHTML=dateStr+"생성된 값은'"+number+"' 입니다.<br/>MyOrigin:"+MyOrigin;
+    }
+    </script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="msg">8000<br>MyOrigin</div>
+    <iframe id="ifrm" src="http://70.12.50.130:9000/receive.html" width=500 height=200></iframe>
+</body>
+</html>
 ```
 
-```
-
-
+여기까찌 했으나 연결 오류로.............완료는 못함
 
 ### 현재 경료 표시
 
@@ -449,3 +623,88 @@ location.protocol : http:
 location.host : [www.test.com](http://www.test.com/) (주소)
 location.pathname : /6.25/cross1.html (경로)
 location.search : ?wr_id=4&bbs=free (파라미터)
+
+# 문제풀어보자
+
+### 리스트박스 만들기
+
+기본적인 구조
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title> </title>
+<style>
+ 
+</style>
+<script>
+ 
+</script>
+</head>
+<body>
+ <form name="form1">
+		listbox에서 항목 이동 예제<br />
+
+		나만의 메뉴를 고르시오.<br /><br />
+		<table><tr><td>
+		메뉴</td><td></td><td>나만의 메뉴</td></tr> 
+		<tr><td> <select name="menu" size="8">
+		<option value="파일">파일</option>
+		<option value="편집">편집</option>
+		<option value="보기" >보기</option>
+		<option value="서식">서식</option>
+		<option value="삽입">삽입</option>
+		<option value="도구">도구</option>
+		<option value="디자인">디자인</option>
+		</select></td>
+		<td align="center" valign="middle">
+		<input type="button" value=">>" onclick="moveR(this.form);" /><br />
+		<input type="button" value="<<"onclick="moveL(this.form);" /> </td>
+		<td> <select name="my" size="8"> 
+		</select> </td></tr></table>
+	</form>
+
+</body>
+</html>
+```
+
+html의 경우
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <script>
+    function moveR(fr){
+        add=new Option(fr.menu[fr.menu.selectedIndex].value,fr.menu[fr.menu.selecedIndex].value);
+        fr.my.options[fr.my.length]=add;
+        fr.menu.options[fr.menu.selectedIndex]=null;
+    }
+    function moveL(fr){
+        add= new Option(fr.my[fr.my.selectedIndex].value,fr.my[fr.my.selectedIndex].value);
+        fr.menu.options[fr.menu.length]=add;
+        fr.my.options[fr.my.selectedIndex]=null;
+    }
+    </script>
+    <title>Document</title>
+</head>
+<body>
+
+ <input type="checkbox" name="체크?" id="">체크<br>
+ <input type="password" name="" id=""><br>
+ <input type="button" value="?"><br>
+ <input type="file" name="" id=""><br>
+<input type="submit" value="제출하시오"><br>
+<input type="radio" name="하하호호" id=""><br>
+<input type="reset" value=""><br> 
+<input type="text" name="" id=""><br>
+<input type="hidden" name=""><br>
+
+</body>
+</html>
+```
+
