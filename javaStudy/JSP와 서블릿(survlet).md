@@ -1,5 +1,9 @@
 # JSP와 서블릿(survlet)
 
+#### 참고 
+
+Servlet 3.1 API - Apache Tomcat 8.0.53 나 다른 것을 참고하자
+
 #### 네트워크
 
 1. 사전적 의미로는 망형 조직
@@ -25,14 +29,14 @@ Internet -일반적으로 알고 있는 인터넷
 
 internet-내부 네트워크 의미
 
-| 이름   | 프로토콜       |      |      |
-| ------ | -------------- | ---- | ---- |
-| www    | http           |      |      |
-| Email  | SMTP/POP3/IMAP |      |      |
-| FTP    | ftp            |      |      |
-| telnet | telnet         |      |      |
-| DNS    | DNS            |      |      |
-| News   | NNTP           |      |      |
+| 이름   | 프로토콜       | 포트       | 기능                    |
+| ------ | -------------- | ---------- | ----------------------- |
+| www    | http           | 80         | 웹서비스                |
+| Email  | SMTP/POP3/IMAP | 25/110/114 | 이메일 서비스           |
+| FTP    | ftp            | 21         | 파일 전송 서비스        |
+| telnet | telnet         | 23         | 원격 로그인             |
+| DNS    | DNS            | 83         | 도메인 이름 변환 서비스 |
+| News   | NNTP           | 119        | 인터넷 뉴스 서비스      |
 
 #### 웹 서버 클라이언트
 
@@ -464,4 +468,811 @@ out.println(now);
 </body>
 </html>
 ```
+
+
+
+
+
+### 정리해보자.
+
+1. hello.jsp요청시 컴파일(.class) -메모리 로딩- 객체 생성- init(),한번만 수행-service()-destory()한번만 수행 하며 container에서 나갈때 . 그래서 2번쨰 요청시 service만 요청된다. (스레드 방식으로 진행되기에 속도가 굉장히 빠르다)
+
+
+
+### servlet spec 만들시 준수해야하는 것
+
+1. 패키지 선언
+
+2. 실행을 container가 하기 떄문에 외부에서 접근 가능하게 하기위해서 public class로 선언
+
+3. (자바는 객체지향이기에 상속받으면 된다) HttpServlet 상속 받고
+
+4. life cycle 메서드 override (필요한것만)  반드시 해야하는 것은 service(),doGet(),doPost(),doPut()등 ㄴservice,get,post,put 등 은 방식이기에  하나가 반드시 들어가야 한다. 
+
+   `service(HttpServletRequest request, HttpServletRespose respose) throws ServletException,IOException{}` 을 반드시 선언해주어야 한다.
+
+##### JSP Spec 만들시 준수해야하는 것
+
+1. 정적 페이지 선언 <와 %@은 반드시 붙여 쓰여야 한다. `<%@ page .......%> `
+
+
+
+# Servlet
+
+### 개요
+
+1. 프로그램에서 HTML핸들링시 개발과 관리가 어려웠다.
+2. JSP스트립팅 기술은 핸들링이 가능하게 했으며 컨텐츠 관리가 쉬워졌지만 관리는 이전보다 어려워졌다.
+3. 그래서 MVC패턴이 주목받기 시작했다.
+   - 모델 자바클래스(DAO,DO)
+   - 뷰(JSP,JSPT)
+   - 컨트롤러(서블릿)
+4. 장점
+   - 자바API모두 사용 가능
+
+### 서블릿 컨테이너
+
+- 서블릿 컨테이너는 ....
+
+### 서블릿 구조
+
+### HttpServleRequest 클래스
+
+- doGet
+
+### header에 포함된 것을 확인해보자(이클립스에서)
+
+`response.setContentType("text/html;charset=utf-8");//응답 받기
+		PrintWriter out=response.getWriter();`  응답 받고 불러내기(?)위해서 이 두줄을 꼭 작성해준다.
+
+web Server- Http listner-servlet COntainer JVM -headerinfo 를 가져와서 뽑아내는 것이 밑의 결과이다.
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class Headerinfo
+ */
+@WebServlet("/header")
+public class Headerinfo extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+   
+    public Headerinfo() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html;charset=utf-8");//응답 받기
+		PrintWriter out=response.getWriter();
+		  out.print("<html>");
+          out.print("<head><title>Headerinfo </title></head>");
+          out.print("<body>");
+          out.print("<h3>Request Header정보</h3>");
+          out.print("<ul>");
+          Enumeration<String> headerName=request.getHeaderNames();
+         while(headerName.hasMoreElements()) {
+        	 String name= headerName.nextElement();
+        	 out.print("<li>"+name+":");
+        	 Enumeration<String> values=request.getHeaders(name);
+        	 while(values.hasMoreElements()) {
+        		 out.print(values.nextElement()+",");
+        	 }
+        	 out.print("</li>");
+         }
+         out.print("<li>요청 메소드 :"+request.getMethod() +"</il>");
+         out.print("<li>요청한 client의 IP:"+ request.getRemoteAddr()+"</li>");
+         out.print("<li>conTextpath:"+request.getContextPath()+"</li>");
+         out.print("<li> requestURI"+request.getRequestURI()+"</li>");
+         out.print("<li>requestURL"+request.getRequestURL()+"</li>");
+         out.print("<li>servlet"+request.getServletPath()+"</li>");
+         out.print("</body></html>");
+	}
+
+}
+
+```
+
+### post,get 방식으로 아이디와 비밀번호, 그 외를 뽑아와 보자.
+
+
+
+우선 html 구성 (이름은 login.html)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Document</title>
+</head>
+<body>
+    <h3>회원가입 페이지</h3>
+    <form id="f1" action="./response" method="post">
+    userid:<input type="text" name="userid" ><br>
+    password: <input type="password" name="userpwd"><br>
+    <input type="hidden" name="address" value="서울"><br>
+    관심사항 : <input type="checkbox" name="interest" value="영화">영화 
+    <input type="checkbox" name="interest" value="게임">게임 
+    <input type="checkbox" name="interest" value="경제">경제 
+    <input type="checkbox" name="interest" value="여행">여행 
+    <input type="checkbox" name="interest" value="낚시">낚시 
+    <input type="checkbox" name="interest" value="등산">등산 <br>
+
+    <input type="submit" value="회원가입">
+    <input type="reset"  value="취미"><br>
+    
+    
+    </form>
+</body>
+</html>
+```
+
+ 이클립스로 만든 servlet구성(이름은 response.java)
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/response")
+public class response extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+   
+    public response() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	
+
+
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");//다시 인코딩 위해서 이것을 안하면 깨진다.
+		response.setContentType("text/html;charset=utf-8");//응답 받기
+		PrintWriter out=response.getWriter();
+		  out.print("<html>");
+          out.print("<head><title>Headerinfo </title></head>");
+          out.print("<body>");
+          out.print("<h3>Request로 파라미터 처리</h3>");
+          out.print("<ul>");
+          out.print("<li> userid:"+request.getParameter("userid")+"</li>");
+          out.print("<li> userpwd:"+request.getParameter("userpwd")+"</li>");
+          out.print("<li> address:"+request.getParameter("address")+"</li>");
+          String interest[]=request.getParameterValues("interest");
+          out.print("<li> 관심사항: ");
+          for(String inter: interest) {
+        	  out.print(inter+", ");
+          }
+          out.println("</li>");
+          out.print("</body>/</html>");
+          
+		
+	}
+
+}
+
+```
+
+실행하기 위해서 이클립스에서
+
+1. webContent 에 html 파일을 붙여넣기해서 넣어주고
+2. src안에 java파일의 이름은 ` <form id="f1" action="./response" method="post">` html파일에 미리 저장된 action의 이름으로 지정해 주며 method가 포스트 이므로 post로 해준다. action의 이름으로 mapping을 바꾸어도 된다.
+
+### upload 
+
+1번째 업로드
+
+multipart.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Multi partition 실습</title>
+<style>
+input{
+margin:2px;}
+</style>
+
+</head>
+<body>
+<h2>mutipart/form-data 실습</h2>
+<form action="./part" method="post" enctype="multipart/form-data">
+<label>작성자 이름: <input type="text" name="nyname"/></label><Br>
+<label>작성자 폰 번호: <input type="text name="myphone"/></label><br>
+<label>첨부파일 : <input type="file" name="myfile" multiple/></label><br>
+<input type="submit" value="전송" />
+</form>
+</body>
+</html>
+```
+
+
+
+```java
+package core;
+
+import java.io.IOException;
+import java.util.Collection;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
+
+@WebServlet("/part")
+@MultipartConfig
+public class part extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+ 
+    public part() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Collection<Part>parts=request.getParts();
+		System.out.println("===========요청 받음==========");
+		for(Part part:parts) {
+			System.out.print("name: ");
+			System.out.println(part.getName());
+			System.out.println("[헤더 정보]");
+			for(String headerName : part.getHeaderNames()) {
+				System.out.println(headerName+":");
+				System.out.println(part.getHeader(headerName));
+			}
+		System.out.println("size: ");
+		System.out.println(part.getSize());
+		System.out.println("--------------------------");
+		}
+	}
+
+}
+
+```
+
+System.out.print로 빼는 경우 이클립스 안에서 결과창이 뜬다.
+
+2번째
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>fileupload 실습</title>
+<style>
+input{
+margin:2px;}
+</style>
+</head>
+<body>
+<h2>
+Fileupload실습
+</h2>
+<form method="post" action="./load" enctype="multipart/form-data">
+작성자<input type="text" name="theAuthor"><br>
+나이<input type="text" name="theAge"><Br>
+파일<input type="file" name="theFile" multiple><br>
+<input type="submit" value="업로드">
+</form>
+</body>
+</html>
+```
+
+
+
+```java
+package core;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
+
+@WebServlet("/load")
+@MultipartConfig (location ="c:/uploadtest",maxFileSize=1024*1024*5,maxRequestSize=1024*1024*5*5)
+public class load extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    
+    public load() {
+        super();
+       
+    }
+
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		request.setCharacterEncoding("utf-8");
+        //인코딩시 글자가 깨지는 것을 방지해준다.
+		String path="C:/uploadtest";
+		File isDir= new File(path);
+		if(!isDir.isDirectory()) {
+			isDir.mkdirs();
+		}
+		Collection<Part>parts=request.getParts();
+		for(Part part : parts) {
+			if(part.getContentType() != null) {
+				String fileName=part.getSubmittedFileName();
+				if(fileName !=null) {
+					part.write(fileName.substring(0,fileName.lastIndexOf("."))+"_"+System.currentTimeMillis()+fileName.substring(fileName.lastIndexOf(".")));
+					out.print("<br>업로드한 파일 이름:"+fileName);
+					out.print("<br>크기:"+part.getSize());
+				}
+			}else {
+				String partName=part.getName();
+				String fieldValue=request.getParameter(partName);
+				out.print("<Br>"+partName+":"+fieldValue);
+			}
+		}
+		out.close();
+	}
+
+}
+
+```
+
+`PrintWriter out=response.getWriter();` 를 작성후 out.print() 내용을 작성하면 다음 페이지로 넘어갈때 body에 내용이 출력된다.
+
+### Request Dispatcher(요청재지정)
+
+- 클라이언트에서 응답 대신 다른 자원(Servlet,JSP,HTML등)의 수행 결과를 클라이언트 대신에 응답하는 기능으로 redirect방법과 forward방법으로 나뉜다. 
+
+- forword는 동일 서버에서도 동일 웹 애플리케이션의 자원으로만 요청 재지정 가능하다. 클라이언트에서는 요청 재지정됐는지 모른다. 
+
+  - RequestDispatcher 객체의 forward()메서드 사용
+  - `RequestDispatcher rd=request.getRequestDispatcher("/루트.html"); rd.forward(request,response);` 
+
+- redirect 는 클라이언트로부터 수행을 요청받은 A가 302응답 코드와 응답할 B자원에 대한 URL정보로 응답한다. 즉 클라이언트는 요청이 재지정된 사실을 알 수 있으며 동일 서버 뿐만이 아닌 다른 웹사이트의 자원으로도 요청 재지정이 가능하다.
+
+  - `response.sendRedirect("루트.html");`
+
+    response.sendRedirect("http://www.naver.com");`
+
+  -  요청 재지정 제한이 없다.
+
+파라미터 추출 해서 request.setAttribute("key",value)에 저장해서 다른 jsp나 다른 subject에 보낼 수 있다.그래서 우리는 응답 내용이 처음에 보낸 메세지와 중간에 추가된 메세지가 합쳐진 것이 나오는지 확인해보자! 
+
+WEBContent가 아닌 WEB-INF아래의 view파일을 하나 생성하고
+
+그 안에 message.jsp와 result.jsp두가지를 만들어 보자.
+
+직접 브라우저에 작성해서 두 파일을 읽으려 하면 보안 문서이기에 읽히지 않지만 불러 오고 싶으므로 그 방법은 아래와 같다.
+
+message.jsp
+
+```java
+<%@ page language="java" contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>message.jsp</title>
+</head>
+<body>
+<form id ="f1" action="./message" method="post" >
+메세지 입력하세요<br>
+<input type="text" name="msg" size=100><br>
+<input type="submit" value="전송">
+</form>
+</body>
+</html>
+```
+
+result.jsp
+
+```java
+<%@ page language="java" contentType="text/html; charset=utf-8"
+    pageEncoding="utf-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>result.jsp</title>
+<style>
+#blue{color:blue;
+font-size:20px;}
+#green{color:green;
+font-size:20px;}
+</style>
+</head>
+<body>
+<h3>전송결과</h3>
+message.jsp에서 보낸 파라미터 메시지:
+<p id="blue">
+<%
+out.println(request.getParameter("msg")+"<Br>" );
+%></p>
+MessageServlet에서 보낸 추가 정보:
+<p id="green">
+<% 
+ String msg2=(String)request.getAttribute("msg2");
+out.println(msg2+"<Br>");
+%>
+</body>
+</html>
+```
+
+
+
+forwardServlet.java
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/message")
+public class ForwardServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+   ServletContext sctx;    
+   RequestDispatcher rd;
+    public ForwardServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		sctx=request.getServletContext();//현재 관련된 웹 컨테스트 객체가 리턴된다. 파일업로드의 절대경로. 
+		rd=sctx.getRequestDispatcher("/WEB-INF/view/message.jsp");//직접 요청을 못하고 servlet에서 경유해서 연결되게 요청을 한다.브라우저에 저 상태로 작성하면 직접 접근 못한다.
+		rd.forward(request, response);
+		
+	}
+
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		//추가 정보를 request한거다.
+		request.setAttribute("msg2", "akasha.park@gmail.com");
+		sctx=request.getServletContext();//현재 관련된 웹 컨테스트 객체가 리턴된다
+		rd=sctx.getRequestDispatcher("/WEB-INF/view/result.jsp");//직접 요청을 못하고 servlet에서 경유해서 연결되게 요청을 한다.브라우저에 저 상태로 작성하면 직접 접근 못한다.
+		rd.forward(request, response);
+		
+	}
+
+}
+
+```
+
+send.java
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/send")
+public class send extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	ServletContext sctx;    
+	   RequestDispatcher rd;
+    
+    public send() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		
+		//추가 정보를 request에 저장
+		request.setAttribute("msg2", "thdusin@naver.com");
+		sctx=request.getServletContext();//현재 관련된 웹 컨테스트 객체가 리턴된다
+		rd=sctx.getRequestDispatcher("/WEB-INF/view/result.jsp");//직접 요청을 못하고 servlet에서 경유해서 연결되게 요청을 한다.브라우저에 저 상태로 작성하면 직접 접근 못한다.
+		rd.forward(request, response);
+		
+		
+	}
+
+
+	
+
+}
+
+```
+
+forwardServlet.java와 send.java는 다른 페이지이지만 결과페이지는 result로 보아진다. 이를 확인해 보자. 또한 추가되는 내용도 다르게 된다. 그 다름또한 확인해보자.
+
+
+
+
+
+#### 상태정보 관리
+
+웹의 통신 프로토콜은 요청-응답 프로토콜인데 웹브라우저에서 웹서버에 정보를 요청하면서 만들어진 결과물을 **상태 정보**라 한다.예를 들어 로그인 할때의 사용된 회원 아이디 , 비밀번호 등이다. HTTP프로토콜은 기본적으로 Stateless라 정보를 저장하지않지만 유지해야하는 정보가 필요한 경우가 있다. 상태 정보 유지가 필요한데 방법은 총 4가지로
+
+1. Cookie기술을 이용한 방법
+2. HttpSession기술 이용
+3. URL문자열 뒤에 추가하는 방법-정보유지 일회
+4. < form>태그의 hidden타입을 사용하는 방법-정보유지 일회
+
+- 쿠기 정보는 각 클라이언트별 상태 정보를 브라우저 안에 저장하는 것으로 중요 정보는 저장하면 안된다. 저장위치가 클라이언트이므로 웹서버에 부담이 없다
+
+
+
+### 쿠기 정보를 확인하자
+
+CookieLoginServlet.java
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/cookieLogin")
+public class CookieLoginServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	String uid=null,passwd=null;
+	ServletContext sctx=null;
+	RequestDispatcher rd=null;
+	
+    public CookieLoginServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		//get 방식으로 접근하는 경우에 쿠키를 체크한다.
+		Cookie cookies[]=request.getCookies();
+		if(cookies!=null) {
+			for(int i=0;i<cookies.length;i++) {
+				String name=cookies[i].getName();
+				if(name.equals("userid")) {
+					uid=cookies[i].getValue();
+					//System.out.println(uid);
+				}
+				
+			}
+			request.setAttribute("userid", uid);
+		}
+		sctx=request.getServletContext();//현재 관련된 웹 컨테스트 객체가 리턴된다
+		rd=sctx.getRequestDispatcher("/cookie_login.jsp");//직접 요청을 못하고 servlet에서 경유해서 연결되게 요청을 한다.브라우저에 저 상태로 작성하면 직접 접근 못한다.
+		rd.forward(request, response);
+	
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		uid =request.getParameter("userid");
+		passwd=request.getParameter("passwd");
+		String useCookie=request.getParameter("cookie");
+		
+		if(useCookie!=null) {
+			Cookie uidCookie=new Cookie("userid",uid);
+			uidCookie.setMaxAge(60*60*24*365);//365일 동안 저장한다는 뜻
+			response.addCookie(uidCookie);
+		}
+		if(uid.equals("admin")&&passwd.equals("1234")) {//DB연결을 안했기 때문에 강제적으로 정해주었다. 로그인 가능 아이디와 비밀번호를 
+			request.setAttribute("userid", uid);
+			sctx=request.getServletContext();//현재 관련된 웹 컨테스트 객체가 리턴된다
+			rd=sctx.getRequestDispatcher("/main.jsp");//직접 요청을 못하고 servlet에서 경유해서 연결되게 요청을 한다.브라우저에 저 상태로 작성하면 직접 접근 못한다.
+			rd.forward(request, response);
+		}else {
+			out.println("<script>");
+			out.println("alert(\'아이디 또는 비밀번호 오류입니다.\')");
+			out.println("location.href=\"./cookie_login.jsp\"");
+			out.println("</script>");
+		}
+	}
+
+}
+
+```
+
+cookie_login.jsp 
+
+```
+<%@ page contentType="text/html; charset=utf-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>사용자 로그인</title>
+</head>
+	
+	<body><h3 id='header'>사용자 로그인</h3>
+	<div id='main' style='text-align:center'>
+		<br><br> 
+		<form method=post action="cookieLogin">
+		<table style='border:1px #0000FF dotted;text-align:center'>
+		  <tr><td>사용자 ID </td>
+		     <%
+		     if(request.getAttribute("userid")==null){
+		    %>
+		    <td><input type=text name=userid></td></tr>
+		    <%}else{
+		    String uid=(String)request.getAttribute("userid");
+		   %>
+		    <td><input type=text name=userid value="<%=uid%>"></td></tr> 
+		     <%} %>
+		  
+		    
+		  <tr><td>사용자 암호 </td>
+		    <td><input type=password name=passwd></td></tr>
+		  <tr><td>아이디 저장 사용 </td>
+		    <td><input type=checkbox name=cookie></td></tr>			
+		  <tr><td colspan=2 style='text-align:right'>
+			<input type=submit value='로그인'>
+			<input type=reset value='취소'></td></tr>
+		</table>
+	</form></div></body></html>
+```
+
+main.jsp
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=utf-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%=request.getAttribute("userid") %>님 환영합니다.<br>
+<a href="cookieLogout"><button>로그아웃</button></a><br>
+</body>
+</html>
+```
+
+CookieLogoutServlet.java
+
+쿠기 정보를 삭제하는 것을 작성해 보았다.
+
+
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/cookieLogout")
+public class CookieLogoutServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+      ServletContext sctx=null;
+      RequestDispatcher rd=null;
+   
+    public CookieLogoutServlet() {
+        super();
+        
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html);charset=utf-8");
+		PrintWriter out=response.getWriter();
+		Cookie[] cookies=request.getCookies();
+		if(cookies!=null) {//쿠기 값이 있다면
+			for(int i=0;i<cookies.length;i++) {
+				if(cookies[i].getName().equals("userid")) {
+					cookies[i].setMaxAge(0);//이것은 쿠키값을 삭제하는 것!!
+					response.addCookie(cookies[i]);//삭제된 쿠키값 돌려놓기
+					
+				}
+			}
+		}
+		sctx=request.getServletContext();
+		rd=sctx.getRequestDispatcher("/logout.jsp");
+		rd.forward(request, response);
+		
+	}
+
+}
+
+```
+
+logout.jsp
+
+```java
+<%@ page contentType="text/html; charset=utf-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script>
+alert("로그아웃 되었습니다. \n 쿠기 정보 삭제되었다/.")
+location.href="./cookie_login.jsp";
+</script>
+</body>
+</html>
+```
+
+
 
