@@ -585,6 +585,10 @@ public class Headerinfo extends HttpServlet {
 
 ```
 
+
+
+
+
 ### post,get 방식으로 아이디와 비밀번호, 그 외를 뽑아와 보자.
 
 
@@ -1276,3 +1280,1160 @@ location.href="./cookie_login.jsp";
 
 
 
+# 지금까지의 내용 한번 정리
+
+- http 요청 메세지로부터 헤더정보 추출?
+
+1. http://ip:port/web1/header 요청 => @WebServlet("/header")
+
+2. HttpServletRequest.getHeaderName():Enumeration< String>
+3. Enumeration.hasMoreElement() : boolean
+4. Enumeration.nextElement():String
+5. HttpServletRequest.getHeader(): header이름으로 저장된 value를 반환(String)
+6. HttpServletRequest.getHeaders():header이름으로 저장된 value가 하나 이상이면 반환
+
+- http 요청 메시지를 번송한 클라이언트 ip정보 추출?1. HttpServletRequest.getRemoteAddr()
+- http 요청 메시지를 전송한 방식 정보 추출?
+  1. HttpServletRequest.getMethod()
+- WAS가 서비스하는 웹 컨텍스트를 생성하면 웹 컨텍스트를 추상화한 객체: Servlet
+- 요청한 웹 컨텍스트의 객체를 반환하는 메서드
+  - HttpServletRequest.getServletContext()
+- 클라이언트가 form태그내에 data를 서버 웹 컴포넌트로 전송, 서버 웹 컴포넌트에서 클라이언트가 보낸 form데이터를 추출하려면?
+  - HttpServletRequest.getParameter("input요소의 name속성값 이 와야한다.")
+- checkbox input요소(여러 속성이 다양한 이름속성을 가진다. String[] 반환이다.checked된 요소가 다양하기 때문에 이 value들을 추출하려면 
+  - HttpServletRequest.getParameterValues("input 요소의 name속성값")
+
+예를 들어보자.
+
+1. memberform.html요청(단순페이지요청:GET방식
+
+2. HttpListener가 html페이지 응답
+
+3. 클라이언트가 데이터 입력하고 form data전송
+
+   < form acton="./join" method=" " encType="multipart/form-data "에 선언되는 속성값도 외워야한다.>
+
+4. @WebServlet("/join") 선언된 서블릿이 요청받는다.
+
+5. 파일업로드에 처리하는 서블릿에 선언한 Annotation은?
+
+   - @MultipartConfig(location=" ",masFileSize="" 기본이 byte크기,maxRequestSize="") 
+
+6. 업로드된 파일의 메타정보, 스트림등을 추출하기 위해 반환 객채? 
+
+   - HttpServletRequest.getPart() : 하나의 part객체 리턴
+   - HttpServletRequest.getParts(): 여러개의 part객체를 Coolection< Part>에 담아서 리턴
+   - Part.getName():업로드된 파일 이름 반환
+   - Part.getContenType() :업로드된 파일의 내용 유형 반환
+   - Part.getSize(): 업로드된 파일 크기 반환
+   - Part.write(): 업로드된 파일을 @MultipartConfig의 location에 출력(서버에 파일로 기록)을 해야 파일로 저장되는데 이때사용하는 메서드
+
+요청을 동일한 웹 컨텍스트의 다른 Servlet또는 jsp에 전송가능
+
+1. ServletContext sc=ruquest.getServletContext()*;//요청 웹 컨텍스트를 받는다.
+2. RequestDispatcher rd=sc.getRequestDispacher*("/다른 servlet이나 jsp경로") 현재 웹 사이트 아래라는 뜻의 /꼭 넣어준다.다른 Servlet이나 jsp의 경로(보내기위해서)sc는 컨텍스트에 요청할 경로의 대한 정보를 가지고 있기 때문에 sc에서 불러온다.
+3. rd.forward(request,response)-요청을 다른곳에 보내기위해서이며 추가적인 정보를 request에 저장할 수 있는데  HttpServletRequest.setAttribute(키로 사용될 객체, 키로 저장될 값 객체로 배열이나 값 가능)로 map구조로 여러개 저장 한다. 꺼내기 위해서는 HttpServletRequest.getAttribute(키); 이며 Object로 반환되므로 실제 저장한 타입으로 DownCasting해주어야 한다. 
+4. rd.include()-
+
+< a href="./xxx">요청전달< /a> 전송 방식은 Get방식으로 ./xxx?parmeterName=parameterValue&....의 방식으로 전달된다. url에 붙어서
+
+Http 특성
+
+1. 요청을 보낼때 Connection 되고, 응답이 전송되고 나면 disconnect된다.=비 연결형 프로토콜(protocol)
+2. 상태정보를 저장할 방법
+   1. 클라이언트 브라우저(key=value) - cookie, setMaxAge()로 유효기간을 지정가능
+   2. url의 쿼리 스트링으로 요청시마다 전송으로 url문자열 뒤에 추가하는 방법
+   3. 요청을 전송하는 페이지에 form요소로 < input type="hidden" name="" value=""> 히든 태그로 보내기
+   4. 웹 서버에 객체로 저장:Session , 클라이언트의 브라우저 종료되어 세션이 종료될때 까지만 정보유지
+
+클라이언트가 특정 웹서버로 (tomcat)로 최초 요청을 전송 하면 응답을 하게 되는데
+
+1. 웹서버(tomcat)가 클라이언트 요청에 대해 응답을 할때 JSessionID값을 생성해서 쿠키로 전송
+2. 클라리언트가 웹 서버로 두번째, 세번째,...요청할때 마다 브라우저 자체적으로 요청웹 서버에서 보내준 쿠기 정보를 찾아서 리퀘스트시마다 전송 
+3. 웹 서버의 웹 컴포넌트(서블릿)에서 요청과 함께 넘어온 쿠키정보 추출하려면  
+   - HttpServletRequest.getCookies():Cookie[]로 리턴된다.(여러개로 저장된다.)
+
+new Cookie(key,name) 객체를 응답으로 전송하려면
+
+- HttpServletResponse.addCookie()
+
+1. http://ip:poart/web1/cookieLogin 요청(GET방식)
+2. @WebServlet("/cookieLogin")서블릿의 doGet() 요청 처리
+   - 쿠기 정보 추출 request.getCookies(), userid로 저장된 값 검색
+   - 추출한 쿠기 정보를 request.setAttribute("userid" 쿠키값);
+   - RequestDispatcher를 사용해서 /cookie_login.jsp로 전송 
+3. form태그 전송 (action="cookieLogin" method="post")
+4. @WebServlet("/cookieLogin")서블릿의 doPost() 요청 처리
+   - 로그인 처리
+   - 아이디 저장 checkbox선택된 경우 userid를 쿠키로 저장(response에 addcookie)
+   - RequestDispatcher를 사용해서 /main.jsp로 전송
+5. main.jsp에서 로그아웃 (/cookiLogout) 요청(버튼인데 앵커 태그로 묶었다. GET방식)
+6. @WebServlet("/cookieLogout")서블릿의 doGet()에서 요청 처리 
+   - 쿠키 정보 삭제  request.getCookies(),쿠키 정보 추출해서 cookie.setMaxage(0)으로 설정
+   - RequestDispatcher를 사용해서 다시 로그인 페이지로. 넘기는 방법은 두가지 1. (/cookieLogin) 이나 2.(/cookie_login.jsp)
+
+# Session
+
+### JSESSIONID 
+
+- HttpSession 객체가 생성될 떄 세션 ID가 하나 부여되며 Cookie기술을 이용해서 저장하며 최대 유지 시간은 브라우저 구동 동안이며 또한 일정 시간 동안 응답이 없으면 (기본30분) 서버에 생성된 HttpSession객체는 더이상 사용 못한다.
+
+### 상태정보 유지 과정
+
+- HttpSession객체 생성,추철
+  - HttpSession session=request.getSession();
+- HttpSession객체에 상태 정보 보관 객체 등록(한번만 등록한다.)
+  - session.setAttribute("xx",new data());
+- HttpSession객체에 참조값을 얻어 사용(읽기,변경)
+  - Dage ref
+
+
+
+
+
+### Session확인해보자
+
+```java
+package core;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Date;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+@WebServlet("/sessiontest")
+public class SessionTestServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    
+    public SessionTestServlet() {
+        super();
+       
+    }
+
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		String command=request.getParameter("comm");
+		HttpSession session=request.getSession();
+		String msg="";
+		long time=session.getCreationTime();//객체가 생성된 시간 추축
+		String id=session.getId();//객체의 세션 ID추출
+		if(command.equals("view")) {
+			if(session.isNew()) {
+				msg="세션 객체 생성:";
+				
+			}else {
+				msg="세션객체 추출:";
+				
+			}
+			msg+="<br>id: "+id+"<br>time: "+new Date(time);
+		}else if(command.equals("delete")) {
+			session.invalidate();//객체 삭제
+			msg=id+"을 id로 갖는 세션 객체 삭제";
+		}else {
+			msg="요청시 Query문자열로 comm=view 또는 comm=delete를"+"전달해주세요!";
+		}
+		out.print("<h2>"+msg+"</h2>");
+		out.close();
+	}
+
+}
+
+```
+
+- 브라우저 마지막에 ?comm=view
+- ?comm=delete를 작성해 보자 결과값확인!
+
+### 로또 번호 
+
+```java
+package core;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+@WebServlet("/lottolimit")
+public class LottoServletLimit extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+   
+    public LottoServletLimit() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html;charset=utf-8");
+		HttpSession session=request.getSession();//HttpSession객체의 세션ID추출
+		if(session.getAttribute("lottocnt")==null) {
+			session.setAttribute("lottocnt", new int[1]);
+		}
+		int[] count=(int[])session.getAttribute("lottocnt");
+		String msg="";
+		if(++count[0]>3) {
+			msg="<h3>더이상 응모할 수 없습니다.브라우저를 재시작하여 응모하세요.</h3>";
+		}else {
+			int answer=(int)(Math.random()*10)+1;
+			int input=Integer.parseInt(request.getParameter("guess"));
+			if(answer==input){
+				msg="<h3>축하합니다. 당첩이예요!</h3>";
+				count[0]=4;
+			}else {
+				msg="<h3><strong>꽝</strong>입니다.</h3><a href='"+request.getHeader("referer")+"'>재도전</a>";
+			}
+		}
+		PrintWriter out=response.getWriter();
+		out.print(msg);
+		out.close();
+	}
+
+}
+
+```
+
+### session에 저장된 아이디 비밀번호 확인
+
+main1.jsp
+
+```html
+<%@ page language="java" contentType="text/html; charset=utf-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h3>회원전용 페이지</h3>
+<%
+String uid=null;
+uid=(String)session.getAttribute("userid");//세션에 유저아이디를 저장한다.
+if(uid!=null){
+%>
+
+<%= uid %>님 환영합니다.^^
+<a href="cookieLogout"><button>로그아웃</button></a><br>
+<img src="./images/dog.jpg"><br>
+<%
+}else{
+%>
+ <script>
+	alert("회원 전용 페이지입니다.\n 로그인 페이지로 이동합니다.");
+	location.href="./cookieLogin";
+ </script>
+
+<%} %>
+
+</body>
+</html>
+```
+
+
+
+LoginServlet.java
+
+밑의 두줄을 추가한다.
+
+`HttpSession session=request.getSession();`
+
+`session.setAttribute("userid", uid);`
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+@WebServlet("/cookieLogin")
+public class CookieLoginServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	String uid=null,passwd=null;
+	ServletContext sctx=null;
+	RequestDispatcher rd=null;
+	
+    public CookieLoginServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		//get 방식으로 접근하는 경우에 쿠키를 체크한다.
+		Cookie cookies[]=request.getCookies();
+	
+		if(cookies!=null) {
+			for(int i=0;i<cookies.length;i++) {
+				String name=cookies[i].getName();
+				if(name.equals("userid")) {
+					uid=cookies[i].getValue();
+					//System.out.println(uid);
+				}
+				
+			}
+			request.setAttribute("userid", uid);
+		}
+		sctx=request.getServletContext();//현재 관련된 웹 컨테스트 객체가 리턴된다
+		rd=sctx.getRequestDispatcher("/cookie_login.jsp");//직접 요청을 못하고 servlet에서 경유해서 연결되게 요청을 한다.브라우저에 저 상태로 작성하면 직접 접근 못한다.
+		rd.forward(request, response);
+	
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		uid =request.getParameter("userid");
+		passwd=request.getParameter("passwd");
+		String useCookie=request.getParameter("cookie");
+		
+		if(useCookie!=null) {
+			Cookie uidCookie=new Cookie("userid",uid);
+			uidCookie.setMaxAge(60*60*24*365);
+			response.addCookie(uidCookie);
+		}
+		HttpSession session=request.getSession();//세션에 저장하기 위해 추가했다.
+		if(uid.equals("admin")&&passwd.equals("1234")) {
+			session.setAttribute("userid", uid);//세션에 저장하기위해 추가했다.
+			request.setAttribute("userid", uid);
+			sctx=request.getServletContext();//현재 관련된 웹 컨테스트 객체가 리턴된다
+			rd=sctx.getRequestDispatcher("/main1.jsp");//직접 요청을 못하고 servlet에서 경유해서 연결되게 요청을 한다.브라우저에 저 상태로 작성하면 직접 접근 못한다.
+			rd.forward(request, response);
+		}else {
+			out.println("<script>");
+			out.println("alert(\'아이디 또는 비밀번호 오류입니다.\')");
+			out.println("location.href=\"./cookie_login.jsp\"");
+			out.println("</script>");
+		}
+	}
+
+}
+
+```
+
+
+
+LogoutServlet.java
+
+밑의 세줄을 추가한다.
+
+`HttpSession session=request.getSession();`
+
+`session.removeAttribute("userid");`
+
+`session.invalidate();//세션만료시킴,세션 객체 삭제`
+
+```html
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+@WebServlet("/cookieLogout")
+public class CookieLogoutServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+      ServletContext sctx=null;
+      RequestDispatcher rd=null;
+   
+    public CookieLogoutServlet() {
+        super();
+        
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html);charset=utf-8");
+		PrintWriter out=response.getWriter();
+		Cookie[] cookies=request.getCookies();
+		HttpSession session=request.getSession();
+		if(cookies!=null) {
+			for(int i=0;i<cookies.length;i++) {
+				if(cookies[i].getName().equals("userid")) {
+					cookies[i].setMaxAge(0);
+					response.addCookie(cookies[i]);
+					
+					
+				}
+			}
+		}
+		session.removeAttribute("userid");
+		session.invalidate();//세션만료시킴,세션 객체 삭제
+		sctx=request.getServletContext();
+		rd=sctx.getRequestDispatcher("/logout.jsp");
+		rd.forward(request, response);
+		
+	}
+
+}
+
+```
+
+
+
+# 요청재지정(응답하기)
+
+RequestDispatcher(forward기능으로 요청 재지정)
+
+sendRedirect(redirect기능으로 요청 재지정) 
+
+- ("web url path방식") 
+- http://~~~
+- ./~
+- /web1/xxxx.jsp
+- 로 주소지정..?
+- 요청과 주소가 일치한다.
+- 다른 웹서버,동일서버 등 재지정대상 제한 없다.
+- 동일서버에 재지정하면 request,response가 새로 생성된다. 아래 예제로 비교해보자.
+
+위치지정을 c:/testcontent/sample.html 이다.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <ul>
+        <li>자바스크립트</li>
+        <li>21</li>
+        <li>웹앱개발전용OOP언어</li>
+    </ul>
+</body>
+</html>
+```
+
+sample.xml
+
+```xml
+
+<textxml>
+<name>자바스크립트</name>
+<age>21</age>
+<kind>웹앱개발 전용 OOP언어</kind>
+</textxml>
+```
+
+sample.json
+
+```json
+{"name":"자바스크립트", "age":21, "kind":"웹앱개발 전용OOP언어"}
+```
+
+sample.trans_duke.png로 하나 저장하자.
+
+```java
+package core;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet({ "/getHTML", "/getXML", "/getJSON", "/getImage" })
+public class ResponseServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+   
+    public ResponseServlet() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	String uri =request.getRequestURI();
+	String filename= "";
+	String contentType="";
+	if(uri.endsWith("getHTML")) {
+		filename="c:/testcontent/sample.html";
+		contentType="text/html;charset=utf-8";
+		
+	}else if(uri.endsWith("getXML")) {
+		filename="c:/testcontent/sample.xml";
+		contentType="text/xml;charset=utf-8";
+	}else if(uri.endsWith("getJSON")){
+		filename="c:/testcontent/sample.json";
+		contentType="text/json;charset=utf-8";
+	}else {
+		filename="c:/testcontent/trans_duke.png";
+		contentType="image/png";
+	}
+	File f=new File(filename);
+	FileInputStream fis=new FileInputStream(f);
+	response.setContentType(contentType);
+	if(contentType.startsWith("image")) {
+		byte[] content=new byte[(int)f.length()];
+		ServletOutputStream sos=
+				response.getOutputStream();
+		fis.read(content);
+		sos.write(content);
+		sos.close();
+	}else {
+		InputStreamReader isr=new InputStreamReader(fis,"utf-8");
+		BufferedReader br=new BufferedReader(isr);
+		PrintWriter out=response.getWriter();
+		String line=null;
+		while((line=br.readLine())!=null)
+			out.println(line);
+		out.close();
+		br.close();
+		isr.close();
+	}
+	fis.close();
+	}
+
+}
+
+```
+
+확장자는 mimetype으로 검색하면 다양하게 알수 있다.
+
+### sendRed
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/PostServlet")
+public class PostServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+
+    public PostServlet() {
+        super();
+       
+    }
+
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=utf-8");
+		PrintWriter out=response.getWriter();
+		String msg=request.getParameter("msg");
+		request.setAttribute("address", "서울시 강남구 역삼동" );//추가정보로 보내려 한다.
+		//response.sendRedirect("./postResult.jsp");//이곳에 요청을 전달했따.request,response객체가 새로 생성된다.
+		response.sendRedirect("http://www.daum.net");
+	}
+
+}
+
+```
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+if(request.getParameter("msg")!=null&&request.getAttribute("address")!=null){
+	
+
+%>
+send.jsp에서 보낸 파라미터 메시지:<%=request.getParameter("msg") %><br>
+PostServlet에서 보낸 메시지:<%=request.getAttribute("address") %><Br>
+<%
+}else{%>
+sendRedirect()로 요청을 전달하면,
+요청된 페이지에 새로운request와 response객체가 전달되므로<br>
+파라미터와 Attribute를 request로부터 추출할 수 없다.<br>
+<%
+}%>
+</body>
+</html>
+```
+
+
+
+### 계산결과를 Ajax로
+
+```html
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>calc.jsp</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+ //action="./CalcServlet"  method="post"
+ $(document).ready(function(){
+	 $("#f1").submit( function(event){
+		 event.preventDefault();
+		 var n1 = $("#num1").val();
+		 var n2 = $("#num2").val();
+		 var op = $("#operator option:selected").val();		 
+		  $.ajax( {
+			    url  : "./CalcServlet",
+			    data : {"num1" : n1, "num2": n2, "operator" : op},
+				  success: function(data){ 
+					  console.log(data);
+					  $("#result").html("<mark>"+n1+op+n2+"="+data+"</mark>");
+				  }
+		  });
+		 
+	 })
+ });
+ 
+</script>
+</head>
+<body>
+<h3>계산기</h3>
+  <form id="f1" >
+   number1 :
+   <input type="text"  name="num1" id="num1"  ><br>
+   operator :
+   <select name="operator" id="operator">
+   <option value="+">+</option>
+   <option value="-">-</option>
+   <option value="*">*</option>
+   <option value="/">/</option>
+   </select>
+   <br>
+   number2 :
+   <input type="text"  name="num2"  id="num2" ><br>
+   
+   <input type="submit"  value="계산">
+  </form>
+  <hr>
+  계산결과 :  <span id="result"></span>
+</body>
+</html>
+```
+
+
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/CalcServlet")
+public class CalcServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+    public CalcServlet() {
+        super();
+
+    }
+
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/plain;charset=UTF-8");
+		PrintWriter out=response.getWriter();
+		request.getParameterValues("n1");
+		request.getParameter("op");
+		String n13=request.getParameter("op");
+		String n12[]=request.getParameterValues("n1");
+		int outint=0;
+
+		switch(n13){
+			case "+": outint=(Integer.parseInt(n12[0])+Integer.parseInt(n12[1]));break;
+			case "-": outint=(Integer.parseInt(n12[0])-Integer.parseInt(n12[1]));break;
+			case "x": outint=(Integer.parseInt(n12[0])*Integer.parseInt(n12[1]));break;
+			case "/": outint=(Integer.parseInt(n12[0])/Integer.parseInt(n12[1]));break;
+			}
+		out.print(outint);
+	
+//		ServletContext sc=request.getServletContext();
+//		RequestDispatcher rd=sc.getRequestDispatcher("/calcResult.jsp");
+//		request.setAttribute("outint", outint);
+//		rd.forward(request, response);
+//		
+	}
+
+}
+
+```
+
+사실 잘 안됐따...한번 해보자...
+
+### 상품 계산하기
+
+```java
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>calc.jsp</title>
+  
+</script>
+</head>
+<body>
+<h3>계산기</h3>
+  <form id="f1" action="./Price" method="post">
+  <table>
+   <tr><td width=150> 상품명</td><td width=150> 가격</td><td width=150> 수량</td>
+   <tr><td>
+   <input type="hidden"  name="snak1" id="snak"  value="새우깡" >
+   <br>
+   <img src="./images/shimp.jpg" width=100 height=100>
+   </td>
+   <td>
+   1500원
+   <input type="hidden"  name="price1" id="price"  value="1500" >
+   </td>
+   <td>
+   <select name="qty1" id="qty">
+   <option value="0">0</option>
+   <option value="1">1</option>
+   <option value="2">2</option>
+   <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+   </select>
+  </td>
+  </tr>
+   <tr><td>
+   <input type="hidden"  name="snak2" id="snak"  value="바나나퀵" >
+   <br>
+   <img src="./images/banana.jpg" width=100 height=100>
+   </td>
+   <td>
+   1000원
+   <input type="hidden"  name="price2" id="price"  value="1000" >
+   </td>
+   <td>
+   <select name="qty2" id="qty">
+   <option value="0">0</option>
+   <option value="1">1</option>
+   <option value="2">2</option>
+   <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+   </select>
+  </td>
+  </tr>
+   <tr><td>
+   <input type="hidden"  name="snak3" id="snak"  value="칸초" >
+   <br>
+   <img src="./images/ccancho.JPG" width=100 height=100>
+   </td>
+   <td>
+   1200원
+   <input type="hidden"  name="price3" id="price"  value="1200" >
+   </td>
+   <td>
+   <select name="qty3" id="qty">
+   <option value="0">0</option>
+   <option value="1">1</option>
+   <option value="2">2</option>
+   <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+   </select>
+  </td>
+  </tr>
+   </table>
+   <input type="submit"  value="계산">
+  </form>
+  <hr>
+  계산결과 :  <span id="result"></span>
+</body>
+</html>
+```
+
+
+
+# MVC패턴 적용 웹 어플리케이션
+
+- 스크립트,HTML태그와 함께 java코드 포함 view와 로직이 분리가 안되서 재사용성이 낮다. 페이지단위기 때문에 빨리 만들 수 있다.
+- Servlet->JSP->EJB(망함)-> MVC패턴 적용 웹 애플리케이션 구현(view페이지는 JSP,Controller 는 Servlet으로 만든다.,data영속성과 비지니스로직은 JavaObject로 만든다.)
+- 자바코드를 직접적으로 넣는 것을 권장하지 않는다.
+- JSP는  MVC구조에서 Veiw로만 제한하며, 태그와 EL(expression L)
+
+### JSP요소
+
+- 정적지시자 
+
+  - <%@ page~~~%>
+  - <%@ include~~~%>
+  - <%@ taglib~~~%>
+
+- 동적 지시자
+
+  - <jsp: include ~>< /jsp:include>
+  - < jsp:useBean~>< jsp:getProperty ~~ >< jsp:setProperty ~~~ >< /jsp:u
+
+- declare scriptlet
+
+  ```jsp
+  <%! 변수 선언 초기화; //변환된 서블릿의 멤버변수로 정의 
+  
+  	  public void method(){
+  
+     문장;
+  
+     }//변환된 서블릿의 멤버 메서드로 정의
+  
+  %>
+  ```
+
+  
+
+- scriptlet 
+
+  ```jsp
+  <%
+  
+  		자바실행 문장;//변환된 서블릿의 _service()의 실행문장으로 
+  
+  ...
+      %>
+  ```
+
+  
+
+- expression 
+
+  ```jsp
+  <%= 출력내용 %> //은 <% out.println(출력내용) %>와 동일하다.
+  ```
+
+
+
+### 한번 확인해보자
+
+```jsp
+<%@ page  contentType="text/html; charset=utf-8"%>
+<%!
+ int global=100;
+	public int method(int num){
+		int local=num;
+		return local*global;
+		
+	}
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+</head>
+<body>
+3+4:<%= 3+4 %><br>
+"jdk"+8:<%= "jdk"+8 %><br>
+global변수 :<%=global %><br>
+method(3)호출 결과: <%= method(3) %>
+<hr>
+<%
+out.print("3+4:"+(3+4)+"<br>");
+out.print("'jdk'+8:"+("jdk"+8)+"<br>");
+out.print("global변수 :"+(global)+"<br>");
+out.print("method(3)호출 결과:"+(method(3))+"<br>");
+%>
+</body>
+</html>
+```
+
+```java
+/*
+ * Generated by the Jasper component of Apache Tomcat
+ * Version: Apache Tomcat/9.0.21
+ * Generated at: 2019-06-28 08:40:46 UTC
+ * Note: The last modified time of this file was set to
+ *       the last modified time of the source file after
+ *       generation to assist with modification tracking.
+ */
+package org.apache.jsp;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import javax.servlet.jsp.*;
+
+public final class test1_jsp extends org.apache.jasper.runtime.HttpJspBase
+    implements org.apache.jasper.runtime.JspSourceDependent,
+                 org.apache.jasper.runtime.JspSourceImports {
+
+
+ int global=100;
+	public int method(int num){
+		int local=num;
+		return local*global;
+		
+	}
+
+  private static final javax.servlet.jsp.JspFactory _jspxFactory =
+          javax.servlet.jsp.JspFactory.getDefaultFactory();
+
+  private static java.util.Map<java.lang.String,java.lang.Long> _jspx_dependants;
+
+  private static final java.util.Set<java.lang.String> _jspx_imports_packages;
+
+  private static final java.util.Set<java.lang.String> _jspx_imports_classes;
+
+  static {
+    _jspx_imports_packages = new java.util.HashSet<>();
+    _jspx_imports_packages.add("javax.servlet");
+    _jspx_imports_packages.add("javax.servlet.http");
+    _jspx_imports_packages.add("javax.servlet.jsp");
+    _jspx_imports_classes = null;
+  }
+
+  private volatile javax.el.ExpressionFactory _el_expressionfactory;
+  private volatile org.apache.tomcat.InstanceManager _jsp_instancemanager;
+
+  public java.util.Map<java.lang.String,java.lang.Long> getDependants() {
+    return _jspx_dependants;
+  }
+
+  public java.util.Set<java.lang.String> getPackageImports() {
+    return _jspx_imports_packages;
+  }
+
+  public java.util.Set<java.lang.String> getClassImports() {
+    return _jspx_imports_classes;
+  }
+
+  public javax.el.ExpressionFactory _jsp_getExpressionFactory() {
+    if (_el_expressionfactory == null) {
+      synchronized (this) {
+        if (_el_expressionfactory == null) {
+          _el_expressionfactory = _jspxFactory.getJspApplicationContext(getServletConfig().getServletContext()).getExpressionFactory();
+        }
+      }
+    }
+    return _el_expressionfactory;
+  }
+
+  public org.apache.tomcat.InstanceManager _jsp_getInstanceManager() {
+    if (_jsp_instancemanager == null) {
+      synchronized (this) {
+        if (_jsp_instancemanager == null) {
+          _jsp_instancemanager = org.apache.jasper.runtime.InstanceManagerFactory.getInstanceManager(getServletConfig());
+        }
+      }
+    }
+    return _jsp_instancemanager;
+  }
+
+  public void _jspInit() {
+  }
+
+  public void _jspDestroy() {
+  }
+
+  public void _jspService(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response)
+      throws java.io.IOException, javax.servlet.ServletException {
+
+    if (!javax.servlet.DispatcherType.ERROR.equals(request.getDispatcherType())) {
+      final java.lang.String _jspx_method = request.getMethod();
+      if ("OPTIONS".equals(_jspx_method)) {
+        response.setHeader("Allow","GET, HEAD, POST, OPTIONS");
+        return;
+      }
+      if (!"GET".equals(_jspx_method) && !"POST".equals(_jspx_method) && !"HEAD".equals(_jspx_method)) {
+        response.setHeader("Allow","GET, HEAD, POST, OPTIONS");
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "JSP들은 오직 GET, POST 또는 HEAD 메소드만을 허용합니다. Jasper는 OPTIONS 메소드 또한 허용합니다.");
+        return;
+      }
+    }
+
+    final javax.servlet.jsp.PageContext pageContext;
+    javax.servlet.http.HttpSession session = null;
+    final javax.servlet.ServletContext application;
+    final javax.servlet.ServletConfig config;
+    javax.servlet.jsp.JspWriter out = null;
+    final java.lang.Object page = this;
+    javax.servlet.jsp.JspWriter _jspx_out = null;
+    javax.servlet.jsp.PageContext _jspx_page_context = null;
+
+
+    try {
+      response.setContentType("text/html; charset=utf-8");
+      pageContext = _jspxFactory.getPageContext(this, request, response,
+      			null, true, 8192, true);
+      _jspx_page_context = pageContext;
+      application = pageContext.getServletContext();
+      config = pageContext.getServletConfig();
+      session = pageContext.getSession();
+      out = pageContext.getOut();
+      _jspx_out = out;
+
+      out.write('\r');
+      out.write('\n');
+      out.write("\r\n");
+      out.write("<!DOCTYPE html>\r\n");
+      out.write("<html>\r\n");
+      out.write("<head>\r\n");
+      out.write("<meta charset=\"utf-8\">\r\n");
+      out.write("<title>Insert title here</title>\r\n");
+      out.write("</head>\r\n");
+      out.write("<body>\r\n");
+      out.write("3+4:");
+      out.print( 3+4 );
+      out.write("<br>\r\n");
+      out.write("\"jdk\"+8:");
+      out.print( "jdk"+8 );
+      out.write("<br>\r\n");
+      out.write("global변수 :");
+      out.print(global );
+      out.write("<br>\r\n");
+      out.write("method(3)호출 결과: ");
+      out.print( method(3) );
+      out.write("\r\n");
+      out.write("<hr>\r\n");
+
+out.print("3+4:"+(3+4)+"<br>");
+out.print("'jdk'+8:"+("jdk"+8)+"<br>");
+out.print("global변수 :"+(global)+"<br>");
+out.print("method(3)호출 결과:"+(method(3))+"<br>");
+
+      out.write("\r\n");
+      out.write("</body>\r\n");
+      out.write("</html>");
+    } catch (java.lang.Throwable t) {
+      if (!(t instanceof javax.servlet.jsp.SkipPageException)){
+        out = _jspx_out;
+        if (out != null && out.getBufferSize() != 0)
+          try {
+            if (response.isCommitted()) {
+              out.flush();
+            } else {
+              out.clearBuffer();
+            }
+          } catch (java.io.IOException e) {}
+        if (_jspx_page_context != null) _jspx_page_context.handlePageException(t);
+        else throw new ServletException(t);
+      }
+    } finally {
+      _jspxFactory.releasePageContext(_jspx_page_context);
+    }
+  }
+}
+
+```
+
+아래는 직접 파일에 찾아가 연결프로그램으로 열어본 것이다. 차이점을 한번 봐보자. 허나 이방법은 권장하지 않는다!!!! 주의하자.
+
+## page지시자
+
+#### error
+
+```jsp
+<%@ page  contentType="text/html; charset=utf-8" errorPage="error.jsp"%>
+<%!
+ int global=100;
+	public int method(int num){
+		int local=num;
+		return local*global;
+		
+	}
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+int result=5/0;
+%>
+</body>
+</html>
+```
+
+이렇게 만들면 에러페이지를 만들었기에 오류 메시지가 505..?가 아닌 403으로 뜨며
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=utf-8" isErrorPage="true"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+<%
+out.println(exception.getMessage());
+%>
+</body>
+</html>
+```
+
+이렇게 에러페이지를 만들어 주고 결과화면을 보면 깔끔하게 원인을 보여준다.
