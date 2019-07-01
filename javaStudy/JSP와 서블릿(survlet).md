@@ -2139,6 +2139,22 @@ public class CalcServlet extends HttpServlet {
   - <jsp: include ~>< /jsp:include>
   - < jsp:useBean~>< jsp:getProperty ~~ >< jsp:setProperty ~~~ >< /jsp:u
 
+- 자바 코드와 관련된JSP요소
+
+  - ```jsp
+    <%! 변수 선언 초기화://
+    메서드 정의//
+    %>
+    <% 
+    자바실행문장;//변환된 서블릿에 _jspService()에 포함...
+    %>
+    <%= 출력내용%>
+    <% out.print(출력내용);%>
+    ${출력내용}
+    ```
+
+  - 
+
 - declare scriptlet
 
   ```jsp
@@ -2437,3 +2453,530 @@ out.println(exception.getMessage());
 ```
 
 이렇게 에러페이지를 만들어 주고 결과화면을 보면 깔끔하게 원인을 보여준다.
+
+# 간단하게 실행하기
+
+- 먼저 다운로드 받아보자
+- jakarta-taglibs-standard-1.1.2
+  - `https://tomcat.apache.org/taglibs/standard/`여기에서 받는다.
+- 그후  lib에 있는 두개의 파일을 복사하여 web1의 WEB-INF의 lib에 붙여넣기 한다.
+- 
+
+
+
+headinfo를 간단하게 해보자.
+
+```jsp
+<%@page import="java.util.Enumeration" %>
+<%@ page contentType="text/html; charset=utf-8" errorPage="error.jsp" %>
+<%
+Enumeration<String> headerName= request.getHeaderNames();
+while(headerName.hasMoreElements()){
+	String name=headerName.nextElement();
+	out.print("<li>"+name+":");
+	Enumeration<String> values=request.getHeaders(name);
+	while(values.hasMoreElements()){
+		out.print(values.nextElement()+",");
+	}
+	out.print("</li>");
+}
+%>
+<li>요청 메소드:<%=request.getMethod()%></li>
+<li>요청한 client의IP:<%=request.getRemoteAddr()%></li>
+<li>ContextPath:<%=request.getContextPath()%></li>
+<li>RequestURI:<%=request.getRequestURI()%></li>
+<li>RequestURL:<%=request.getRequestURL()%></li>
+<li>ServletPath:<%=request.getServletPath()%></li>
+
+```
+
+
+
+
+
+# DB 연동해보자
+
+먼저 새로운 web2 생성
+
+```html
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+    pageEncoding="EUC-KR"%>
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta  charset="utf-8">
+    <title>login.jsp</title>     
+    <link rel="stylesheet" href="partPage.css" type="text/css" />
+    <script src="partPage.js"></script>
+  </head>
+  <body>
+    <h3>MVC구조 login </h3>
+    <table border="1">
+      <tr><td colspan="2" align="center"><font size=15><b>우리회사</b></font></td></tr>
+      <tr>
+         <td><form action="Login" method="post">
+               <div id="confirmed">
+                 <table>
+                    <tr>
+                      <td>아이디</td>
+                      <td><input type="text" id="userid" name="userid" size="15" maxlength="12"/></td>
+                    </tr>
+                    <tr>
+                      <td>비밀번호</td>
+                      <td><input type="password" id="userpwd" name="userpwd" size="15" maxlength="12"/></td>
+                    </tr>
+                    <tr><td colspan="2" align="center">
+                        <input type="button" id="login" value="로그인" onclick ="startMethod()"/></td>
+                    </tr>
+                </table>
+              </div>
+             </form>
+         </td>
+         <td width="400"><img src="./images/dog.jpg"></td>
+      </tr>
+      <tr><td colspan="2" align="center">찾아오시는길 |회사소개|정보보호정책</td></tr>
+    </table>
+  </body>
+</html>
+```
+
+images 파일을 생성했는데 이클립스의 web1의 WebContent 폴더 안에 images파일을 넣어주면 오케이!(#이미지 삽입, #이미지파일)
+
+
+
+web2 에 만들었으며 기본 web2값을 저위의 페이지로 설정하기 위해서
+
+web2->Webcontent->Web-INF->lib->web.xml 을 클릭하여 `defulat.html`값을 모두 `login.jsp`로 바꾸어 준다.
+
+그러면 localhost:8080/web2 로만 접속해도 초기페이지 설정이 완료!
+
+그 후 데이터베이스에 페이지 만들어 보자.
+
+cmd를 이용하자
+
+```cmd
+sqlplus hr/oracle
+select table_name from user_tables;
+
+//새로운 테이블 만들기
+create table userinfo()
+userid varchar2(15) primary key,
+userpwd varchar2(15),
+username varchar2(20),
+phone varchar2(15),
+birth date
+,address varchar2(100)
+);
+desc userinfo
+insert into userinfo(userid,userpwd,username)values('admin','a1234','관리자');
+commit;
+
+
+```
+
+만든 후 
+
+WEB-INF -> lib 에
+
+db.properties 파일을 만든다.(File이다.)
+
+```file
+driver=oracle.jdbc.OracleDriver
+url=jdbc:oracle:thin:@localhost:1521:orcl
+user=hr
+pwd=oracle
+```
+
+
+
+loginDAO.java
+
+```java
+package lab.web.model;
+
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Properties;
+
+public class loginDAO {
+	public Connection dbCon() {
+		Connection con=null;
+		try {
+			Properties prop=new Properties();
+			prop.load(new FileInputStream("C:/workspace2/web2/WebContent/WEB-INF/db.properties"));
+			Class.forName(prop.getProperty("driver"));
+			con =DriverManager.getConnection(prop.getProperty("url"),
+			prop.getProperty("user"),prop.getProperty("pwd"));
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return con;
+	}
+		
+		public void dbClose(Connection con,Statement stat, ResultSet rs) {
+			try {
+				if(rs!=null)rs.close();
+				if(stat!=null)stat.close();
+				if(con!=null)con.close();
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+	
+public boolean loginProc(String uid,String upwd) {
+	boolean success=false;
+	Connection con=null;
+	PreparedStatement stat=null;
+	String sql="select*from userinfo where userid=? and userpwd=?";
+	ResultSet rs=null;
+	try {
+		con=dbCon();
+		stat=con.prepareStatement(sql);
+		stat.setString(1, uid);
+		stat.setString(2,upwd);
+		rs=stat.executeQuery();
+		if(rs.next()) {
+			success=true;
+		}
+		
+	}catch(Exception e) {
+		e.printStackTrace();
+	}finally {
+		dbClose(con,stat,rs);
+	}
+	return success;
+}
+}
+
+
+
+```
+
+loginsu.jsp
+
+```jsp
+<%@ page  contentType="text/html; charset=utf-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>loginsu.jsp</title>
+<style>
+p{
+color:blue;}
+</style>
+</head>
+<body>
+<p> ${userid}님 환영합니다.</p>
+<br>
+</body>
+</html>
+```
+
+
+
+loginfail.jsp
+
+```jsp
+<%@ page  contentType="text/html; charset=utf-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>loginfail.jsp</title>
+<style>
+p{
+color:red;}
+</style>
+</head>
+<body>
+<p> 아이디가 존재하지 않거나 비밀번호가 일치하지 않습니다.</p>
+<a href="./Login">다시 로그인 페이지로</a>
+</body>
+</html>
+```
+
+Login.java(lab.web.controller 패키지에 만들었다.)
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import lab.web.model.loginDAO;
+
+/**
+ * Servlet implementation class Login
+ */
+@WebServlet("/Login")
+public class Login extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+
+    public Login() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html;charset=utf-8");
+		response.sendRedirect("./login.jsp");
+		
+		
+	}
+
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		String uid=request.getParameter("userid");
+		String upwd=request.getParameter("userpwd");
+		ServletContext sc=request.getServletContext();
+		RequestDispatcher rd=null;
+		loginDAO dao=new loginDAO();
+		if(dao.loginProc(uid,upwd)) {
+			rd=sc.getRequestDispatcher("/loginsu.jsp");
+			rd.forward(request, response);
+			
+		}else {
+			rd=sc.getRequestDispatcher("/loginfail.jsp");
+			rd.forward(request, response);
+		}
+		
+	}
+
+}
+
+```
+
+
+
+### 회원가입 내용 저장
+
+userVO.java
+
+```java
+package lab.web.controller;
+
+public class userVO {
+ private String userid;
+ private String userpwd;
+ private String username;
+ private String email;
+ private String phone;
+ private String address;
+ private String job;
+public String getUserid() {
+	return userid;
+}
+public void setUserid(String userid) {
+	this.userid = userid;
+}
+public String getUserpwd() {
+	return userpwd;
+}
+public void setUserpwd(String userpwd) {
+	this.userpwd = userpwd;
+}
+public String getUsername() {
+	return username;
+}
+public void setUsername(String username) {
+	this.username = username;
+}
+public String getEmail() {
+	return email;
+}
+public void setEmail(String email) {
+	this.email = email;
+}
+public String getPhone() {
+	return phone;
+}
+public void setPhone(String phone) {
+	this.phone = phone;
+}
+public String getAddress() {
+	return address;
+}
+public void setAddress(String address) {
+	this.address = address;
+}
+public String getJob() {
+	return job;
+}
+public void setJob(String job) {
+	this.job = job;
+}
+ 
+}
+
+```
+
+join.java
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/Join")
+public class Join extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+ 
+    public Join() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+			response.setContentType("text/html;charset=utf-8");
+			response.sendRedirect("./member.html");
+	}
+
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		String uid=request.getParameter("userid");
+		String upwd=request.getParameter("userpwd");
+		String nm=request.getParameter("username");
+		String ph=request.getParameter("phone");
+		String em=request.getParameter("email");
+		String[] em2=request.getParameterValues("email_dns");
+		String em3=em+"@"+em2;
+		String[] jb=request.getParameterValues("job");
+		String ad=request.getParameter("address");
+		ServletContext sc=request.getServletContext();
+		RequestDispatcher rd=null;
+		if()
+		
+		
+		
+		
+	}
+
+}
+
+```
+
+loginDAO.java
+
+```java
+package lab.web.model;
+
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Properties;
+
+import lab.web.controller.userVO;
+
+public class loginDAO {
+	public Connection dbCon() {
+		Connection con=null;
+		try {
+			Properties prop=new Properties();
+			prop.load(new FileInputStream("C:/workspace2/web2/WebContent/WEB-INF/db.properties"));
+			Class.forName(prop.getProperty("driver"));
+			con =DriverManager.getConnection(prop.getProperty("url"),
+			prop.getProperty("user"),prop.getProperty("pwd"));
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return con;
+	}
+		
+		public void dbClose(Connection con,Statement stat, ResultSet rs) {
+			try {
+				if(rs!=null)rs.close();
+				if(stat!=null)stat.close();
+				if(con!=null)con.close();
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+	
+public boolean loginProc(String uid,String upwd) {
+	boolean success=false;
+	Connection con=null;
+	PreparedStatement stat=null;
+	String sql="select*from userinfo where userid=? and userpwd=?";
+	ResultSet rs=null;
+	try {
+		con=dbCon();
+		stat=con.prepareStatement(sql);
+		stat.setString(1, uid);
+		stat.setString(2,upwd);
+		rs=stat.executeQuery();
+		if(rs.next()) {
+			success=true;
+		}
+		
+	}catch(Exception e) {
+		e.printStackTrace();
+	}finally {
+		dbClose(con,stat,rs);
+	}
+	return success;
+}
+public int JoinProc(userVO user) {
+	int rows=0;
+	Connection con=null;
+	PreparedStatement stat=null;
+	String sql="insert into userinfo(userid,username,userpwd,userpwd,email,phone,address,job)values (?,?,?,?,?,?,?)";
+	try {
+		con=dbCon();
+		stat=con.prepareStatement(sql);
+		stat.setString(1, user.getUserid());
+		stat.setString(2, user.getUsername());
+		
+		stat.setString(3,user.getUserpwd());
+		stat.setString(4, user.getEmail());
+		stat.setString(5, user.getPhone());
+		stat.setString(6, user.getAddress());
+		stat.setString(7, user.getJob());
+		rows=stat.executeUpdate();
+	}catch(Exception e) {
+		e.printStackTrace();
+	}finally {
+		dbClose(con,stat,null);
+	}
+	return rows;
+}
+}
+
+
+
+```
+
