@@ -867,15 +867,34 @@ public class load extends HttpServlet {
 - forword는 동일 서버에서도 동일 웹 애플리케이션의 자원으로만 요청 재지정 가능하다. 클라이언트에서는 요청 재지정됐는지 모른다. 
 
   - RequestDispatcher 객체의 forward()메서드 사용
-  - `RequestDispatcher rd=request.getRequestDispatcher("/루트.html"); rd.forward(request,response);` 
+
+  ```java
+  ServletContext sc=request.getServletContext();
+  
+  RequestDispatcher rd=request.getRequestDispatcher("/요청 재지정 자원 경로와 루트.html");
+  
+  request.setAttribute(key,value);
+  
+  rd.forward(request,response);
+  ```
+
+  
+
+  - url주소 표현은 **처음** 요청한 Servlet이나 JSP
 
 - redirect 는 클라이언트로부터 수행을 요청받은 A가 302응답 코드와 응답할 B자원에 대한 URL정보로 응답한다. 즉 클라이언트는 요청이 재지정된 사실을 알 수 있으며 동일 서버 뿐만이 아닌 다른 웹사이트의 자원으로도 요청 재지정이 가능하다.
 
   - `response.sendRedirect("루트.html");`
 
-    response.sendRedirect("http://www.naver.com");`
+    `response.sendRedirect("http://www.naver.com");`(http:로 시작하거나 ./상대경로로 지정하거나, /인 root context로부터 시작하는)
 
-  -  요청 재지정 제한이 없다.
+    - 최초 요청시 컨테이너가 생성한 request와 response는 소멸되고 , 새로운 request와 response객체가 redirect된 redirect된 자원으로 get 방식으로 전달(이때는 setAttribute로 저장못함)
+  
+  - 동일한 웹 컨텍스트 , 웹 서버 내 공유할 정보(는 대게 상태 정보 ,클라이언트)는 전달하기 위햇 HttpSession.setAttribute(key.value) 또는 ServletContext.setAttribute(key,value)를 사용한다.
+  
+  - 요청 재지정 제한이 없다.
+  
+  -  url주소 표현은 **최종** 요청이 전달된 Servlet이나 Servlet이나 JSP또는 웹 서버의 주소
 
 파라미터 추출 해서 request.setAttribute("key",value)에 저장해서 다른 jsp나 다른 subject에 보낼 수 있다.그래서 우리는 응답 내용이 처음에 보낸 메세지와 중간에 추가된 메세지가 합쳐진 것이 나오는지 확인해보자! 
 
@@ -1328,7 +1347,7 @@ location.href="./cookie_login.jsp";
    - Part.getSize(): 업로드된 파일 크기 반환
    - Part.write(): 업로드된 파일을 @MultipartConfig의 location에 출력(서버에 파일로 기록)을 해야 파일로 저장되는데 이때사용하는 메서드
 
-요청을 동일한 웹 컨텍스트의 다른 Servlet또는 jsp에 전송가능
+**요청을 동일한 웹 컨텍스트의 다른 Servlet또는 jsp에 전송가능**
 
 1. ServletContext sc=ruquest.getServletContext()*;//요청 웹 컨텍스트를 받는다.
 2. RequestDispatcher rd=sc.getRequestDispacher*("/다른 servlet이나 jsp경로") 현재 웹 사이트 아래라는 뜻의 /꼭 넣어준다.다른 Servlet이나 jsp의 경로(보내기위해서)sc는 컨텍스트에 요청할 경로의 대한 정보를 가지고 있기 때문에 sc에서 불러온다.
@@ -1337,29 +1356,29 @@ location.href="./cookie_login.jsp";
 
 < a href="./xxx">요청전달< /a> 전송 방식은 Get방식으로 ./xxx?parmeterName=parameterValue&....의 방식으로 전달된다. url에 붙어서
 
-Http 특성
+**Http 특성**
 
 1. 요청을 보낼때 Connection 되고, 응답이 전송되고 나면 disconnect된다.=비 연결형 프로토콜(protocol)
 2. 상태정보를 저장할 방법
-   1. 클라이언트 브라우저(key=value) - cookie, setMaxAge()로 유효기간을 지정가능
+   1. 클라이언트 브라우저(key,value) - cookie, setMaxAge()로 유효기간을 지정가능, 브라우저에 저장되므로 브라우저마다 다르다.
    2. url의 쿼리 스트링으로 요청시마다 전송으로 url문자열 뒤에 추가하는 방법
    3. 요청을 전송하는 페이지에 form요소로 < input type="hidden" name="" value=""> 히든 태그로 보내기
-   4. 웹 서버에 객체로 저장:Session , 클라이언트의 브라우저 종료되어 세션이 종료될때 까지만 정보유지
+   4. 웹 서버에 (자바기반임으로) 객체로 저장:Session , 클라이언트의 브라우저 종료되어 세션이 종료될때 까지만 정보유지
 
-클라이언트가 특정 웹서버로 (tomcat)로 최초 요청을 전송 하면 응답을 하게 되는데
+**클라이언트가 특정 웹서버로 (tomcat)로 최초 요청을 전송 하면 응답을 하게 되는데**
 
 1. 웹서버(tomcat)가 클라이언트 요청에 대해 응답을 할때 JSessionID값을 생성해서 쿠키로 전송
 2. 클라리언트가 웹 서버로 두번째, 세번째,...요청할때 마다 브라우저 자체적으로 요청웹 서버에서 보내준 쿠기 정보를 찾아서 리퀘스트시마다 전송 
 3. 웹 서버의 웹 컴포넌트(서블릿)에서 요청과 함께 넘어온 쿠키정보 추출하려면  
    - HttpServletRequest.getCookies():Cookie[]로 리턴된다.(여러개로 저장된다.)
 
-new Cookie(key,name) 객체를 응답으로 전송하려면
+**new Cookie(key,name) 객체를 응답으로 전송하려면**
 
-- HttpServletResponse.addCookie()
+- HttpServletResponse.addCookie()를 사용해서 보낸다. 
 
 1. http://ip:poart/web1/cookieLogin 요청(GET방식)
 2. @WebServlet("/cookieLogin")서블릿의 doGet() 요청 처리
-   - 쿠기 정보 추출 request.getCookies(), userid로 저장된 값 검색
+   - 쿠기 정보 추출 request.getCookies(), userid로 저장된 값 검색(쿠키 배열을 리턴한다.)
    - 추출한 쿠기 정보를 request.setAttribute("userid" 쿠키값);
    - RequestDispatcher를 사용해서 /cookie_login.jsp로 전송 
 3. form태그 전송 (action="cookieLogin" method="post")
@@ -1369,7 +1388,7 @@ new Cookie(key,name) 객체를 응답으로 전송하려면
    - RequestDispatcher를 사용해서 /main.jsp로 전송
 5. main.jsp에서 로그아웃 (/cookiLogout) 요청(버튼인데 앵커 태그로 묶었다. GET방식)
 6. @WebServlet("/cookieLogout")서블릿의 doGet()에서 요청 처리 
-   - 쿠키 정보 삭제  request.getCookies(),쿠키 정보 추출해서 cookie.setMaxage(0)으로 설정
+   - 쿠키 정보 삭제  request.getCookies(),쿠키 정보 추출해서 cookie.setMaxage(0)으로 설정(단위는 초단위이다.)
    - RequestDispatcher를 사용해서 다시 로그인 페이지로. 넘기는 방법은 두가지 1. (/cookieLogin) 이나 2.(/cookie_login.jsp)
 
 # Session
@@ -1380,12 +1399,43 @@ new Cookie(key,name) 객체를 응답으로 전송하려면
 
 ### 상태정보 유지 과정
 
-- HttpSession객체 생성,추철
+- Session객체는 최초 요청시에 웹 컨테이너가 HttpSession구현 객체를 생성
+- HttpSession객체 생성,추출
   - HttpSession session=request.getSession();
+
 - HttpSession객체에 상태 정보 보관 객체 등록(한번만 등록한다.)
-  - session.setAttribute("xx",new data());
+  
+  - session.setAttribute("xx",new data()); 순서는(key,value)이다.
+  
 - HttpSession객체에 참조값을 얻어 사용(읽기,변경)
+  
   - Dage ref
+  
+- 삭제하기 위해서
+
+  - removeAttribute(key)
+
+- 값을 얻어오기 위해서는
+
+  - getAttribute()
+
+- HttpSession객체에 저장된 JSESSION ID변환 메소드 getSession()
+
+  - getLastAccessTime()
+
+- 클라이언트가 요청하지 않아도 HttpSession을 웹 컨테이너의 메모리에 유지시간 설정 setMaxInactiveInterval(초단위)
+
+- 웹 컨텐스트 전역으로 세션시간 설정은 web.xml에
+
+  ```html
+  <session-config>
+  	<session-timeout>30</session-timeout>
+  	</session-config>
+  ```
+
+-  세션에 저장된 상태정보를 삭제하고 세션 객체를 만료시키려면 invalidate()사용
+
+  
 
 
 
@@ -2119,25 +2169,163 @@ public class CalcServlet extends HttpServlet {
 
 
 
-# MVC패턴 적용 웹 어플리케이션
+# MVC패턴 적용 웹 어플리케이션(JSP)
 
 - 스크립트,HTML태그와 함께 java코드 포함 view와 로직이 분리가 안되서 재사용성이 낮다. 페이지단위기 때문에 빨리 만들 수 있다.
 - Servlet->JSP->EJB(망함)-> MVC패턴 적용 웹 애플리케이션 구현(view페이지는 JSP,Controller 는 Servlet으로 만든다.,data영속성과 비지니스로직은 JavaObject로 만든다.)
 - 자바코드를 직접적으로 넣는 것을 권장하지 않는다.
-- JSP는  MVC구조에서 Veiw로만 제한하며, 태그와 EL(expression L)
+- JSP는  MVC구조에서 Veiw로만 제한하며, 태그와 EL(expression L)로만 생성하는 것을 권장
 
 ### JSP요소
 
-- 정적지시자 
+#### 정적지시자 
 
-  - <%@ page~~~%>
-  - <%@ include~~~%>
-  - <%@ taglib~~~%>
+- <%@ page~~~%>
+  - page처리 정보 전달
+  - contentType(mime타입을 설정)
+  - text/plain(텍스트만)
+  - text/jpeg(이미지만)
+  - application/vnd.ms-word등등(워드, 파워포인트 등)
+  - text/json 같은것도 있다.
+  - session
+  - buffer(버퍼늘리기위해 사용)
+  - isThreadSafe
+  - errorPage
+  - isErrorPage
+  - info
+  - language(디폴트가 자바)
+  - import
+  - extends
+  - isELIgnored
+  - deferredSyntaxAllowedAsLiteral(참고만)
+- <%@ include~~~%>
+  - file <%@ include file="%>
+  - 포함될 jsp페이지에서 < html> ,< head> < body>를 제외하고, < body>태그의 내용의 컨텐츠만 포함
+- <%@ taglib~~~%>
+  - prefix
+  - uri
+  - <%@ tagilb prefix="" uri="http://java.sun.com/jsp/jstl/~"%>
+  - jsp페이지내에 HTML이 아닌 태그를 만나면 태그에 매핑된 javaclass 를 실행
+  - JSTL(java Standard Tag Library)을 사용하기 위한 선언, core,sql,xml국제화 format처리 라이브러리 등을 사용하기 위해 선언 한다.
 
-- 동적 지시자
+#### 동적 지시자
 
-  - <jsp: include ~>< /jsp:include>
-  - < jsp:useBean~>< jsp:getProperty ~~ >< jsp:setProperty ~~~ >< /jsp:u
+- <jsp: include ~>< /jsp:include>
+- < jsp:useBean~>< jsp:getProperty ~~ >< jsp:setProperty ~~~ >< /jsp:u
+- 동적인 요청을 처리하는 JSP를 요청과 응답을 처리하기 위해서 JSP 컨테이너가 서블릿으로 변환하면서 내장 객체들을 생성해서 _jspService()로 전달 추가합니다.
+  JSP에서는 내장 객체를 new 로 생성하지 않고 컨테이너가 정의해놓은 이름으로 사용
+- request
+  - javax.servlet.http.HttpServletRequest
+- response
+  - javax.servlet.http.HttpServletResponse
+- session
+  - javax.servlet.http.HttpSession
+- application
+  - javax.servlet.http.ServetContext
+- out
+  - javax.servlet.jsp.JSPWriter
+- exception
+  - java.lang.Throwable
+- page
+  - java.lang.Object
+- config
+  - javax.servlet.ServletConfig
+- pageContext
+  - javax.servlet.jsp.PageContext
+
+#### 내장객체들의 유효 범위(작은범위에서 큰 범위)
+
+- 컨테이너 메모리에 유지되는 범위
+- page-현재 jsp페이지가 범위,jsp가 수행되는 동안만 유지
+- request- sendRedirect를 이용 get방식으로 보내기 전까지(요청전까지)<jsp:include~><jsp:forward>로 다른 jsp또는 서블릿으로 공유될때
+- session- 세션만료 될떄까지, inactive상태에서는 30분
+- application-웹 컨텍스트가 웹 컨테이너로부터 삭제될때까지 or 종료될때까지
+- page,request,session,application에 정보를 저장, 삭제, 반환 메서드
+  - setAttribute()
+  - getAttribute()
+  - removeAttribute()
+  - getAttributeNames()
+  - 위의 메서드를 공통적으로 가지고 있다.
+
+##### 내장객체들 확인
+
+```html
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@page import="java.util.Date" %>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>JSP의 내장 객체들 점검</h2>
+
+getMethod():<%=request.getMethod() %><Br>
+getRequestURI() :<%=request.getRequestURI() %><Br>
+getHeader("user-agent"):<%= request.getHeader("user-agent") %><Br>
+[application]<br>
+getContextPath():<%= application.getContextPath() %><Br>
+getServletContextName(): <%= application.getServletContextName() %> <br>
+getServerInfo() : <%= application.getServerInfo() %><Br>
+getMajorVersion() : <%= application.getMajorVersion() %><Br>
+getSessionTimeout() : <%= application.getSessionTimeout() %><Br>
+[session]<Br>
+getId() : <%= session.getId() %><BR>
+getCreationTime() : <%= new Date(session.getCreationTime()) %><Br>
+[response]<Br>
+getStatus() : <%=response.getStatus() %><Br>
+getContentType() : <%= response.getContentType() %><Br>
+<H4>Web Application(/edu)폴더의 파일 리스트</H4>
+<%
+java.util.Set<String> list=application.getResourcePaths("/");
+if(list !=null){
+	Object obj[]=list.toArray();
+	for(int i=0;i<obj.length;i++){
+		out.print(obj[i]+", ");
+	}
+}
+%>
+
+</body>
+</html>
+```
+
+
+
+##### request내장객체 확인
+
+```html
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+    pageEncoding="EUC-KR"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+<% if(request.getMethod().equals("GET")){ %><!-- 다음페이지로 넘어가기위해? -->
+<h2>원하는 컬러와 날짜를 선택하세요</h2>
+<form method="post" action="./request내장객체.jsp">
+컬러: <input type="color" name="fcolor"><Br>
+날짜: <input type="date" name="fdate"><BR>
+<input type="submit" value="전송">
+
+</form>
+<%}else{ %>
+<script>
+document.body.style.backgroundColor='<%=request.getParameter("fcolor")%>';
+</script>
+<h2>선택 날짜는 <%= request.getParameter("fdate")%>이네요..</h2>
+<%} %>
+</body>
+</html>
+```
+
+
 
 - 자바 코드와 관련된JSP요소
 
@@ -2150,12 +2338,13 @@ public class CalcServlet extends HttpServlet {
     %>
     <%= 출력내용%>
     <% out.print(출력내용);%>
-    ${출력내용}
+    ${출력내용
     ```
 
-  - 
+    
+    
 
-- declare scriptlet
+- declare scriptlet <%! 전역변수 또는 메서드 정의 %>
 
   ```jsp
   <%! 변수 선언 초기화; //변환된 서블릿의 멤버변수로 정의 
@@ -2171,7 +2360,7 @@ public class CalcServlet extends HttpServlet {
 
   
 
-- scriptlet 
+- scriptlet <% 자바실행 문장 %>
 
   ```jsp
   <%
@@ -2184,11 +2373,47 @@ public class CalcServlet extends HttpServlet {
 
   
 
-- expression 
+- expression <%= 출력내용 %>
 
-  ```jsp
-  <%= 출력내용 %> //은 <% out.println(출력내용) %>와 동일하다.
+  ```java
+  <%= 출력내용 %> //은 <% out.println(출력내용) %>와 동일하다. ${출력내용}과도 동일
   ```
+
+- jsp에는 구현요소가 총 4가지가 있다.
+  1. 템플릿 콘텐츠 기반 구현
+  2. 스크립트 기반 구현
+  3. 액션태그기반 구현
+  4. EL기반 구현
+  5. JSTL기반 구현
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+    pageEncoding="EUC-KR"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>첫번째 예제</h2>
+<h3>Hello Guest! 방문 시간:1시 50분 30초 (시간 고정인 템플릿 콘텐츠 기반구현)</h3><br>
+오늘 날짜:<%= java.time.LocalDate.now() %>( 스크립트기반구현)<br> 
+<jsp:useBean id="hello" class="jspbean.TestBean"/> 
+<jsp:setProperty name="hello" property="name"/>
+<h3>Hello<jsp:getProperty name="hello" property="time" />이다.</h3>액션태그기반 구현 <Br>
+    <h3>EL기반</h3>
+<jsp:useBean id="hello" class="jspbean.TestBean"/> 
+<jsp:setProperty name="hello" param="name" property="name"/>
+<h3>Hello ${param.name}! 방문시간은 ${ pageScope.hello.time }이다.</h3>EL기반 구현 <Br>
+</body>
+</html>
+```
+
+5. JSTL기반 구현의 경우 c라는 접두어를 붙여 사용한다는 설정이 필요
+   - `<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>`
+
+
 
 
 
@@ -2454,13 +2679,99 @@ out.println(exception.getMessage());
 
 이렇게 에러페이지를 만들어 주고 결과화면을 보면 깔끔하게 원인을 보여준다.
 
+### 자주구현하는 기능을 태그로 정의
+
+1. 표준 액션 태그
+
+   < jsp:useBean~~~
+
+   - JSP 스펙에 정의된 기능, 모든 JSP 컨테이너가 지원하므로 
+
+2. 커스텀 액션 태크
+
+   - 개발자가 직접 만든 태그 클래스, tld(xml형식) 파일을 정의해서 사용
+
+3. EL(expression Language) :표현언어, JSP2.0에서 추가
+
+   - <c:out ...> 또는 <jsp:getProperty ...>보다 간결하게 사용 가능
+   - page,session,request,application 에 저장된 객체를 간결하게 표현
+
+
+
+#### 표준액션태그
+
+1. < jsp:useBean>
+2. < jsp:setProperty>
+3. < jsp:getProperty>
+
 # 간단하게 실행하기
 
 - 먼저 다운로드 받아보자
 - jakarta-taglibs-standard-1.1.2
   - `https://tomcat.apache.org/taglibs/standard/`여기에서 받는다.
 - 그후  lib에 있는 두개의 파일을 복사하여 web1의 WEB-INF의 lib에 붙여넣기 한다.
-- 
+
+### 백(100)까지 더하기
+
+```java
+package lab.web.controller;
+
+import java.io.IOException;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+
+@WebServlet("/total")
+public class total extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+  
+    public total() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		
+		int total=0;
+		for(int i=1;i<=100;i++)
+			total+=i;
+		request.setAttribute("result",total);
+		RequestDispatcher rd=request.getRequestDispatcher("Hundred.jsp");
+		rd.forward(request, response);
+	}
+
+}
+
+```
+
+
+
+Hundred.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+</head>
+<body>
+1부터 100까지 합은? = ${result}
+</body>
+</html>
+```
+
+결과값을 뽑아올때 힘들게 쓸 것이 아닌 ${result} 로 도 뽑아올수 있다. 이는 ${}이 전체적으로 파일을 서칭해서 맞는것을 찾아오기 때문이다.
 
 
 
@@ -2978,5 +3289,442 @@ public int JoinProc(userVO user) {
 
 
 
+```
+
+member.html
+
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <style>
+   h3 { width: 740px; 
+       text-align : center; }
+      
+  </style>
+  <title>회원 가입</title>
+ </head>
+ <body>
+ <h3> 회원가입 정보 입력</h3>
+ <form name="write_form_member" method="post" action="memberOK2.jsp">
+   <table width="740" style="padding:5px 0 5px 0; ">
+      <tr height="2" bgcolor="#FFC8C3"><td colspan="2"></td></tr>
+      <tr>
+         <th> 아이디 </th>
+         <td><input type="text" name="userid" id="userid"></td>
+      </tr>
+      <tr>
+         <th>이 름</th>
+         <td><input type="text" name="username" id="username">  </td>
+       </tr>        
+       <tr>
+         <th>비밀번호</th>
+         <td><input type="password" name="userpwd" id="userpwd"> 영문/숫자포함 6자 이상</td>
+       </tr>   
+      
+        <tr>
+        </td>
+           <th>연락처</th>
+           <td><input type='text' name='phone' id="phone"></td>
+        </tr>
+        <tr>
+          <th>이메일</th>
+          <td>
+            <input type='text' name="email" id="email">@
+            <input type='text' name="email_dns" id="email_dns">
+              <select name="emailaddr">
+                 <option value="">직접입력</option>
+                 <option value="daum.net">daum.net</option>
+                 <option value="empal.com">empal.com</option>
+                 <option value="gmail.com">gmail.com</option>
+                 <option value="hanmail.net">hanmail.net</option>
+                 <option value="msn.com">msn.com</option>
+                 <option value="naver.com">naver.com</option>
+                 <option value="nate.com">nate.com</option>
+              </select>
+            </td>
+         </tr>
+         
+         <tr>
+           <th>직업</th>
+           <td>
+           <select name='job' size='1' id="job">
+                 <option value=''>선택하세요</option>
+                 <option value='39'>학생</option>
+                 <option value='40'>컴퓨터/인터넷</option>
+                 <option value='41'>언론</option>
+                 <option value='42'>공무원</option>
+                 <option value='43'>군인</option>
+                 <option value='44'>서비스업</option>
+                 <option value='45'>교육</option>
+                 <option value='46'>금융/증권/보험업</option>
+                 <option value='47'>유통업</option>
+                 <option value='48'>예술</option>
+                 <option value='49'>의료</option>
+           </select>
+          </td>
+        </tr>
+       <tr>
+         <th>주소 </th>
+           <td class="s">
+               <input type="text" name="address" id="address" >  
+            </td>
+         </tr>
+         
+ 
+           <tr height="2" bgcolor="#FFC8C3"><td colspan="2"></td></tr>
+           <tr>
+             <td colspan="2" align="center">
+               <input type="submit" value="회원가입" id="Join">
+               <input type="reset" value="취소" id="userVO">
+            </td>
+           </tr>
+           </table>
+          </td>
+          </tr>
+          </form>
+ </body>
+</html>
+ 
+```
+
+memberOK.jsp
+
+```html
+<%@page import="lab.web.model.loginDAO"%>
+<%@page import="lab.web.controller.userVO"%>
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+    pageEncoding="EUC-KR"%>
+    <% request.setCharacterEncoding("utf-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>memberOK.jsp</title>
+</head>
+<body>
+<%
+userVO user=new userVO();
+user.setUserid(request.getParameter("userid"));
+user.setUserpwd(request.getParameter("userpwd"));
+user.setUsername(request.getParameter("username"));
+user.setEmail(request.getParameter("email"));
+user.setPhone(request.getParameter("phone"));
+user.setAddress(request.getParameter("address"));
+user.setJob(request.getParameter("job"));
+loginDAO dao=new loginDAO();
+if(dao.JoinProc(user)>0){
+
+%>
+아이디: <%= user.getUserid() %><Br>
+이름: <%=user.getUsername() %><br>
+비밀번호:<%=user.getUserpwd() %><Br>
+전화번호:<%= user.getPhone() %><Br>
+이메일:<%=user.getEmail() %><Br>
+주소:<%=user.getAddress() %><Br>
+직업:<%=user.getJob() %><br>
+
+<%
+}else{
+%>
+회원가입 처리 실패
+<%
+}
+%>
+</body>
+</html>
+```
+
+이번에는 액션태그로 해보자
+
+memberOK2.jsp
+
+```html
+<%@page import="lab.web.model.loginDAO"%>
+<%@page import="lab.web.controller.userVO"%>
+<%@ page language="java" contentType="text/html; charset=EUC-KR"%>
+<% request.setCharacterEncoding("utf-8"); %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>memberOK.jsp</title>
+</head>
+<body>
+<jsp:useBean id="user" class="lab.web.controller.userVO">
+<jsp:setProperty name="user" property="*"/>
+</jsp:useBean>
+
+<jsp:useBean id="dao" class="lab.web.model.loginDAO" />
+<% 
+	if(dao.JoinProc(user)>0){ 
+%>
+
+아이디: <jsp:getProperty name="user" property="userid"/><Br>
+이름: <jsp:getProperty name="user" property="username"/><br>
+비밀번호:<jsp:getProperty name="user" property="userpwd"/><Br>
+전화번호:<jsp:getProperty name="user" property="phone"/><Br>
+이메일:<jsp:getProperty name="user" property="email"/><Br>
+주소:<jsp:getProperty name="user" property="address"/><Br>
+직업:<jsp:getProperty name="user" property="job"/><br>
+
+<%
+}else{
+%>
+회원가입 처리 실패
+<%
+}
+%>
+</body>
+</html>
+```
+
+
+
+##### EL 연산자 
+
+```html
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>EL테스트</title>
+</head>
+<body>
+<h2>EL의 연산자들</h2>
+<hr>
+\${200+100} :${200+100}<Br>
+\${200-100} :${200-100}<Br>
+\${200/100} :${200/100}<Br>
+\${200>100} :${200>100}<br>
+\${200==100} :${200==100}<br>
+\${200!=100} :${200!=100}<br>
+\${'10'-10} : ${'10'-10}<br>
+\${10-"10"} : ${10-"10"}<br>
+\${40 div 5} : ${40 div 5}<br>
+\${40 mod 5}: ${40 mod 5}<Br>
+\${10 eq 10 } : ${10 eq 10 }<br>
+\${10 lt 10 } : ${10 lt 10 }<br>
+\${10 gt 10 } : ${10 gt 10 }<br>
+\${10 le 10 } : ${10 le 10 }<br>
+\${10 ge 10 } : ${10 ge 10 }<br>
+\${10>5? 'A':'B' } :${10>5? 'A':'B' }<br>
+\${100+200+300} :${100+200+300 }<Br>
+\${100+=200+=300} :${100+=200+=300 }<Br>
+\${"EL"+=12+=34+="문자열 결합연산" }:
+${"EL"+=12+=34+="문자열 결합연산" }
+
+</body>
+</html>
+```
+
+결과값
+
+${200+100} :300
+${200-100} :100
+${200/100} :2.0
+${200>100} :true
+${200==100} :false
+${200!=100} :true
+${'10'-10} : 0
+${10-"10"} : 0
+${40 div 5} : 8.0
+${40 mod 5}: 0
+${10 eq 10 } : true
+${10 lt 10 } : false
+${10 gt 10 } : false
+${10 le 10 } : true
+${10 ge 10 } : true
+${10>5? 'A':'B' } :A
+${100+200+300} :600
+${100+=200+=300} :100200300
+${"EL"+=12+=34+="문자열 결합연산" }: EL1234문자열 결합연산
+
+
+
+##### JSTL 점검
+
+```html
+<%@page import="java.util.ArrayList"%>
+<%@page import="lab.web.model.Product"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<%
+	request.setCharacterEncoding("utf-8");
+	Product p1= new Product("체리",10000,"과일");
+	Product p2= new Product("에어컨",10000,"전자");
+	Product p3= new Product("베스킨라빈스",400,"빙과");
+	ArrayList<Product> alist=new ArrayList();
+	alist.add(p1);
+	alist.add(p2);
+	alist.add(p3);
+
+	request.setAttribute("product",alist);
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>jstlTest.jsp</title>
+</head>
+<body>
+	<c:set var="username" value="korea" scope="request" />
+	<c:if test="${username != null}">
+username 변수 값: <c:out value="${username}" /><Br>
+	</c:if>
+	<c:out value="${username}" />
+	<c:remove var="username" />
+	<c:out value="${username}" />
+	<!-- 삭제했기때문에 null point exception -->
+
+	<c:if test="${username ==  null}">
+		<c:out value="username 변수가 삭제되었습니다." />
+		<Br>
+	</c:if>
+
+	<c:set var="jumsu" value="${parm.jumsu}" scope="request" />
+	<c:out value="${jumsu+=\"점은\" }" /><Br>
+	<c:choose>
+		<c:when test="${jumsu>=90}">
+			<c:out value="A" />
+		</c:when>
+		<c:when test="${jumsu>=80 }">
+			<c:out value="B" />
+		</c:when>
+		<c:when test="${jumsu>=70 }">
+			<c:out value="C" />
+		</c:when>
+		<c:when test="${jumsu>=60 }">
+			<c:out value="D" />
+		</c:when>
+
+		<c:otherwise>
+			<c:out value="F" />
+		</c:otherwise>
+	</c:choose>
+	
+	<c:forEach var="count" begin="1" end="10" step="2">
+	${count}<Br>
+	</c:forEach>
+	
+	#상품 정보 리스트<br>
+	<table>
+	
+	<tr><th>상품명</th><th>가격</th><th>분류</th></tr>
+	<c:forEach var="product" items="${products}">
+	<tr><td>${product.name}</td><td>${product.price }</td><td>${product.category }</td></tr>
+	</c:forEach>
+	
+	</table>
+	
+</body>
+</html>
+```
+
+
+
+##### 로그인 JSTL로 해보기
+
+member.html
+
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <style>
+   h3 { width: 740px; 
+       text-align : center; }
+      
+  </style>
+  <title>회원 가입</title>
+ </head>
+ <body>
+ <h3> 회원가입 정보 입력</h3>
+ <form name="write_form_member" method="post" action="memberOK3.jsp">
+   <table width="740" style="padding:5px 0 5px 0; ">
+      <tr height="2" bgcolor="#FFC8C3"><td colspan="2"></td></tr>
+      <tr>
+         <th> 아이디 </th>
+         <td><input type="text" name="userid" id="userid"></td>
+      </tr>
+      <tr>
+         <th>이 름</th>
+         <td><input type="text" name="username" id="username">  </td>
+       </tr>        
+       <tr>
+         <th>비밀번호</th>
+         <td><input type="password" name="userpwd" id="userpwd"> 영문/숫자포함 6자 이상</td>
+       </tr>   
+      
+        <tr>
+        </td>
+           <th>연락처</th>
+           <td><input type='text' name='phone' id="phone"></td>
+        </tr>
+        <tr>
+          <th>이메일</th>
+          <td>
+            <input type='text' name="email" id="email">@
+            <input type='text' name="email_dns" id="email_dns">
+              <select name="emailaddr">
+                 <option value="">직접입력</option>
+                 <option value="daum.net">daum.net</option>
+                 <option value="empal.com">empal.com</option>
+                 <option value="gmail.com">gmail.com</option>
+                 <option value="hanmail.net">hanmail.net</option>
+                 <option value="msn.com">msn.com</option>
+                 <option value="naver.com">naver.com</option>
+                 <option value="nate.com">nate.com</option>
+              </select>
+            </td>
+         </tr>
+         
+         <tr>
+           <th>직업</th>
+           <td>
+           <select name='job' size='1' id="job">
+                 <option value=''>선택하세요</option>
+                 <option value='39'>학생</option>
+                 <option value='40'>컴퓨터/인터넷</option>
+                 <option value='41'>언론</option>
+                 <option value='42'>공무원</option>
+                 <option value='43'>군인</option>
+                 <option value='44'>서비스업</option>
+                 <option value='45'>교육</option>
+                 <option value='46'>금융/증권/보험업</option>
+                 <option value='47'>유통업</option>
+                 <option value='48'>예술</option>
+                 <option value='49'>의료</option>
+           </select>
+          </td>
+        </tr>
+       <tr>
+         <th>주소 </th>
+           <td class="s">
+               <input type="text" name="address" id="address" >  
+            </td>
+         </tr>
+         
+ 
+           <tr height="2" bgcolor="#FFC8C3"><td colspan="2"></td></tr>
+           <tr>
+             <td colspan="2" align="center">
+               <input type="submit" value="회원가입" id="Join">
+               <input type="reset" value="취소" id="userVO">
+            </td>
+           </tr>
+           </table>
+          </td>
+          </tr>
+          </form>
+ </body>
+</html>
+ 
 ```
 
