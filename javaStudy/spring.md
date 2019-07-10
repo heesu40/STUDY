@@ -248,7 +248,7 @@ public class ContainerDITest {
 
 
 
-src - main- resources(파일을 만들고 그 안에) -application.xml을 만든다
+src - main- resources(파일을 만들고 그 안에 bean configuration file) -application.xml을 만든다
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -562,12 +562,12 @@ class="lab.spring.di.persist.Message" />
 <!-- <property name="message" ref="firstMessage"/> -->
 </bean>
 
-<bean id="service"
+<!-- <bean id="service"
 		class="lab.spring.di.service.HelloServiceLifeCycle"
 		p:name="Spring5.0!!!"
 		p:myMessage-ref="firstMessage"
 		init-method="custom_init"
-		destroy-method="custom_end"/>
+		destroy-method="custom_end"/> -->
 		
 <bean id="oracleDBUtile"
 	class="lab.spring.di.util.JdbcUtil"
@@ -576,21 +576,317 @@ class="lab.spring.di.persist.Message" />
 	p:user="hr"
 	p:pwd="oracle"/>
 	
-<bean id="dao"
+<bean id="userDAO"
 	class="lab.spring.di.persist.UserManageDAO"
-	p:dbUtil-ref="oracleDBUtil"/>
+	p:dbUtil-ref="oracleDBUtile"/><!-- 의존관계라 oracleDBUtil과 관계되어있다. -->
+	
+<bean id="loginService"
+	class="lab.spring.di.service.UserServiceImpl"
+	p:dao-ref="userDAO"/>
 
 <bean id="messageSource"
 	class="org.springframework.context.support.ResourceBundleMessageSource">
 	
 	<property name="basenames">
-	<value></value>
+	<value>messages.notice</value>
 	</property>
 	</bean>
+	
+
 
 </beans>
 
 
+
+```
+
+userVO.java
+
+```java
+package lab.spring.di.persist;
+
+public class userVO {
+	 private String userid;
+	 private String userpwd;
+	 private String username;
+	 private String email;
+	 private String phone;
+	 private String address;
+	 private String job;
+	public String getUserid() {
+		return userid;
+	}
+	public void setUserid(String userid) {
+		this.userid = userid;
+	}
+	public String getUserpwd() {
+		return userpwd;
+	}
+	public void setUserpwd(String userpwd) {
+		this.userpwd = userpwd;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getJob() {
+		return job;
+	}
+	public void setJob(String job) {
+		this.job = job;
+	}
+	 
+}
+
+```
+
+UserManageDAO.java
+
+```java
+package lab.spring.di.persist;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+
+import lab.spring.di.util.JdbcUtil;
+
+public class UserManageDAO {
+	private JdbcUtil dbUtil;
+	
+	public void setDbUtil(JdbcUtil dbUtil) {
+		this.dbUtil=dbUtil;
+	}
+	
+	public userVO loginProc(String uid,String upwd) {
+		userVO user=null;
+		
+		Connection con=null;
+		PreparedStatement stat=null;
+		String sql="select*from userinfo where userid=? and userpwd=? ";
+		ResultSet rs=null;
+		try {
+			con=dbUtil.dbCon();
+			stat=con.prepareStatement(sql);
+			stat.setString(1, uid);
+			stat.setString(2,upwd);
+			rs=stat.executeQuery();
+			while(rs.next()) {
+				user=new userVO();
+				user.setUserid(rs.getString("userid"));
+				user.setUsername(rs.getString("username"));
+				user.setAddress(rs.getString("address"));
+				user.setEmail(rs.getString("email"));
+				user.setJob(rs.getString("job"));
+				user.setPhone(rs.getString("phone"));
+				user.setUserpwd(rs.getString("userpwd"));
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			dbUtil.dbClose(con,stat,rs);
+		}
+		return user;
+	}
+}
+
+```
+
+Message.java
+
+```java
+package lab.spring.di.persist;
+
+public class Message {
+ public String getMessage() {
+	 return "bean lifeCycle";
+ }
+}
+
+```
+
+UserService.java
+
+```java
+package lab.spring.di.service;
+
+public interface UserService {
+	public String[] login(String userid,String userpwd);
+	
+}
+
+```
+
+UserServiceImpl.java
+
+```java
+package lab.spring.di.service;
+
+import java.util.Locale;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+import lab.spring.di.persist.UserManageDAO;
+
+public class UserServiceImpl implements UserService, ApplicationContextAware {
+
+		private UserManageDAO dao;
+		private ApplicationContext context;
+		
+		
+		public void setDao(UserManageDAO dao) {
+			this.dao=dao;
+		}
+		public void setApplicationContext(ApplicationContext context) throws BeansException {
+			this.context=context;
+
+		}
+	public String[] login(String uid,String upwd) {
+		String messages[]=new String[2];
+		Object[] args=new String[] {uid};
+		Locale locale=Locale.getDefault();
+		if(dao.loginProc(uid, upwd)!=null){
+			messages[0]=context.getMessage("login.success", args,locale);
+			
+		}else {
+			messages[0]=context.getMessage("login.fail", args,locale);
+		}
+		
+		Locale locale_en=Locale.ENGLISH;
+		if(dao.loginProc(uid, upwd)!=null) {
+			messages[1]=context.getMessage("login.success", args,locale_en);
+		}else {
+			messages[1]=context.getMessage("login.fail", args,locale_en);
+		}
+		return messages;
+}
+}
+
+```
+
+UserServiceImpl.java
+
+```java
+package lab.spring.di.service;
+
+import java.util.Locale;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+import lab.spring.di.persist.UserManageDAO;
+
+public class UserServiceImpl implements UserService, ApplicationContextAware {
+
+		private UserManageDAO dao;
+		private ApplicationContext context;
+		
+		
+		public void setDao(UserManageDAO dao) {
+			this.dao=dao;
+		}
+		public void setApplicationContext(ApplicationContext context) throws BeansException {
+			this.context=context;
+
+		}
+	public String[] login(String uid,String upwd) {
+		String messages[]=new String[2];
+		Object[] args=new String[] {uid};
+		Locale locale=Locale.getDefault();
+		if(dao.loginProc(uid, upwd)!=null){
+			messages[0]=context.getMessage("login.success", args,locale);
+			
+		}else {
+			messages[0]=context.getMessage("login.fail", args,locale);
+		}
+		
+		Locale locale_en=Locale.ENGLISH;
+		if(dao.loginProc(uid, upwd)!=null) {
+			messages[1]=context.getMessage("login.success", args,locale_en);
+		}else {
+			messages[1]=context.getMessage("login.fail", args,locale_en);
+		}
+		return messages;
+}
+}
+
+```
+
+UserServiceInterface.java
+
+```java
+package lab.spring.di.service;
+
+import lab.spring.di.persist.userVO;
+
+public interface UserServiceInterface {
+	public userVO login(String userid,String userpwd);
+	
+}
+
+```
+
+MessageTest.java
+
+```java
+package lab.spring.di.test;
+
+import java.util.Locale;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import lab.spring.di.service.UserService;
+
+public class MessageTest {
+
+	public static void main(String[] args) {
+		ApplicationContext context=new ClassPathXmlApplicationContext("application.xml");//Spring Containner생성
+		
+		Locale locale=Locale.getDefault();
+		String greet=context.getMessage("greeting", new Object[0],locale);//greeting에 잇는 key를 가지구 옴
+		System.out.println("default locale 인삿말: "+greet);
+		
+		Locale locale_en=Locale.ENGLISH;
+		greet=context.getMessage("greeting", new Object[0],locale_en);
+		System.out.println("ENGLISH locale 인삿말: "+greet);
+		
+		UserService proc=context.getBean("loginService",UserService.class);
+		
+//		String[] results=proc.login("admin", "a1234");//등록된 아이디(성공 메시지 확인()
+		String[] results=proc.login("korea","1234");//등록되지 않은 아이디(실패 메시지 확인)
+		for(String m: results) {
+			System.out.println(m);
+		}
+
+	}
+
+}
 
 ```
 
@@ -653,12 +949,147 @@ public class JdbcUtil {
 
 
 
-이것좀 추가하자
+이것좀 추가하자 
 
- ![](C:\Users\student\Documents\GitHub\STUDY\javaStudy\bean.PNG)
+![1562723632560](C:\Users\student\Documents\GitHub\STUDY\javaStudy\bean)
 
 
 
 greeting=안녕~ 스프링5.0 시작!!!
 login.success={0}!^^ 환영해~
-login.fail=ID{0} 존재하지않거나 비밀번호가 틀렸어!!
+login.fail=ID{0} 존재하지않거나 비밀번호가 틀렸어!! 를 각각의 파일에 한글은 한글로 영어는 영어로 저장하자
+
+
+
+
+
+
+
+# 앞에부분 정리
+
+##  Spring Framework특성
+
+1. 경량 컨테이너 지원(제공)
+2. IoC컨테이너는 Factory패턴이 적용된 (객체를 직접 생성하지 않고 )
+3. AOP(관점지향 프로그래밍)지원- 핵심 로직과 고통 로직을 분리해서 핵심 로직 수행시 공통 로직을 적용(다양한 방법이 있는데 spring의 경우....)
+4. POJO 로 Bean을 정의해서 사용가능 -특정 라이브러리에 종속되거나 .....를 방지하여 충돌방지
+5. 영속성과 관련된 다양한 API(Hibernate,Mybatis,JDO.....) 지원
+6. 트랜잭션 처리를 위한 일관된 방법으로 처리, 관리 지원
+7. 배치 처리, 메시지 처리, ....다양한 API지원
+8. Framework을 위한 Framework이라는 말을 많이 한다.
+
+
+
+## Spring Framework 모듈
+
+1. Spring Core 모듈 -  IoC기능 지원(Spring Container 클래스: BeanFactory)
+2. Spring Context 모듈 -Core에서 지원하는 기능 외에 추가적인 기능들 지원(JNDI,EJB(망함,지금안씀 너무 무거운), (ApplicationContext Spring Container 클래스: Beanfactory을 상속받아서 국제화 메시지처리, , 이벤트)
+3. Spring AOP모듈-관점 지향 프로그래밍 지원
+4. Spring DAO모듈 -JDBC 보다더 쉽고, 간결하게 개발 가능 
+5. Spring ORM모듈-API(Hibernate,Mybatis,JDO.....)를 일관된 방법으로 사용할 수 있으며 결합, 통합 지원
+6. Spirng Web모듈-MVC 패턴이 적용된 Web App 개발 지원,  struts,Webwork와 같은 프레임워크와 통합
+7. Spring web MVC모듈- 다양한 Web UI, 기술 등의 API지원 
+
+## 의존객체를 생성, 주입 방식
+
+1. 생성자를통해 주입
+2. setxxxx메서드를 이용해서 주입
+
+
+
+## Bean설정 방식
+
+1. xml 설정 방식
+
+   - bean id="" name="" class="">
+
+   - < constructor-arg ref="빈이름" />
+
+   - < property    type="" index="" value="문자열등" ref="빈이름" />
+
+     
+
+2. 자바클래스와 Annotation 
+
+   - @Configuration  & Bean 메서드 앞에 @Bean 이라 써주어야 한다. 빈의 이름은 메서드이름
+   - 소스코드에서 빈요청할때 - 컨테이너객체.getBean("빈이름",빈타입.class)
+
+3. Spring 컨테이너의 default 빈 scopre는 singleton이다.
+
+!!!! 참고로 디폴트 생성자는 무조건 만들어 놓자~ 쓰기 좋게
+
+
+
+
+
+#  annoteConfig.xml(어노테이션 설정)
+
+annoteConfig.xml을 새로 만들자!
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+
+</beans>
+
+```
+
+
+
+
+
+
+
+## DB연동
+
+먼저 tomcat.apache.org 에 다큐멘터리 9.0 에 들어가서 Oracle 8i,9i,10g 에 들어가서 
+
+```xml
+<Resource name="jdbc/myoracle" auth="Container"
+              type="javax.sql.DataSource" driverClassName="oracle.jdbc.OracleDriver"
+              url="jdbc:oracle:thin:@127.0.0.1:1521:mysid"
+              username="scott" password="tiger" maxTotal="20" maxIdle="10"
+              maxWaitMillis="-1"/>
+```
+
+복사후
+
+
+
+DriverClass 로딩
+
+Connection 생성
+
+Statement 생성
+
+sql문장의 파라미터 세팅 후에 전송
+
+결과가 select인 경우 Domain,Entity Object 매핑
+
+[예외 처리]
+
+[리소스 정리 ]
+
+### 모르는 것 추가해보자
+
+1. ApplicationContextAware 인터페이스
+
+   ```java
+   public void setApplicationContext(ApplicationContext context) throws BeansException {
+   			this.context=context;
+   
+   		}
+   ```
+
+   
+
+를 구현하면  Application Context객체를 얻게 된다.
+
+그러면 스프링 프레임 워크에서 인자값(application Context 변수)로 객체를 넘겨준다.특정 타입에 속한 빈(bean)들을 조회할 경우  getBeansOfType 을 이용하여  바로 Map 객체로 가져온다.
+
