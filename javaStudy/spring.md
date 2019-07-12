@@ -1060,6 +1060,12 @@ annoteConfig.xml을 새로 만들자!
 
 복사후
 
+![](C:\Users\student\Pictures\DB연동.PNG)
+
+![](C:\Users\student\Pictures\DB연동1.PNG)
+
+를 추가해준다 이것은 Servers 폴더에  Tomcat v9.0 Server at localhost-config ...파일에 있는 server.xml파일 안의 내용안에 추가하는 것이다.
+
 
 
 DriverClass 로딩
@@ -1092,4 +1098,759 @@ sql문장의 파라미터 세팅 후에 전송
 를 구현하면  Application Context객체를 얻게 된다.
 
 그러면 스프링 프레임 워크에서 인자값(application Context 변수)로 객체를 넘겨준다.특정 타입에 속한 빈(bean)들을 조회할 경우  getBeansOfType 을 이용하여  바로 Map 객체로 가져온다.
+
+
+
+##### 1.lab.spring.aop.advice
+
+1. AnnotLoggingAdvice
+
+```java
+
+package lab.spring.aop.advice;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
+
+
+
+@Component
+@Aspect
+public class AnnotLoggingAdvice { 
+	 
+	@Pointcut("execution(* lab.spring.aop.service.*Service.*(..))")
+	public void logPointcut() {}
+	
+	@Before("logPointcut()")
+	public void beforeAdviceMethod(JoinPoint thisJoinPoint) {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		// 대상 메서드에 대한 로거를 얻어 해당 로거로 현재 class, method 정보 로깅		
+		System.out.println("BeforeAdvice:"+className + "." + methodName + " 핵심 메소드 호출 전에 공통 기능 수행....");
+	}
+	
+	 @AfterReturning(pointcut="logPointcut()",returning="retVal")
+	public void afterReturningAdviceMethod(JoinPoint thisJoinPoint,	Object retVal) {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		System.out.println("AfterReturningAdvice:"+className + "." + methodName + " 핵심 메소드 정상 수행 후 공통 기능 수행...");
+		System.out.println("return value is [" + ((Integer)retVal) + "]");
+	}
+	
+	 @AfterThrowing(pointcut="logPointcut()",throwing="exception")
+	public void afterThrowingAdviceMethod(JoinPoint thisJoinPoint,	Exception exception) 
+			                                                             throws Exception{
+//		Class  clazz = thisJoinPoint.getTarget().getClass();
+//		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+//		String methodName = thisJoinPoint.getSignature().getName();
+//		System.out.print("afterThrowingAdvice:"+className + "." + methodName);	
+		System.out.println("핵심 메소드가 수행 중 예외사항을 반환하고 종료하는 경우 수행된다");
+		System.err.println("에러가 발생:"+ exception.getMessage());
+//			throw new Exception("에러가 발생했습니다. ", exception);
+		}
+    
+	 @After("logPointcut()")
+	public void afterAdviceMethod(JoinPoint thisJoinPoint) {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		System.out.print("AfterAdvice:"+className + "." + methodName);	
+		System.out.println("핵심 로직 메서드  정상 종료와 예외 발생 경우를 모두 처리 하는 Advice");
+		}
+	
+	 @Around("logPointcut()")
+	public Object aroundAdviceMethod(ProceedingJoinPoint thisJoinPoint)	throws Throwable {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		System.out.print("AroundAdvice:"+className + "." + methodName);	
+		
+		System.out.println("핵심 메소드 수행 전의 공통 기능 수행........");
+		long time1 = System.currentTimeMillis();
+		Object retVal = thisJoinPoint.proceed();//Target빈의 핵심 메소드 호출
+		System.out.println("ProceedingJoinPoint executed. return value is [" + retVal + "]");
+		 
+		System.out.println("리턴 값 변경 ==>  [" + ((Integer)retVal) + "(modified)" + "]");
+		long time2 = System.currentTimeMillis();
+		System.out.println("핵심 메소드 수행 후의 공통 기능 수행........ Time("+ (time2 - time1) + ")");
+		return retVal;
+			}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}
+
+
+```
+
+2.LoggingAdvice.java
+
+```java
+
+package lab.spring.aop.advice;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+
+public class LoggingAdvice { 
+	 
+	public void beforeAdviceMethod(JoinPoint thisJoinPoint) {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		// 대상 메서드에 대한 로거를 얻어 해당 로거로 현재 class, method 정보 로깅		
+		System.out.println("BeforeAdvice:"+className + "." + methodName + " 핵심 메소드 호출 전에 공통 기능 수행....");
+	}
+	
+	 
+	public void afterReturningAdviceMethod(JoinPoint thisJoinPoint,	Object retVal) {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		System.out.println("AfterReturningAdvice:"+className + "." + methodName + " 핵심 메소드 정상 수행 후 공통 기능 수행...");
+		System.out.println("return value is [" + ((Integer)retVal) + "]");
+	}
+	
+	 
+	public void afterThrowingAdviceMethod(JoinPoint thisJoinPoint,	Exception exception) 
+			                                                             throws Exception{
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		System.out.print("afterThrowingAdvice:"+className + "." + methodName);	
+		System.out.println("핵심 메소드가 수행 중 예외사항을 반환하고 종료하는 경우 수행된다");
+		System.err.println("에러가 발생:"+ exception.getMessage());
+			throw new Exception("에러가 발생했습니다. ", exception);
+		}
+    
+	 
+	public void afterAdviceMethod(JoinPoint thisJoinPoint) {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		System.out.print("AfterAdvice:"+className + "." + methodName);	
+		System.out.println("핵심 로직 메서드  정상 종료와 예외 발생 경우를 모두 처리 하는 Advice");
+		}
+	
+	 
+	public Object aroundAdviceMethod(ProceedingJoinPoint thisJoinPoint)	throws Throwable {
+		Class  clazz = thisJoinPoint.getTarget().getClass();
+		String className = thisJoinPoint.getTarget().getClass().getSimpleName();
+		String methodName = thisJoinPoint.getSignature().getName();
+		System.out.print("AroundAdvice:"+className + "." + methodName);	
+		
+		System.out.println("핵심 메소드 수행 전의 공통 기능 수행........");
+		long time1 = System.currentTimeMillis();
+		Object retVal = thisJoinPoint.proceed();//Target빈의 핵심 메소드 호출
+		System.out.println("ProceedingJoinPoint executed. return value is [" + retVal + "]");
+		 
+		System.out.println("리턴 값 변경 ==>  [" + ((Integer)retVal) + "(modified)" + "]");
+		long time2 = System.currentTimeMillis();
+		System.out.println("핵심 메소드 수행 후의 공통 기능 수행........ Time("+ (time2 - time1) + ")");
+		return retVal;
+			}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}
+
+
+```
+
+##### 2.lab.spring.aop.persist
+
+1. UserManageDAO.java
+
+```java
+package lab.spring.aop.persist;
+
+
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.stereotype.Repository;
+
+
+
+@Repository("dao")
+public class UserManageDAO {
+	
+	private JdbcTemplate template;
+	@Autowired
+	public void setTemplate(JdbcTemplate template) {
+		this.template=template;
+	}
+	
+	public List<userVO> loginProc(String uid,String upwd) {
+		List<userVO> lists=null;
+		Object args[]=new String[]{uid,upwd};
+		String sql="select*from userinfo where userid=? and userpwd=?";
+		lists=template.query(sql,args,new UserRowMapper());
+		return lists;
+		
+	}public int JoinProc(final userVO user) {
+		int rows=0;
+		final StringBuffer sql=new StringBuffer();
+		sql.append("insert into userinfo(userid,username,userpwd,email,phone,job");
+		sql.append(" values (?,?,?,?,?,?,?");
+		rows=template.update(new PreparedStatementCreator() {
+			
+			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+				PreparedStatement pstat=con.prepareStatement(sql.toString());
+				
+
+				pstat.setString(1, user.getUserid());
+				pstat.setString(2, user.getUsername());
+				
+				pstat.setString(3,user.getUserpwd());
+				pstat.setString(4, user.getEmail());
+				pstat.setString(5, user.getPhone());
+				pstat.setString(6, user.getAddress());
+				pstat.setString(7, user.getJob());
+				return pstat;
+			
+			}
+
+	});
+ return rows;
+}
+	
+
+	public List<userVO> findUserList(){
+		List<userVO> userList=null;
+		String sql="select*from userinfo";
+		userList=template.query(sql,new UserRowMapper());
+		return userList.isEmpty()?null:userList;
+	}
+	
+	public userVO findUser(String userid) {
+		Object vo=null;
+		String sql="select*from userinfo where userid=?";
+		vo=template.queryForObject(sql, new Object[] {userid},new UserRowMapper());
+		return (userVO)vo;
+	}
+ public int updateUser(final userVO user) {
+	 int rows=0;
+	 final StringBuffer sql=new StringBuffer();
+	 sql.append("update userinfo set email=?,phone=?,address=?,job=?");
+	 sql.append(" where userid=?");
+	 rows=template.update(new PreparedStatementCreator() {
+		
+		public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+			 PreparedStatement pstat=con.prepareStatement(sql.toString());
+			 
+				pstat.setString(1, user.getEmail());
+				pstat.setString(2, user.getPhone());
+				pstat.setString(3, user.getAddress());
+				pstat.setString(4, user.getJob());
+				pstat.setString(5, user.getUserid());
+				return pstat;
+		}
+	 
+		
+	 });
+	 return rows;
+ }
+ 
+ public int removeUser(final String userid) {
+	 int rows=0;
+	 final String sql="delete userinfo where userid=?";
+	 rows=template.update(new PreparedStatementCreator() {
+		
+		public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+			PreparedStatement pstat=con.prepareStatement(sql);
+			pstat.setString(1,userid);
+			return pstat;
+		}
+	});
+	 return rows;
+ }
+}
+
+```
+
+
+
+2.UserRowMapper.java
+
+```java
+package lab.spring.aop.persist;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
+public class UserRowMapper implements RowMapper<userVO> {
+
+	public userVO mapRow(ResultSet rs,int num)throws SQLException{
+		userVO vo=new userVO();
+		vo.setUserid(rs.getString("userid"));
+		vo.setUsername(rs.getString("username"));
+		vo.setUserpwd(rs.getString("userpwd"));
+		vo.setPhone(rs.getString("phone"));
+		vo.setAddress(rs.getString("address"));
+		vo.setEmail(rs.getString("email"));
+		vo.setJob(rs.getString("job"));
+		return vo;
+	}
+
+}
+
+```
+
+
+
+3.userVO.java
+
+```java
+package lab.spring.aop.persist;
+
+public class userVO {
+	 private String userid;
+	 private String userpwd;
+	 private String username;
+	 private String email;
+	 private String phone;
+	 private String address;
+	 private String job;
+	public String getUserid() {
+		return userid;
+	}
+	public void setUserid(String userid) {
+		this.userid = userid;
+	}
+	public String getUserpwd() {
+		return userpwd;
+	}
+	public void setUserpwd(String userpwd) {
+		this.userpwd = userpwd;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	public String getJob() {
+		return job;
+	}
+	public void setJob(String job) {
+		this.job = job;
+	}
+	 
+}
+
+```
+
+
+
+##### 3.lab.spring.aop.service
+
+1.UserService.java
+
+```java
+package lab.spring.aop.service;
+
+import java.util.List;
+
+import lab.spring.aop.persist.userVO;
+
+public interface UserService {
+ public int registMember(userVO user);
+ public int updateUser(userVO user);
+ public int removeUser(String uid);
+ public userVO finUser(String uid);
+ public List<userVO> login(String uid,String upwd);
+ public List<userVO> findUserList();
+}
+
+```
+
+2.UserServiceImpl.java
+
+UserService에 넣어놓은 것을 구현해야한다.
+
+오버라이드로 추가하고 return에 dao.로 받아주는 걸로 교체한다.
+
+```java
+package lab.spring.aop.service;
+
+import java.util.List;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Service;
+
+import lab.spring.aop.persist.UserManageDAO;
+import lab.spring.aop.persist.userVO;
+
+
+@Service("userService")
+public class UserServiceImpl implements UserService {
+  @Autowired
+  private UserManageDAO dao;
+  
+	
+  
+	public void setDao(UserManageDAO dao) {
+	this.dao = dao;
+}
+
+
+	
+
+	public int updateUser(userVO user) {
+		// TODO Auto-generated method stub
+		return dao.updateUser(user);
+	}
+
+
+
+
+	public int removeUser(String uid) {
+		// TODO Auto-generated method stub
+		return dao.removeUser(uid);
+	}
+
+
+
+
+	public userVO finUser(String uid) {
+		// TODO Auto-generated method stub
+		return dao.findUser(uid);
+	}
+
+
+
+
+
+
+
+
+
+	public List<userVO> login(String uid, String upwd) {
+		// TODO Auto-generated method stub
+		return dao.loginProc(uid, upwd);
+	}
+
+
+
+
+	public List<userVO> findUserList() {
+		// TODO Auto-generated method stub
+		return dao.findUserList();
+	}
+
+
+
+
+	public int registMember(userVO vo) {
+		int result=0;
+		result=dao.JoinProc(vo);
+		return result;
+	}
+
+}
+
+```
+
+##### 4.lab.spring.aop.test
+
+1.DBTest
+
+```java
+package lab.spring.aop.test;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import lab.spring.aop.persist.userVO;
+import lab.spring.aop.service.UserService;
+
+public class DBTest {
+
+	public static void main(String[] args) {
+		String[] configs =new String[] {"springDao.xml"};
+		ApplicationContext context=
+				new ClassPathXmlApplicationContext(configs);
+		UserService service=
+				context.getBean("userService", UserService.class);
+		System.out.println("###############전체 목록###################");
+		List<userVO> lists=service.findUserList();
+		Iterator<userVO> iter=lists.iterator();
+		while(iter.hasNext()) {
+			userVO u=iter.next();
+			System.out.println(u);
+		}
+		
+
+	}
+
+}
+
+```
+
+
+
+##### 5.lab.spring.aop.util
+
+1.JdbcUtil.java
+
+```java
+package lab.spring.aop.util;
+
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Properties;
+
+public class JdbcUtil {
+	private String driver;
+	private String url;
+	private String user;
+	private String pwd;
+	public void setDriver(String driver) {
+		this.driver = driver;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public void setUser(String user) {
+		this.user = user;
+	}
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+	
+	public Connection dbCon() {
+		 Connection con=null;
+		 try{
+			 Class.forName(driver);
+			 con=DriverManager.getConnection(url,user,pwd);
+					}catch(Exception e) {
+						e.printStackTrace();
+					}
+					return con;
+	 }
+	 public void dbClose(Connection con, Statement stat,ResultSet rs) {
+		 try {
+			 if(rs!=null)rs.close();
+			 if(stat!=null)stat.close();
+			 if(con!=null)con.close();
+		 }catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+}
+
+```
+
+
+
+##### SpringDao.xam
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+<context:annotation-config/>
+<context:component-scan base-package="lab.spring.aop"/>
+
+<!-- SpringDAO Framework에서 저수준 작업 JdbcTemplate 빈설정 -->
+
+<bean id="jdbcTemplate"
+	class="org.springframework.jdbc.core.JdbcTemplate"
+	p:dateSource-ref="dataSource"/>
+<!-- Jdbvtemplate 빈에 주입된 DataSource에 빈 설정 -->
+<bean id="org.springframework.jdbc.datasource.DriverManagerDataSource"
+p:drvierClassName="oracle.jdbc.OracleDriver"
+p:url="jdbc:oracle:thin:@127.0.0.1:1521:orcl"
+p:username="hr" p:password="oracle"/>
+
+</beans>
+
+```
+
+##### pom.xml
+
+```java
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>spring_aop</groupId>
+  <artifactId>spirng_aop</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>spirng_aop</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring.maven.artifact.version>5.0.2.RELEASE</spring.maven.artifact.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+      </dependency>
+      
+      
+      <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+    
+      <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-beans</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context-support</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+    </dependency>
+    
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjrt</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>aopalliance</groupId>
+    <artifactId>aopalliance</artifactId>
+    <version>1.0</version>
+       
+    </dependency>
+    
+  <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-jdbc</artifactId>
+<version>${spring.maven.artifact.version}</version>
+
+</dependency> <!-- 이게 있어야 DB연동...?-->
+    
+
+      
+  
+  </dependencies>
+</project>
+
+```
+
+
+
+
+
+
+
+## 정리해보까?
+
+```java
+<bean id="targer" class=""/>
+<bean id="advice" class=""/>
+<aop:aspect>
+<aop:pointcut ref="target">
+	<aop:before ~ advice-ref..>
+	<aop:after~
+	..
+        </aop:pointcut>
+```
+
+
+
+
 
