@@ -1401,8 +1401,9 @@ location.href="./cookie_login.jsp";
 
 - Session객체는 최초 요청시에 웹 컨테이너가 HttpSession구현 객체를 생성
 - HttpSession객체 생성,추출
-  - HttpSession session=request.getSession();
-
+  
+- HttpSession session=request.getSession();
+  
 - HttpSession객체에 상태 정보 보관 객체 등록(한번만 등록한다.)
   
   - session.setAttribute("xx",new data()); 순서는(key,value)이다.
