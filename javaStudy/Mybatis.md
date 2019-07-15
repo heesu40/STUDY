@@ -276,22 +276,20 @@ UserMapper.xml
 drop table products purge;
 
 create table products (
-prodnum    number(8)  primary key ,   제품번호
+prodnum    varchar2(20)  primary key ,  -- 제품번호
 pname      varchar2(30),   --상품 이름
 category   varchar2(30), --상품 분류
 description  varchar2(1000),--상품 특성, 설명
 filename    varchar2(100),        ----이미지 파일 경로
 manufacturer  varchar2(50), --제조사
 unitPrice    number(7),     --개당 가격
+condition varchar2(20),
 unitsInStock   number(5)    --제고
 );
 
- 
 
-
---샘플 데이터 
 insert into products ( prodnum ,pname, unitPrice, Description, Category, Manufacturer, UnitsInStock,  Condition,  Filename )
-values ( 'P1234', 'iPhone 6s',800000, '4.7-inch, 1334X750 Renina HD display 8-megapixel iSight Camera,);
+values ( 'P1234', 'iPhone 6s',800000, '4.7-inch, 1334X750 Renina HD display 8-megapixel iSight Camera',
 'Smart Phone','Apple', 1000, 'New', 'P1234.png');
 
 insert into products ( prodnum ,pname, unitPrice, Description, Category, Manufacturer, UnitsInStock,  Condition,  Filename )
@@ -388,3 +386,63 @@ delete from products  where prodnum = ? ;
  
  
 ```
+
+
+
+
+
+# 복습해보자
+
+1. MyBatis, SQL Mapping),Framwork 를 설정하기 위해서 
+
+- config.xml
+  - DB연결
+  - Logging 설정
+  - mapper.xml리스트
+  - mode설정(운영,개발)
+- mapper.xml
+  - namespace선언
+  - <  select id= resuletype= parameterType= >
+  - < insert id= parameterType>
+  - < update id>
+  - < delete id>
+
+2. 정의하기
+
+- Connect 해당 -SqlSessionFactory(전역 Scope)(생성하기위해서는 SqlSessionFactoryBuilde (메서드 scope)로 부터 생성한다. SqlSessionFactory.openSession을 이용하여 SqlSession생성)
+- Statement 해당 -SqlSession(메서드 scope) 이며 이를 이용하여 query(),update(),
+
+3. Spring Frame
+
+- Templet 패던(스프링에서 제공)
+  - 저수준 작업으로 
+    1. DB connection
+    2. 예외처리
+    3. Restore
+- DataSource(는 tepmlete에 주입된다.)
+  1. DriveManager
+  2. Connection lib  ex)DBLP
+  3. 
+
+```xml
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  <property name="dataSource" ref="dataSource" />
+  <property name="mapperLocations" value="classpath*:lab/mybatis/mappers/*.xml" />
+</bean>
+
+<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+  <constructor-arg index="0" ref="sqlSessionFactory" />
+</bean>
+```
+
+를 설정 후 (application.xml)
+
+```java
+@Repository
+public class UserDAO {
+	@Autowired
+	SqlSession sqlSession;//설정 application.xml에서 한 설정Session이 들어올것이다.
+	
+```
+
+로 설정했다.
