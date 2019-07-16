@@ -925,14 +925,14 @@ function userList(){
 		  <tr>
 			<td width=100 align=center bgcolor="E6ECDE" height="22">사용자 아이디</td>
 			<td width=490 bgcolor="ffffff" style="padding-left:20">
-				<input type="text" style="width:150" name="userid" value="">
+				<input type="text" style="width:150" name="userid" value="${userid }">
 				 
 			</td>
 		  </tr>
 		  <tr>
 			<td width=100 align=center bgcolor="E6ECDE" height="22">비밀번호</td>
 			<td width=490 bgcolor="ffffff" style="padding-left:20">
-				<input type="password" style="width:150" name="userpwd" value="">
+				<input type="password" style="width:150" name="userpwd" value="${userpwd }">
 				 
 			</td>
 		  </tr>
@@ -963,6 +963,12 @@ function userList(){
 				<input type="text" style="width:340px" name="address" value="">
 			</td>
 		  </tr>		
+		   <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">직     업  </td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="text" style="width:340px" name="job" value="">
+			</td>
+		  </tr>
 	  </table>
 	  
 	  <br>
@@ -1001,7 +1007,7 @@ userList.jsp
 </head>
 <body bgcolor=#FFFFFF text=#000000 leftmargin=0 topmargin=0 marginwidth=0 marginheight=0>
 <br>
-<form name="f" method="post" action="./add.do">
+<!-- <form name="f" method="post" action="./add.do"> -->
 <table width=780 border=0 cellpadding=0 cellspacing=0>
 <tr>
 	<td width="20"></td>
@@ -1023,7 +1029,7 @@ userList.jsp
 		  	</tr>
  
  	<!-- 사용자 리스트를 클라이언트에게 보여주기 위하여 출력. -->
- 		  	 <c:forEach var="user" items="${list}">
+ 		  	 <c:forEach var="user" items="${users}" >
            <tr>
             <td>${user.userid }</td>
             <td>${user.username }</td>
@@ -1034,7 +1040,7 @@ userList.jsp
 	  	</table>
 	  	<!-- /list -->	 
 
-		<br>
+		<br><form name="f" method="get" action="./add.do">
 		<!-- button -->
 	  	<table border="0" cellpadding="0" cellspacing="1" width="590">
 			<tr>
@@ -1063,6 +1069,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -1082,29 +1090,49 @@ public class UserController {
 		public  String form() {
 			return "userForm";
 		}
+//	
+//	@RequestMapping(value="/add.do",method=RequestMethod.POST)
+//	public ModelAndView userCreate(UserVO user) {
+//		ModelAndView mav=new ModelAndView();
+//		service.addUser(user);
+//		
+//		
+//		mav.setViewName("redirect:/list.do");
+//		
+//		return mav;
+//	}
+//	@RequestMapping(value="/list.do",method=RequestMethod.GET)//애는 왜 GET이지???
+//	public ModelAndView userlist() {
+//		ModelAndView mav=new ModelAndView();
+//		
+//		List<UserVO> list=service.findUserList();
+//		mav.addObject("list",list);
+//		mav.setViewName("userList");//setViewName을 통해 뷰의 이름을 지정할 수 있다.
+//		
+//		return mav;
+//		
+//	}
 	
 	@RequestMapping(value="/add.do",method=RequestMethod.POST)
-	public ModelAndView userCreate(UserVO user) {
+	public ModelAndView addUser(@ModelAttribute("user")UserVO vo) {
 		ModelAndView mav=new ModelAndView();
-		service.addUser(user);
-		
-		
-		mav.setViewName("redirect:/list.do");
-		
+		if(service.addUser(vo)>0) {
+			mav.setViewName("redirect:/list.do");
+		}else {
+			mav.setViewName("redirect:/login.do");
+		}
 		return mav;
 	}
-	@RequestMapping(value="/list.do",method=RequestMethod.GET)//애는 왜 GET이지???
-	public ModelAndView userlist() {
+	@GetMapping("/list.do")
+	public ModelAndView listUser() {
 		ModelAndView mav=new ModelAndView();
-		
-		List<UserVO> list=service.findUserList();
-		mav.addObject("list",list);
-		mav.setViewName("userList");//setViewName을 통해 뷰의 이름을 지정할 수 있다.
-		
+		List<UserVO> userList=null;
+		userList=service.findUserList();
+		mav.addObject("users",userList);//앞에 따옴표 있는 것을 실제 list.jsp에 불러오는 
+		//c:forEach var="user" items="${users}" 에서 items안에 들어가는 값 
+		mav.setViewName("userList");
 		return mav;
-		
 	}
-	
 	
 	
 }
@@ -1114,4 +1142,337 @@ public class UserController {
 
 
 
+
+
+
+
+
+# 스프링 MVC 구조 확인(책)
+
+이클립스에서 maven porject를 시작하고  webapp가 들어있는 것으로 만들어야 하위 폴더 구성이 자동으로 추가 된다.
+
+
+
+index가 webapp-WEB_INF-index.jsp에 있는 것ㅇ르 확인하고
+
+jsp인데 선언이 빠져있으므로 넣어주자
+
+#####  index.jsp
+
+```jsp
+<%@ page contentType="text/html;charset=utf-8" %>
+<html>
+<body>
+<meta charset="utf-8">
+<h2>Spring mvc web 컨텍스트</h2>
+</body>
+</html>
+
+```
+
+chapter9장은 책대로 해보자.
+
+#####  pom.xml
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>spring_orm</groupId>
+  <artifactId>spring_orm</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>spring_orm</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring.maven.artifact.version>5.0.2.RELEASE</spring.maven.artifact.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+     <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+    
+      <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-beans</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context-support</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+    </dependency>
+    
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjrt</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>aopalliance</groupId>
+    <artifactId>aopalliance</artifactId>
+    <version>1.0</version>
+       
+    </dependency>
+    
+  <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-jdbc</artifactId>
+<version>${spring.maven.artifact.version}</version>
+
+</dependency>
+
+<dependency>
+  <groupId>org.mybatis</groupId>
+  <artifactId>mybatis</artifactId>
+  <version>3.5.1</version>
+</dependency>
+    
+    <dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.17</version>
+</dependency>
+    
+    <dependency>
+  <groupId>org.mybatis</groupId>
+  <artifactId>mybatis-spring</artifactId>
+  <version>2.0.1</version>
+</dependency>
+    
+  </dependencies>
+  
+  
+</project>
+
+```
+
+
+
+config 패키지 만든후
+
+#####  MvcConfig.java
+
+```java
+package config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+@EnableWebMvc
+public class MvcConfig implements WebMvcConfigurer{
+
+	@Override
+	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+		
+		configurer.enable();
+	}
+
+	@Override
+	public void configureViewResolvers(ViewResolverRegistry registry) {
+		
+		registry.jsp("/WEB-INF/view/",".jsp");
+	}
+
+	  
+	
+}
+
+```
+
+오버라이드 하면 편하다! 오버라이드해서 불러오자.
+
+
+
+##### web.xml(DispatcherServlet설정)
+
+encoding필터의 경우 앞에 옴으로 앞에 써주고 최신버전의 web-app을 가져오자(가장 위의 설정 부분)
+
+contextClass-?
+
+contextConfigLocation- 경로지정?
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+ xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+  id="WebApp_ID" version="4.0">
+
+
+  <display-name>Archetype Created Web Application</display-name>
+  
+  <filter>
+    <filter-name>encodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+   
+  <filter-mapping>
+    <filter-name>encodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  
+  <servlet>
+  <servlet-name>dispatcher</servlet-name>
+  <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  	 <init-param>
+  	 <param-name>contextClass</param-name>
+  	 <param-value>
+  	 org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+  	 </param-value>
+  	 </init-param>
+  	 
+  	 
+  	 <init-param>
+  	 <param-name>contextConfigLocation</param-name>
+  	 <param-value>
+  	 config.MvcConfig
+  	 config.ControllerConfig
+  	 </param-value><!-- 장소 지정을 cinfig 패키지 아래 로 했기에 두개의 파일은 같은 패키지 아래에 있어야 한다.-->
+  	 </init-param>
+  	 <load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+  <servlet-name>dispatcher</servlet-name>
+  <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  
+</web-app>
+
+```
+
+
+
+#####   HelloController.java(컨트롤러 구현)
+
+```java
+package controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+public class HelloController {
+
+		@GetMapping("/hello")
+		public String hello(Model model,
+				@RequestParam(value="name", required=false)String name) {
+			model.addAttribute("greeting","안녕하세요,"+name);//요청처리결과를 뷰에 전달
+			return "hello";//뷰 이름(뷰 구현을 찾아주는 것이 ViewResolver가 처리하는데 이는 다음문제에서 살펴보자.)
+            //model 의 속성 greeting에 값을 설정해 주는데 그 값이 "안녕하세요"와 name파라미터 값을 연결한 문자다.
+		}
+}
+
+```
+
+
+
+##### ControllerConfig.java
+
+```java
+package config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import controller.HelloController;
+
+
+@Configuration
+public class ControllerConfig {
+
+		@Bean
+		public HelloController helloController() {
+			return new HelloController();
+		}
+}
+
+```
+
+
+
+
+
+##### hello.jsp
+
+WEB-INF 아래 view파일을 생성하고 hello.jsp를 만들자
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=utf-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>hello.jsp</title>
+</head>
+<body>
+HelloController가 Model에 저장해서 View에 전달한 데이터:<br>
+${greeting}
+</body>
+</html>
+```
+
+
+
+![1563240076479](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC9)
+
+만약 hello.jsp에 오류가 뜨면 톰켓이 없어서 이므로  buildpath d를 들어가 addLibrary...에 들어가 server runtime클릭후 톰캣을 넣어주자.
+
+결과 확인은 /hello?name=아무거나 작성 을 해보면 알 수 있다.
+
+
+
+
+
+
+
+# 메세지, 커맨드 객체 검증
+
+main 아래 resources아래 messages파일을 만드후
 
