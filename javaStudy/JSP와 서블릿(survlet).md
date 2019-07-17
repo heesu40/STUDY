@@ -66,7 +66,7 @@ internet-내부 네트워크 의미
 
 #### servlet 과 jsp
 
-##### 서블릿이란
+##### 서블릿(자바클래스에 웹 어플리케이션 작성)
 
 - 자바를 기반으로 하는 웹 애플리케이션 프로그래밍
 - 서블릿 기술에서는 자바 클래스 형태로 웹 애플리게이션을  작성하는데 이를 서블릿 클래스라 지칭
@@ -75,7 +75,7 @@ internet-내부 네트워크 의미
   2. doGet또는 doPost라는 메서드 선언하고 호출시 해야할일 작성해야한다.
   3. 동적 HTML문서를 생성해서 웹 브라우저로 보내는 일을  하기 위해서 doGet, doPost메서드에서 파라미터를 두개 지정해야 한다.(`HttpServletRequest req,HttpServletRespons req`) 
 
-##### jsp
+##### jsp(html문서 안에 자바코드 삽입)
 
 - 자바를 기반으로 하는 웹 프로그래밍 기술
 - jsp페이지는 서블릿 클래스와는 반대로 HTMl문서 안에 자바 코드가 삽입 되는 구조이다.
@@ -106,7 +106,7 @@ internet-내부 네트워크 의미
 
 3. WEB_INF안에 classes 폴더와 lib폴더 생성하고 `C:\Users\student\Downloads\apache-tomcat-9.0.21\apache-tomcat-9.0.21\webapps\ROOT\WEB-INF`아래에 있는 web.xml문서를 복사하여 우리가 만들고 있는 WEB_INF폴더 안에 붙여넣기 한다.
 
-4. 이 상태에서 web1파일안에 index.html파일을 만들어보자. 그리고 톰캣을 startup window문서를 실행하고 브라우저에서 http://localhost:8080/web1/ 을 실행하면 만들어 놓은 html파일이 자동으로 실행됨을 알 수있다.
+4. 이 상태에서 web1파일안에 index.html파일을 만들어보자. 그리고 톰캣 아래 bin폴더 아래  startup window문서를 실행하고 브라우저에서 http://localhost:8080/web1/ 을 실행하면 만들어 놓은 html파일이 자동으로 실행됨을 알 수있다.
 
    - 자동으로 실행되는 것은 톰캣의 conf파일의 web.xml문서를 실행하면 아래의 것을 볼수 있다.
 
