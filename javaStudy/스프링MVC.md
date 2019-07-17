@@ -1474,5 +1474,1530 @@ ${greeting}
 
 # 메세지, 커맨드 객체 검증
 
+###### 오류 메시지 준비
+
 main 아래 resources아래 messages파일을 만드후
+
+파일을 두개 만든다 각각 이름은
+
+validation_ko.properties,validation.properties
+
+validation_ko.properties
+
+```
+required=\uC791\uC131\uC744 \uD574\uC57C\uD55C\uB2E4.
+required.user.userid=\uC544\uC774\uB514\uAC00 \uC5C6\uB2E4.
+required.username=\uC774\uB984\uC774 \uC5C6\uB2E4!
+required.user.userpwd=\uBE44\uBC00\uBC88\uD638\uAC00 \uC5C6\uB2E4!
+```
+
+validation.properties
+
+```
+required=Must be Required Item!!!
+required.user.userid=Must be Required Userid!!
+required.username=Must be Required Your Name!!
+required.user.userpwd=Must be Required Password!!
+```
+
+위의 한글로 작성했지만 꺠진다 신경쓰지 말자(만약 저리 안나온다면 마우스 오른쪽 버튼 Properties에 들어가 Text file encoding을 Default로 선택하자.)
+
+###### 오류 처리 루트
+
+
+
+``` java
+package lab.spring.web.model;
+
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+
+public class UserValidator implements Validator {
+
+	@Override
+	public boolean supports(Class<?> clazz) {
+	
+		return UserVO.class.isAssignableFrom(clazz);
+	}
+
+	@Override
+	public void validate(Object target, Errors errors) {
+		UserVO vo=(UserVO)target;
+		
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userid", "required");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "required");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userpwd", "required");
+		
+	}
+
+}
+
+```
+
+
+
+###### 오류가 나타낼 위치에 코드 입력
+
+userForm.jsp
+
+ <font color="red"><form:errors path="user.username"/></font> 를 상자 옆에 넣어준다. username은 맞는 것에 따라 바꾸어 준다.
+
+```java
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+     <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"  %>
+      <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"  %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta   charset="utf-8">
+<TITLE>개인 정보 입력 화면</TITLE>
+<link rel=stylesheet href="../css/user.css" type="text/css">
+<script type="text/javascript">
+function userCreate(){		
+	f.action="./add.do";
+	f.submit();	
+}
+function userList(){
+	f.action="./list.do";
+	f.submit();
+}
+</script>
+</head>
+<body bgcolor=#FFFFFF text=#000000 leftmargin=0 topmargin=0 marginwidth=0 marginheight=0>
+<br>
+<table width=780 border=0 cellpadding=0 cellspacing=0>
+	<tr>
+	  <td width="20"></td>
+	  <td>
+  <!--contents-->
+	  <table width=590 border=0 cellpadding=0 cellspacing=0>
+		  <tr>
+			<td bgcolor="f4f4f4" height="22">&nbsp;&nbsp;<b>사용자 관리 - 개인 정보 입력</b></td>
+		  </tr>
+	  </table>  
+	  <br>
+	  
+	  
+ <form:errors path="user" />
+	  <!-- write Form  -->
+	  <form name="f" method="post" action="/add.do">
+	  
+	  <table border="0" cellpadding="0" cellspacing="1" width="590" bgcolor="BBBBBB">
+		  <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">사용자 아이디</td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="text" style="width:150" name="userid" value="">
+				 <font color="red"><form:errors path="user.userid"/></font>
+			</td>
+		  </tr>
+		  <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">비밀번호</td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="password" style="width:150" name="userpwd" value="">
+				  <font color="red"><form:errors path="user.userpwd"/></font>
+			</td>
+		  </tr>
+		   
+		  <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">이름</td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="text" style="width:200" name="username" value="">
+		  <font color="red"><form:errors path="user.username"/></font>
+			</td>
+		  </tr>
+		  
+		  <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">이메일 주소</td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="text" style="width:340px" name="email" value="">
+				 <font color="red"><form:errors path="user.email"/></font>
+			</td>
+		  </tr>		
+		  <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">전화 번호</td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="text" style="width:150px" name="phone" value="">
+				 <font color="red"><form:errors path="user.phone"/></font>
+			</td>
+		  </tr>		
+		  <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">주    소</td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="text" style="width:340px" name="address" value="">
+				 <font color="red"><form:errors path="user.address"/></font>
+			</td>
+		  </tr>		
+		   <tr>
+			<td width=100 align=center bgcolor="E6ECDE" height="22">직     업  </td>
+			<td width=490 bgcolor="ffffff" style="padding-left:20">
+				<input type="text" style="width:340px" name="job" value="">
+				 <font color="red"><form:errors path="user.job"/></font>
+			</td>
+		  </tr>
+	  </table>
+	  
+	  <br>
+	  
+	  <table width=590 border=0 cellpadding=0 cellspacing=0>
+		  <tr>
+			<td align=center>
+			<input type="button" value="회원 가입" onClick="userCreate()"> &nbsp;
+			<input type="button" value="목록" onClick="userList()">
+			</td>
+		  </tr>
+	  </table>
+
+	  </td>
+	</tr>
+</table>  
+ </form>
+</body>
+</html>
+```
+
+
+
+
+
+
+
+# 파일 업로드
+
+###### 파일 설정 준비
+
+pom.xml에
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>spring.web</groupId>
+  <artifactId>spring.web</artifactId>
+  <packaging>war</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>spring.web Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  
+   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring.maven.artifact.version>5.0.2.RELEASE</spring.maven.artifact.version>
+  </properties>
+  
+  <dependencies>
+  
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+     <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+    
+      <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-beans</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context-support</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+    </dependency>
+    
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjrt</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>aopalliance</groupId>
+    <artifactId>aopalliance</artifactId>
+    <version>1.0</version>
+       
+    </dependency>
+    
+  <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-jdbc</artifactId>
+<version>${spring.maven.artifact.version}</version>
+
+</dependency>
+
+<dependency>
+  <groupId>org.mybatis</groupId>
+  <artifactId>mybatis</artifactId>
+  <version>3.5.1</version>
+</dependency>
+    
+    <dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.17</version>
+</dependency>
+    
+    <dependency>
+  <groupId>org.mybatis</groupId>
+  <artifactId>mybatis-spring</artifactId>
+  <version>2.0.1</version>
+</dependency>
+
+      <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-web</artifactId>
+<version>${spring.maven.artifact.version}</version>
+
+</dependency>
+  <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-webmvc</artifactId>
+<version>${spring.maven.artifact.version}</version>
+</dependency>
+
+
+<!-- 파일 업로드를 위한 추가 -->
+<dependency>
+    <groupId>commons-fileupload</groupId>
+    <artifactId>commons-fileupload</artifactId>
+    <version>1.2.1</version>
+</dependency>
+
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>1.4</version>
+</dependency>
+    
+  </dependencies>
+  <build>
+    <finalName>spring.web</finalName>
+  </build>
+</project>
+
+```
+
+아래 부분을 추가!
+
+
+
+action-servlet.xml 에(위치는 webapp 아래 WEB-INF 아래 ...)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+<context:annotation-config/>
+<context:component-scan base-package="lab.spring.web"/>
+
+<!--  Handler mapping bean설정( DefaultAnnotationHandlerMapping)
+기본 HandlerMapping이므로 빈 설정 파일에 별도로 선언할 필요 없으나, 다른 HandlerMapping과 함께 사용한다면 선언
+해야 한다. -->
+
+<!--  ViewResolver Bean 설정 -->
+<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <property name="prefix" value="/WEB-INF/view/"></property>
+    <property name="suffix" value=".jsp"></property>
+  </bean>
+  <!-- db연동과 함께 sqlSessionfactory bean -> sqlSessio Templete -> sqlSession 을 UserManagerDAO에 주입 -->
+
+<!-- jNDI 기반이 설정 설정 예시 -->
+<jee:jndi-lookup jndi-name="jdbc/oracle" id="dataSource" resource-ref="true"/> 
+
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  <property name="dataSource" ref="dataSource" />
+  <property name="mapperLocations" value="classpath*:lab/mybatis/mappers/*.xml" />
+</bean>
+
+<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+  <constructor-arg index="0" ref="sqlSessionFactory" />
+</bean>
+
+<mvc:annotation-driven/> <!-- 이렇게 하면 자동으로 HandlerAdaptor가 자동으로 추가된다. -->
+  
+  <bean id="messageSource"
+   class="org.springframework.context.support.ResourceBundleMessageSource">
+   <property name="basenames">
+   <value>messages.validation</value>
+   </property>
+   </bean>
+   
+  <!-- 파일업로드 위한 multipartResolver를 이용한다. 스프링 bean이다. --> 
+   <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <property name="maxUploadSize" value="1000000" />
+</bean>
+  
+</beans>
+
+
+
+<!--  Controller Bean 설정(자동으로 스캔에서 되도록 설정할것이다. 위에 context scan추가로) -->
+
+
+```
+
+
+
+그 후 webapp-WEB-INF-view-report 를 만들고 그 아래 
+
+reportComplete.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=utf-8"%>
+ 
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<title>리포트 제출 완료</title>
+</head>
+<body>
+리포트 제출 완료
+</body>
+</html>
+```
+
+reportForm.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=utf-8"%>
+ 
+
+<html>
+<head>
+<meta charset="utf-8">
+<title>리포트 제출</title>
+</head>
+<body>
+<h3>@RequestParam 사용</h3><!-- 파일 업로드 방법 1 참고로 업로드 파일은 POST로 넘겨야 한다. -->
+<form action="submitReport1.do" method="post" enctype="multipart/form-data">
+	학번: <input type="text" name="studentNumber" />
+	<br/>
+	리포트파일: <input type="file" name="report" />
+	<br/>
+	<input type="submit" value="제출"/>
+</form>
+
+<h3>MultipartHttpServletRequest 사용</h3><!-- 파일 업로드  방법 2 -->
+<form action="submitReport2.do" method="post" enctype="multipart/form-data">
+	학번: <input type="text" name="studentNumber" />
+	<br/>
+	리포트파일: <input type="file" name="report" />
+	<br/>
+	<input type="submit" value="제출"/>
+</form>
+
+<h3>커맨드 객체 사용</h3><!-- 파일  업로드 방법 3 -->
+<form action="submitReport3.do" method="post" enctype="multipart/form-data">
+	학번: <input type="text" name="studentNumber" />
+	<br/>
+	리포트파일: <input type="file" name="report" />
+	<br/>
+	<input type="submit" />
+</form>
+
+
+</body>
+</html>
+```
+
+
+
+를 만든다.
+
+
+
+###### 파일업로드 위한 객체와 컨트롤을 만들자
+
+ReportCommand.java
+
+```java
+package lab.spring.web.model;
+
+import org.springframework.web.multipart.MultipartFile;
+
+public class ReportCommand {
+private String studentNumber;
+private MultipartFile report;
+public String getStudentNumber() {
+	return studentNumber;
+}
+public void setStudentNumber(String studentNumber) {
+	this.studentNumber = studentNumber;
+}
+public MultipartFile getReport() {
+	return report;
+}
+public void setReport(MultipartFile report) {
+	this.report = report;
+}
+
+
+}
+
+```
+
+
+
+ReportController.java
+
+```java
+package lab.spring.web.controller;
+
+import java.io.File;
+import java.io.FileOutputStream;
+
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import lab.spring.web.model.ReportCommand;
+
+@Controller
+public class ReportController {
+
+	
+	 @RequestMapping("/report/report.do")//getMapping으로 써도 가능(먼저 가져오고
+	 public String form() {
+		 return "report/reportForm";//폼을 불러온 후 
+	 }
+		 
+	 @RequestMapping("/report/submitReport1.do")//postMapping으로 써도 가능
+	 public String submitReport1( 
+	    @RequestParam("studentNumber") String studentNumber,//파람값은 reportFrom.jsp와 같아야한다
+		 @RequestParam("report") MultipartFile report){
+			 printInfo(studentNumber,report);//
+			 if(report.getSize()==0) 
+				 throw new NullPointerException("업로드된 파일 없음");
+				 return  "report/reportComplete";
+			 
+		 }
+	 private void printInfo(String studentNumber, MultipartFile report) {
+		 if(!report.isEmpty()) {
+			 String filename=report.getOriginalFilename();
+			 String imgExt =filename.substring(filename.lastIndexOf(".")
+					 +1, filename.length());
+			 try {
+				 //upload처리
+				 if(imgExt.equalsIgnoreCase("JPG")
+						 ||imgExt.equalsIgnoreCase("JPEG")
+						 ||imgExt.equalsIgnoreCase("GIF")
+						 ||imgExt.equalsIgnoreCase("PNG")) {//바이너리(binary)(?)의 파일을
+					 byte[] bytes=report.getBytes();//바이트에 저장을 하고
+					 File lOutFile =new File("c://uploadtest/"+"_"+filename);
+					 //파일이 없을시 만든다는 내용이 없기떄문에 c아래에 저장될 위치의 파일이 있어야 한다.
+					 FileOutputStream lFileOutputStream =new FileOutputStream(lOutFile);
+					 lFileOutputStream.write(bytes);//저장된 것을 뿌려준후
+					 lFileOutputStream.close();//닫아준다............?
+				 }else {
+					 System.out.println("File type error! ");
+				 }
+				 System.out.println(studentNumber + "제출된 보고서: "
+						 + report.getOriginalFilename());
+			 }catch(Exception e){
+				 e.printStackTrace();
+			 }
+		 }
+	 }
+	 
+	 @ExceptionHandler(NullPointerException.class)//위에 에러를 넘겼기 때문에 이것이 있어야 한다!!!!
+	 public String handleException(NullPointerException exception) {
+		 return "common/error"; // 뷰이름 리턴 common폴더를 만들고 그 아래 error를 만들어 오류 경고 보내야한다.
+	 }
+	 
+	 @RequestMapping("/report/submitReport2.do")
+	 public String submitReport2(MultipartHttpServletRequest request) {
+		 String sno=request.getParameter("studentNumber");
+		 MultipartFile report=request.getFile("report");
+		 printInfo(sno,report);
+		 if(report.getSize()==0) 
+			 throw new NullPointerException("업로드된 파일 없음");
+		 return "report/reportComplete";
+	 }
+	 @RequestMapping("/report/submitReport3.do")
+	 public String submitReport3(ReportCommand reportCommand) {
+		 printInfo(reportCommand.getStudentNumber(), reportCommand.getReport());
+		 if(reportCommand.getReport().getSize()==0) 
+		 { throw new NullPointerException("업로드된 파일 없음");}
+		 return "report/reportComplete";
+	 }
+	 
+	 }
+
+
+```
+
+를 만들어 실행 코드 완료!
+
+webapp 아래 view 아래 common폴더를 만들고 error.jsp를 만들자
+
+error.jsp
+
+오류를 검색하기 위해서...? isErrorPage="true"를 추가한다!
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+    pageEncoding="EUC-KR" isErrorPage="true" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>error.jsp</title>
+</head>
+<body>
+    예외가 발생하였습니다.
+<%=exception.getMessage() %>
+${exception.message }<br>
+</body>
+</html>
+```
+
+
+
+###### 파일 실행 위해서
+
+http://localhost:8080/spring.web/report/report.do 로 접속(루트를 중간에 추가해 주었기 때문에 길어졌다.)
+
+그 후 확인해 보자. 파일이 없을시 오류메시지가 뜨는지, 업로드(여기서는 사진파일만 했으므로 사진만 올리도록 하자) 가 되어 파일 저장위치에 들어가는지 확인해보자.
+
+
+
+# 로그인 처리
+
+###### 처리 위한 준비
+
+LoginController.java
+
+```java
+package lab.spring.web.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import lab.spring.web.model.UserVO;
+import lab.spring.web.service.UserService;
+
+@Controller("/login.do")
+public class LoginController {
+
+	
+	@Autowired
+	UserService service;
+	
+	@RequestMapping(method=RequestMethod.GET)
+	public String form() {
+		return "loginForm";//view이름만 리턴//view이름으로 리턴하므로 String으로 해도 된다.
+	}
+	
+	@RequestMapping(method=RequestMethod.POST)
+	public ModelAndView login(@RequestParam("userid")String uid,
+								@RequestParam("userpwd")String upwd,
+								HttpSession session){//Session 추가하고
+		ModelAndView mav=new ModelAndView();
+		UserVO vo=null;
+		vo=service.login(uid, upwd);
+		session.setAttribute("authInfo", vo);//session 추가했따!
+		//mav.addObject("user",vo);
+		if(vo!=null) {
+			mav.setViewName("loginSuccess");
+			
+		}else{
+			mav.setViewName("loginFail");
+			
+		}
+		return mav;
+								}
+								}
+```
+
+
+
+###### 성공시 실패시의 화면 작성
+
+loginSuccess.jsp
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>로그인 성공</title>
+</head>
+<body>
+<c:if test="${!empty authInfo}">
+<font color="blue">${authInfo.userid}님 환영합니다.</font><br>
+<a href="<c:url value='/view.do?userid=${authInfo.userid}'/>">고객 정보 리스트</a><Br>
+<a href="<c:url value='/list.do'/>">고객 정보 리스트</a><br>
+<a href="<c:url value='/logout.do'/>">로그아웃</a><br>
+
+전화번호 :${user.phone }<Br>
+이메일: ${user.email}<Br>
+주소:${user.address }<Br>
+업무:${user.job }<Br>
+</c:if>
+
+<br><form name="f" method="post" action="./modify.do">
+		<!-- button -->
+	  	<table border="0" cellpadding="0" cellspacing="1" width="590">
+			<tr>
+				<td align="right">
+					<input type="submit" value="수정"/>
+				</td>
+			</tr>
+		</table>
+</body>
+</html>
+```
+
+loginFail.jsp
+
+```jsp
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+    pageEncoding="EUC-KR"%>
+      <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>로그인 실패</title>
+</head>
+<body>
+
+<c:if test="${empty authInfo}">
+<font color="red">${authInfo.userid}님 아이디가 존재하지 않거나, 비밀번호 오류입니다.</font><br>
+
+<a href="<c:url value='/login.do'/>">로그인</a><br>
+<a href="<c:url value='/add.do'/>">회원</a><br>
+</c:if>
+</body>
+</html>
+```
+
+
+
+###### 로그인 컨트롤과 유저 컨트롤 페이지를 수정
+
+LoginController.java 
+
+에서 일부 고쳐준다. ...
+
+```java
+package lab.spring.web.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import lab.spring.web.model.UserVO;
+import lab.spring.web.service.UserService;
+
+@Controller
+public class LoginController {
+
+	
+	@Autowired
+	UserService service;
+	
+	@RequestMapping(value="/login.do",method=RequestMethod.GET)
+	public String form() {
+		return "loginForm";//view이름만 리턴//view이름으로 리턴하므로 String으로 해도 된다.
+	}
+	
+	@RequestMapping(value="/login.do",method=RequestMethod.POST)
+	public ModelAndView login(@RequestParam("userid")String uid,
+								@RequestParam("userpwd")String upwd,
+								HttpSession session){//Session 추가하고
+		ModelAndView mav=new ModelAndView();
+		UserVO vo=null;
+		vo=service.login(uid, upwd);
+		session.setAttribute("authInfo", vo);//session 추가했따!
+//		mav.addObject("user",vo);
+		if(vo!=null) {
+			mav.setViewName("loginSuccess");
+			
+		}else{
+			mav.setViewName("loginFail");
+			
+		}
+		return mav;
+	}
+	@RequestMapping(value="/logout.do")
+	public String logout(HttpSession session) {
+		session.invalidate();
+		return "redirect:/login.do";
+	}
+//	@RequestMapping(method=RequestMethod.POST)
+//	public ModelAndView login(UserVO user){
+//		ModelAndView mav=new ModelAndView();
+//		UserVO vo=null;
+//		vo=service.login(user.getUserid(),user.getUserpwd());
+//		mav.addObject("user",vo);
+//		if(vo!=null) {
+//			mav.setViewName("loginSuccess");
+//			
+//		}else{
+//			mav.setViewName("loginFail");
+//			
+//		}
+//		return mav;
+//								}
+//	@RequestMapping(method=RequestMethod.POST)
+//	public ModelAndView login(HttpServletRequest request,HttpServletResponse response){
+//		ModelAndView mav=new ModelAndView();
+//		String uid=request.getParameter("userid");
+//		String upwd=request.getParameter("userpwd");
+//		UserVO vo=null;
+//		vo=service.login(uid,upwd);
+//		mav.addObject("user",vo);
+//		if(vo!=null) {
+//			mav.setViewName("loginSuccess");
+//			
+//		}else{
+//			mav.setViewName("loginFail");
+//			
+//		}
+//		return mav;
+//								}
+}
+
+```
+
+UserController.java
+
+```java
+package lab.spring.web.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.directory.SearchControls;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import lab.spring.web.model.SearchVO;
+import lab.spring.web.model.UserVO;
+import lab.spring.web.model.UserValidator;
+import lab.spring.web.service.UserService;
+
+@Controller
+public class UserController {
+
+	
+	@Autowired
+	UserService service;
+	
+	
+	
+	
+	@RequestMapping(value="/add.do",method=RequestMethod.GET)
+		public  String form() {
+			return "userForm";
+		}
+//	
+//	@RequestMapping(value="/add.do",method=RequestMethod.POST)
+//	public ModelAndView userCreate(UserVO user) {
+//		ModelAndView mav=new ModelAndView();
+//		service.addUser(user);
+//		
+//		
+//		mav.setViewName("redirect:/list.do");
+//		
+//		return mav;
+//	}
+//	@RequestMapping(value="/list.do",method=RequestMethod.GET)//애는 왜 GET이지???
+//	public ModelAndView userlist() {
+//		ModelAndView mav=new ModelAndView();
+//		
+//		List<UserVO> list=service.findUserList();
+//		mav.addObject("list",list);
+//		mav.setViewName("userList");//setViewName을 통해 뷰의 이름을 지정할 수 있다.
+//		
+//		return mav;
+//		
+//	}
+	
+	@RequestMapping(value="/add.do",method=RequestMethod.POST)
+	public ModelAndView addUser(@ModelAttribute("user")UserVO vo
+			, BindingResult rs) {//에러를 상속받아 
+		ModelAndView mav=new ModelAndView();
+		new UserValidator().validate(vo, rs);
+		if(rs.hasErrors()){//에러 메시지를 윗 줄에서 확인해서 만약 있다면
+			mav.setViewName("userForm");
+		}else if(service.addUser(vo)>0) {
+			mav.setViewName("redirect:/list.do");
+		}else {
+			mav.setViewName("redirect:/login.do");
+		}
+		return mav;
+	}
+	
+	/*
+	 * @ModelAttribute("searchConditionList")//requestMapping보다 먼저 수행된다
+	 * ModelAttribute 보다. public ArrayList<SearchVO> makeSearchConditionList(){
+	 * ArrayList<SearchVO> searchConditionList = new ArrayList<SearchVO>();
+	 * searchConditionList.add(new SearchVO("userid","아이디"));
+	 * searchConditionList.add(new SearchVO("username","이름"));
+	 * searchConditionList.add(new SearchVO("email","이메일")); return
+	 * searchConditionList;
+	 * 
+	 * 
+	 * 
+	 * 
+	 * }
+	 */
+	@ModelAttribute("searchConditionList")
+
+	public ArrayList<SearchVO> makeSearchConditionList() {
+
+		ArrayList<SearchVO> searchConditionList = new ArrayList<SearchVO>();
+
+		searchConditionList.add(new SearchVO("userid", "아이디"));
+
+		searchConditionList.add(new SearchVO("username", "이름"));
+
+		searchConditionList.add(new SearchVO("email", "이메일"));
+
+		return searchConditionList;
+
+	}
+	
+	
+	
+	@RequestMapping("/list.do")
+	public ModelAndView listUser(HttpSession session) {
+		ModelAndView mav=new ModelAndView();
+		List<UserVO> userList=null;
+		if(session.getAttribute("authInfo")!=null) {
+		userList=service.findUserList();
+		mav.addObject("users",userList);//앞에 따옴표 있는 것을 실제 list.jsp에 불러오는 
+		//c:forEach var="user" items="${users}" 에서 items안에 들어가는 값 
+		mav.setViewName("userList");
+		}else {
+			mav.setViewName("redirect:/login.do");
+		}
+		return mav;
+	}
+	
+	@RequestMapping(value="/search.do",method=RequestMethod.GET)
+	public ModelAndView search(@RequestParam("searchCondition")String condition,
+								@RequestParam("searchKeyword")String keyword) {
+		ModelAndView mav=new ModelAndView();
+		List<UserVO> userList=null;
+		userList=service.findUser(condition,keyword);
+		mav.addObject("users",userList);
+		mav.setViewName("userList");
+		return mav;
+	}
+	
+//	@RequestMapping(value="/modify.do",method=RequestMethod.GET)
+//	public  String modify() {
+//		return "user_modify";
+//	}
+	
+	
+	
+	@RequestMapping("/view.do")
+	public ModelAndView updateUser(@RequestParam("userid")String uid) {
+		ModelAndView mav=new ModelAndView();
+		UserVO vo=null;
+		vo=service.findUser(uid);
+		mav.addObject("user",vo);
+		mav.setViewName("user_modify");
+		return mav;
+		
+		
+	}
+	
+	@RequestMapping("/update.do")
+	public ModelAndView updateUser(@ModelAttribute("user")UserVO user) {
+		ModelAndView mav=new ModelAndView();
+		int vo=0;
+		vo=service.updateUser(user);
+		if(vo>0) {
+			mav.setViewName("redirect:list.do");
+		}else {
+			mav.setViewName("redirect:login.do");
+		}
+		return mav;
+	 
+	}
+	
+	@RequestMapping("/remove.do")
+	public ModelAndView dropUser(@RequestParam("userid")String uid) {
+		ModelAndView mav=new ModelAndView();
+		if(service.removeUser(uid)>0) {//버튼의 이름 onclick=과 같은 이름
+			mav.setViewName("redirect:list.do");
+		}else {
+			mav.setViewName("redirect:login.do");
+		}
+		return mav;
+	}
+	
+	
+	
+}
+
+```
+
+
+
+###### 인터셉터 사용하기(HandlerInterceptor)
+
+HandlerInterceptor 인터페이스 는 Dispatcher에서 controller로 가기 전, 그 후, view실행 이후 사이에 낚아채서(?)기능을 수행한다.
+
+1. 컨트롤러 실행전(preHandle)
+2. 실행후, 뷰 실행 전(postHandle)
+3. 뷰 실 행 이후(afterCompletion)
+
+```java
+package lab.spring.web.interceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+@Component//스캔이 되어야 하기 때문에 이걸 사용
+public class AuthoCheckInterceptor implements HandlerInterceptor {
+
+	@Override
+	public boolean preHandle(HttpServletRequest request,
+			HttpServletResponse response, 
+			Object handler)
+			throws Exception {
+		
+		HttpSession session =request.getSession(false);
+		if(session!=null) {
+			Object authInfo=session.getAttribute("authInfo");
+			if(authInfo!=null) {
+			return true;
+			}
+		}
+		response.sendRedirect(request.getContextPath()+"/login.do");
+		return false;
+	}
+
+}
+
+```
+
+
+
+UserController.java에서 
+
+```java
+	@RequestMapping("/list.do")
+	public ModelAndView listUser(HttpSession session) {
+		ModelAndView mav=new ModelAndView();
+		List<UserVO> userList=null;
+		//if(session.getAttribute("authInfo")!=null) {
+		userList=service.findUserList();
+		mav.addObject("users",userList);//앞에 따옴표 있는 것을 실제 list.jsp에 불러오는 
+		//c:forEach var="user" items="${users}" 에서 items안에 들어가는 값 
+		mav.setViewName("userList");
+//		}else {
+//			mav.setViewName("redirect:/login.do");
+//		}HnandlerIntercepter설정시 이 부분은 필요없다
+		return mav;
+	}
+```
+
+바꾼 뒤 logout 상태에서 list로 가면 자동으로 login.do로 가는 것을 확인한다
+
+
+
+# Json 응답과 요청 처리
+
+http://www.json.org/json-ko.html
+
+를 참고하면 정확한 문법을 알 수 있다.
+
+사용 전 pom.xml 에 json core 2.9.4를 추가하자
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>spring.web</groupId>
+  <artifactId>spring.web</artifactId>
+  <packaging>war</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>spring.web Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  
+   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring.maven.artifact.version>5.0.2.RELEASE</spring.maven.artifact.version>
+  </properties>
+  
+  <dependencies>
+  
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+     <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+    
+      <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-aop</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-beans</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+</dependency>
+
+ <dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-context-support</artifactId>
+    <version>${spring.maven.artifact.version}</version>
+    </dependency>
+    
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjrt</artifactId>
+    <version>1.9.4</version>
+       
+    </dependency>
+    <dependency>
+    <groupId>aopalliance</groupId>
+    <artifactId>aopalliance</artifactId>
+    <version>1.0</version>
+       
+    </dependency>
+    
+  <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-jdbc</artifactId>
+<version>${spring.maven.artifact.version}</version>
+
+</dependency>
+
+<dependency>
+  <groupId>org.mybatis</groupId>
+  <artifactId>mybatis</artifactId>
+  <version>3.5.1</version>
+</dependency>
+    
+    <dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.17</version>
+</dependency>
+    
+    <dependency>
+  <groupId>org.mybatis</groupId>
+  <artifactId>mybatis-spring</artifactId>
+  <version>2.0.1</version>
+</dependency>
+
+      <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-web</artifactId>
+<version>${spring.maven.artifact.version}</version>
+
+</dependency>
+  <dependency>
+<groupId>org.springframework</groupId>
+<artifactId>spring-webmvc</artifactId>
+<version>${spring.maven.artifact.version}</version>
+</dependency>
+
+
+<!-- 파일 업로드를 위한 추가 -->
+<dependency>
+    <groupId>commons-fileupload</groupId>
+    <artifactId>commons-fileupload</artifactId>
+    <version>1.2.1</version>
+</dependency>
+
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>1.4</version>
+</dependency>
+<!-- Json 사용 위한 추가 -->
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>2.9.4</version>
+</dependency>
+
+<dependency>
+<groupId>com.fasterxml.jackson.core</groupId>
+<artifactId>jackson-databind</artifactId>
+<version>2.9.4</version>
+</dependency>
+
+    
+  </dependencies>
+  <build>
+    <finalName>spring.web</finalName>
+  </build>
+</project>
+
+```
+
+action-servlet.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<context:annotation-config/>
+<context:component-scan base-package="lab.spring.web"/>
+
+<!--  Handler mapping bean설정( DefaultAnnotationHandlerMapping)
+기본 HandlerMapping이므로 빈 설정 파일에 별도로 선언할 필요 없으나, 다른 HandlerMapping과 함께 사용한다면 선언
+해야 한다. -->
+
+<!--  ViewResolver Bean 설정 -->
+<beans:bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    <beans:property name="prefix" value="/WEB-INF/view/"></beans:property>
+    <beans:property name="suffix" value=".jsp"></beans:property>
+  </beans:bean>
+  <!-- db연동과 함께 sqlSessionfactory bean -> sqlSessio Templete -> sqlSession 을 UserManagerDAO에 주입 -->
+
+<!-- jNDI 기반이 설정 설정 예시 -->
+<jee:jndi-lookup jndi-name="jdbc/oracle" id="dataSource" resource-ref="true"/> 
+
+<beans:bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  <beans:property name="dataSource" ref="dataSource" />
+  <beans:property name="mapperLocations" value="classpath*:lab/mybatis/mappers/*.xml" />
+</beans:bean>
+
+<beans:bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+  <beans:constructor-arg index="0" ref="sqlSessionFactory" />
+</beans:bean>
+
+<mvc:annotation-driven> <!-- 이렇게 하면 자동으로 HandlerAdaptor가 자동으로 추가된다. -->
+  
+  <mvc:message-converters>
+  <beans:bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+  </mvc:message-converters>
+  </mvc:annotation-driven>
+  
+  <beans:bean id="messageSource"
+   class="org.springframework.context.support.ResourceBundleMessageSource">
+   <beans:property name="basenames">
+   <beans:value>messages.validation</beans:value>
+   </beans:property>
+   </beans:bean>
+   
+  <!-- 파일업로드 위한 multipartResolver를 이용한다. 스프링 bean이다. --> 
+   <beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <beans:property name="maxUploadSize" value="1000000" />
+</beans:bean>
+  
+  <mvc:interceptors>
+  <mvc:interceptor>
+   <mvc:mapping path="/list.do"/>
+   <beans:bean id="authCheckInterceptor" class="lab.spring.web.interceptor.AuthoCheckInterceptor"></beans:bean>
+  </mvc:interceptor>
+  </mvc:interceptors>
+  
+</beans:beans>
+
+
+
+<!--  Controller Bean 설정(자동으로 스캔에서 되도록 설정할것이다. 위에 context scan추가로) -->
+
+
+```
+
+이 곳에 모든 앞에 beans 를 붙여주자 (namespaces 에서 beans추가)
+
+
+
+
+
+@Controller 를 @RestController로 바꿔준다 UserController.java에서
+
+```java
+package lab.spring.web.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.directory.SearchControls;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
+
+import lab.spring.web.model.SearchVO;
+import lab.spring.web.model.UserVO;
+import lab.spring.web.model.UserValidator;
+import lab.spring.web.service.UserService;
+
+@RestController
+public class UserController {
+
+	
+	@Autowired
+	UserService service;
+	
+	
+	
+	
+	@RequestMapping(value="/add.do",method=RequestMethod.GET)
+		public  String form() {
+			return "userForm";
+		}
+//	
+//	@RequestMapping(value="/add.do",method=RequestMethod.POST)
+//	public ModelAndView userCreate(UserVO user) {
+//		ModelAndView mav=new ModelAndView();
+//		service.addUser(user);
+//		
+//		
+//		mav.setViewName("redirect:/list.do");
+//		
+//		return mav;
+//	}
+//	@RequestMapping(value="/list.do",method=RequestMethod.GET)//애는 왜 GET이지???
+//	public ModelAndView userlist() {
+//		ModelAndView mav=new ModelAndView();
+//		
+//		List<UserVO> list=service.findUserList();
+//		mav.addObject("list",list);
+//		mav.setViewName("userList");//setViewName을 통해 뷰의 이름을 지정할 수 있다.
+//		
+//		return mav;
+//		
+//	}
+	
+	@RequestMapping(value="/add.do",method=RequestMethod.POST)
+	public ModelAndView addUser(@ModelAttribute("user")UserVO vo
+			, BindingResult rs) {//에러를 상속받아 
+		ModelAndView mav=new ModelAndView();
+		new UserValidator().validate(vo, rs);
+		if(rs.hasErrors()){//에러 메시지를 윗 줄에서 확인해서 만약 있다면
+			mav.setViewName("userForm");
+		}else if(service.addUser(vo)>0) {
+			mav.setViewName("redirect:/list.do");
+		}else {
+			mav.setViewName("redirect:/login.do");
+		}
+		return mav;
+	}
+	
+	/*
+	 * @ModelAttribute("searchConditionList")//requestMapping보다 먼저 수행된다
+	 * ModelAttribute 보다. public ArrayList<SearchVO> makeSearchConditionList(){
+	 * ArrayList<SearchVO> searchConditionList = new ArrayList<SearchVO>();
+	 * searchConditionList.add(new SearchVO("userid","아이디"));
+	 * searchConditionList.add(new SearchVO("username","이름"));
+	 * searchConditionList.add(new SearchVO("email","이메일")); return
+	 * searchConditionList;
+	 * 
+	 * 
+	 * 
+	 * 
+	 * }
+	 */
+	@ModelAttribute("searchConditionList")
+
+	public ArrayList<SearchVO> makeSearchConditionList() {
+
+		ArrayList<SearchVO> searchConditionList = new ArrayList<SearchVO>();
+
+		searchConditionList.add(new SearchVO("userid", "아이디"));
+
+		searchConditionList.add(new SearchVO("username", "이름"));
+
+		searchConditionList.add(new SearchVO("email", "이메일"));
+
+		return searchConditionList;
+
+	}
+	
+	
+	
+	@RequestMapping("/listJson.do")
+	public ArrayList<UserVO> listUser() {
+//		ModelAndView mav=new ModelAndView();
+		ArrayList<UserVO> userList=null;
+		//if(session.getAttribute("authInfo")!=null) {
+		userList=(ArrayList)service.findUserList();
+//		mav.addObject("users",userList);//앞에 따옴표 있는 것을 실제 list.jsp에 불러오는 
+		//c:forEach var="user" items="${users}"  에서 items안에 들어가는 값 
+//		mav.setViewName("userList");
+//		}else {
+//			mav.setViewName("redirect:/login.do");
+//		}HnandlerIntercepter설정시 이 부분은 필요없다
+//		return mav;
+		return userList;
+	}
+	
+	@RequestMapping(value="/search.do",method=RequestMethod.GET)
+	public ModelAndView search(@RequestParam("searchCondition")String condition,
+								@RequestParam("searchKeyword")String keyword) {
+		ModelAndView mav=new ModelAndView();
+		List<UserVO> userList=null;
+		userList=service.findUser(condition,keyword);
+		mav.addObject("users",userList);
+		mav.setViewName("userList");
+		return mav;
+	}
+	
+//	@RequestMapping(value="/modify.do",method=RequestMethod.GET)
+//	public  String modify() {
+//		return "user_modify";
+//	}
+	
+	
+	
+	@RequestMapping("/view.do")
+	public ModelAndView updateUser(@RequestParam("userid")String uid) {
+		ModelAndView mav=new ModelAndView();
+		UserVO vo=null;
+		vo=service.findUser(uid);
+		mav.addObject("user",vo);
+		mav.setViewName("user_modify");
+		return mav;
+		
+		
+	}
+	
+	@RequestMapping("/update.do")
+	public ModelAndView updateUser(@ModelAttribute("user")UserVO user) {
+		ModelAndView mav=new ModelAndView();
+		int vo=0;
+		vo=service.updateUser(user);
+		if(vo>0) {
+			mav.setViewName("redirect:list.do");
+		}else {
+			mav.setViewName("redirect:login.do");
+		}
+		return mav;
+	 
+	}
+	
+	@RequestMapping("/remove.do")
+	public ModelAndView dropUser(@RequestParam("userid")String uid) {
+		ModelAndView mav=new ModelAndView();
+		if(service.removeUser(uid)>0) {//버튼의 이름 onclick=과 같은 이름
+			mav.setViewName("redirect:list.do");
+		}else {
+			mav.setViewName("redirect:login.do");
+		}
+		return mav;
+	}
+	
+	
+	
+}
+
+```
+
+list.do부분을 listJson.do로 바꾸어 주자.
+
+
+
+# Transaction 처리
 

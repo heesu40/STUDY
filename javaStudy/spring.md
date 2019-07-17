@@ -1101,6 +1101,9 @@ sql문장의 파라미터 세팅 후에 전송
 
 
 
+2. repository를 한번 삭제후 다시 하고 싶다면
+   - c드라이브에 사용자 student .m2 밑에 존재하는 repository를 삭제하고 다시 이클립스를 실행하면 다시 다운로드 된다.  이곳에는 메이븐을 통해 받은 파일이 존재하게 된다. 그 후 이클립스 실행후 자신의 프로젝트 마우스 오른쪽 버튼을 누르고 maven - update Project 를 클릭한다. OK눌러준다.(기본설정대로 하자.)
+
 ##### 1.lab.spring.aop.advice
 
 1. AnnotLoggingAdvice
