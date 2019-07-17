@@ -2,7 +2,7 @@
 
 <http://www.mybatis.org/mybatis-3/ko/index.html>
 
-
+이 사이트에 들어가서 알아보자
 
 
 
