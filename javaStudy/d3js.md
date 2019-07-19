@@ -1187,5 +1187,209 @@ window.addEventListener("load",function(){
 	
 ```
 
+###### 데이터에 따라 그래프 표시
+
+
+
+mydata.txt
+
+```
+상품A|상품B|상품C|상품D|상품E|상품F
+120|90|120|90|200|130
+90|160|110|90|190|50
+20|80|280|240|200|60
+10|20|80|40|140|160
+30|40|50|220|150|80
+50|120|30|85|100|260
+60|180|210|200|220|190
+```
+
+mydataRead.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<style>
+svg{width: 320px; height: 240px; border:1px solid black;}
+.bar{fill:orange;}
+</style>
+<script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+<script src="https://d3js.org/d3-fetch.v1.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="./js/mytextRead.js"></script>
+</head>
+<body>
+<h1>(txt파일)데이터에 따라 그래프 표시</h1>
+<svg id="myGraph"></svg>
+</body>
+</html>
+```
+
+mydataRead.js
+
+```js
+window.addEventListener("load",function(){
+
+	var dataSet=[];
+	//1. 데이터 준비-csv파일을 불러와 그래프 그리기
+	//데이터를 지정할 배열을 준비
+	d3.dsv("|","mydata.txt")
+	.then(function(data){
+		
+	console.log(data);
+		
+		
+		
+	for(var i=1;i<data.length;i++){//데이터의 줄 수 만큼 반복
+		
+		dataSet.push(data[i]["상품A"]);
+		
+	}//dataSet에 저장을 한후
+	
+	
+	d3.select("#myGraph")
+		.selectAll("rect")//rect요소 지정
+		.data(dataSet)//데이터 설정(배열을 전달했따) 데이터를 요소에 연결
+		.enter()//데이터 수에 따라 rect요소 생성 데이터 개수만큼 반복
+		.append("rect")//데이터 개수만큼 rect요소가 추가
+		.attr("class","bar")//CSS클래스를 지정
+		.attr("width",function(d,i){//d 는 배열의 값이고 i는 배열의 인덱스 파라미터가 넘어간다.
+			return d; 
+		})
+		
+		.attr("height",20)//높이 지정
+		.attr("x",0)//x좌표를 0으로 함
+		.attr("y", function(d,i){//Y좌표를 지정함
+			return i*25;//표시 순서에 25를 곱해 위치를 계산
+		})
+		
+		var scale = d3.scaleLinear()//선형 스케일 설정
+		.domain([0,300])
+		.range([0,300])
+		var axis=d3.axisBottom(scale);
+	                   
+	    
+	    //눈금을 설정하고 표시
+	    d3.select("#myGraph")
+//	    	.attr("width", 300)
+//	    	 .attr("height", 250)
+	    	.append("g")//그룹화한다.
+	    	.attr("class","axis")//클래스 속성 추가 스타일시트 클래스 설정
+	    	.attr("transform","translate(0,"+((1+dataSet.length)*25+5)+")")
+	    	.call(axis)//call()로 눈굼을 표시할 함수를 호출
+	    			
+	    		
+			
+	    
+		
+	})//then() end
+	
+
+	});
+	
+
+	
+```
+
+###### 테이터 추가/ 갱신에 따라 그래프 표시
+
+WebContent 아래 datas파일을 만든다.
+
+그 후 선생님이 주신 mydata4,5,6를 넣어준다.
+
+modify1.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg{width: 320px; height: 240px; border:1px solid black;}
+.bar{fill:orange;}
+</style>
+<script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+<script src="https://d3js.org/d3-fetch.v1.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3-axis.v1.min.js"></script>
+<script src="./js/modify1.js"></script>
+</head>
+<body>
+<h1>데이터 추가/갱신에 따라 그래프 표시</h1>
+<div>
+
+<button data-src="./datas/mydata4.csv">mydata4.csv불러오기</button>
+<button data-src="./datas/mydata5.csv">mydata5.csv불러오기</button>
+<button data-src="./datas/mydata6.csv">mydata6.csv불러오기</button>
+
+</div>
+<svg id="myGraph"></svg>
+</body>
+</html>
+```
+
+modify1.js
+
+```js
+window.addEventListener("load",function(){
+
+	var barElements; // 막대그래프의 막대 요소를 저장할 변수
+	
+	//1. 데이터 준비-csv파일을 불러와 그래프 그리기
+	//데이터를 지정할 배열을 준비
+	d3.selectAll("button").on("click",function(){
+		var csvFile=this.getAttribute("data-src"); //data-src 속성을 읽어
+		var dataSet=[];
+		
+		d3.csv(csvFile).then(function(data){
+			for(var i=0;i<data.length;i++){//데이터 줄 수 만큼 반복
+				dataSet.push(data[i]["상품A"]);//상품 Adml 레이블 테이터만
+				
+			}
+			
+			barElements=d3.select("#myGraph")
+			.selectAll("rect")//rect 요소 지정
+			.data(dataSet)//데이터를 요소에 연결
+			
+			barElements.enter()//데이터 개수만ㅋ늠 반복
+			.append("rect")
+			.attr("class","bar")//css클래스를 지정
+			.attr("width",function(d,i){//넓이 지정, 2번째 파라미터에 함수
+				return d;//테이터 값을 그대로 넓이로 반환
+			})
+			.attr("height",20)//높이 지정
+		.attr("x",0)//x좌표를 0으로 함
+		.attr("y", function(d,i){//Y좌표를 지정함
+			return i*25;//표시 순서에 25를 곱해 위치를 계산
+		})
+		.attr("width",function(d,i){//넓이를 지정, 2번째 파라미터에 함수
+			return d;//데이터 값을 그대로 넓이로 변환
+		})
+		barElements
+		.exit()//삭제 대상 요소 추출
+		.remove()//요소 삭제
+	
+	
+	});
+		
+		
+
+	    		
+			
+	    
+		
+	})//then() end
+	
+
+	});
+	
+
+	
+```
+
 
 

@@ -491,7 +491,9 @@ out.println(now);
 
    `service(HttpServletRequest request, HttpServletRespose respose) throws ServletException,IOException{}` 을 반드시 선언해주어야 한다.
 
-##### JSP Spec 만들시 준수해야하는 것
+### JSP Spec 만들시 준수해야하는 것
+
+0
 
 1. 정적 페이지 선언 <와 %@은 반드시 붙여 쓰여야 한다. `<%@ page .......%> `
 
