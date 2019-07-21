@@ -60,11 +60,35 @@ DTO
 
 자바에서 new->
 
-![](C:\Users\student\Documents\GitHub\STUDY\javaStudy\maven1.PNG)
+![](D:\gitgithub\STUDY\javaStudy\maven1.PNG)
 
-![](C:\Users\student\Documents\GitHub\STUDY\javaStudy\maven2.PNG)
+![](D:\gitgithub\STUDY\javaStudy\maven2.PNG)
 
 으로 실행 처음 실행시 로딩이 길다
+
+###### **메이븐아키타입**(참고)
+
+## Maven Archetypes
+
+Maven provides several archetype artifacts:
+
+| Archetype ArtifactIds                                        | Description                                                  |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [maven-archetype-archetype](https://maven.apache.org/archetypes/maven-archetype-archetype/) | An archetype to generate a sample archetype.                 |
+| [maven-archetype-j2ee-simple](https://maven.apache.org/archetypes/maven-archetype-j2ee-simple/) | An archetype to generate a simplifed sample J2EE application. |
+| [maven-archetype-plugin](https://maven.apache.org/archetypes/maven-archetype-plugin/) | An archetype to generate a sample Maven plugin.              |
+| [maven-archetype-plugin-site](https://maven.apache.org/archetypes/maven-archetype-plugin-site/) | An archetype to generate a sample Maven plugin site.         |
+| [maven-archetype-portlet](https://maven.apache.org/archetypes/maven-archetype-portlet/) | An archetype to generate a sample JSR-268 Portlet.           |
+| [maven-archetype-quickstart](https://maven.apache.org/archetypes/maven-archetype-quickstart/) | An archetype to generate a sample Maven project.             |
+| [maven-archetype-simple](https://maven.apache.org/archetypes/maven-archetype-simple/) | An archetype to generate a simple Maven project.             |
+| [maven-archetype-site](https://maven.apache.org/archetypes/maven-archetype-site/) | An archetype to generate a sample Maven site which demonstrates some of the supported document types like APT, Markdown, XDoc, and FML and demonstrates how to i18n your site. |
+| [maven-archetype-site-simple](https://maven.apache.org/archetypes/maven-archetype-site-simple/) | An archetype to generate a sample Maven site.                |
+| [maven-archetype-site-skin](https://maven.apache.org/archetypes/maven-archetype-site-skin/) | An archetype to generate a sample Maven Site Skin.           |
+| [maven-archetype-webapp](https://maven.apache.org/archetypes/maven-archetype-webapp/) | An archetype to generate a sample Maven Webapp project.      |
+
+출처:https://maven.apache.org/archetypes/
+
+
 
 
 

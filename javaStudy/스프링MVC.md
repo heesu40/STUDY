@@ -7,7 +7,7 @@
    - View -  Model의 정보를 사용자에게 표시
    - Controller - Model과 View의 중계역활로 View를 선택
 
-![1563151347845](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC2)
+![1563151347845](D:\gitgithub\STUDY\javaStudy\MVC2)
 
 2. 설정 방법
 
@@ -17,7 +17,7 @@
   - IoC Container(빈설정 파일)
     - view생성해서 응답
 
-![1563151446425](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC3)
+![1563151446425](D:\gitgithub\STUDY\javaStudy\MVC3)
 
 ```xml
 <!-- ApplicationContext 빈 설정 파일-->
@@ -76,15 +76,15 @@ Servlet를 지금 따로 여러개 설정하고 있다.(예를 들어 외부사�
 
 
 
-![1563152976260](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC4)
+![1563152976260](D:\gitgithub\STUDY\javaStudy\MVC4)
 
 이미지 등은 webapp 밑에 저장해 주고 보이고 싶지 않다면 WEB-INF아래에 저장
 
-![1563153094442](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC5)
+![1563153094442](D:\gitgithub\STUDY\javaStudy\MVC5)
 
 설정해 주자. JRE javaSE 를 edit를 눌러 그림과 같은 것으로 바꿔주고
 
-![1563153185207](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC6)
+![1563153185207](D:\gitgithub\STUDY\javaStudy\MVC6)
 
 톰캣 클릭후 apply
 
@@ -378,7 +378,7 @@ public String getGreeting() {
 
 
 
-![1563157010507](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC7)
+![1563157010507](D:\gitgithub\STUDY\javaStudy\MVC7)
 
 view 파일 생성 후 hello.jsp를 만들자(view용 보여주기 위한 파일 생성)
 
@@ -780,7 +780,7 @@ public class UserVO {
 
 ```
 
-![1563165140023](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC8)
+![1563165140023](D:\gitgithub\STUDY\javaStudy\MVC8)
 
 전에 만든것 붙여넣기 한후 참고로
 
@@ -1460,7 +1460,7 @@ ${greeting}
 
 
 
-![1563240076479](C:\Users\student\Documents\GitHub\STUDY\javaStudy\MVC9)
+![1563240076479](D:\gitgithub\STUDY\javaStudy\MVC9)
 
 만약 hello.jsp에 오류가 뜨면 톰켓이 없어서 이므로  buildpath d를 들어가 addLibrary...에 들어가 server runtime클릭후 톰캣을 넣어주자.
 
@@ -1541,7 +1541,7 @@ public class UserValidator implements Validator {
 
 userForm.jsp
 
- <font color="red"><form:errors path="user.username"/></font> 를 상자 옆에 넣어준다. username은 맞는 것에 따라 바꾸어 준다.
+ <font color="red">< form:errors path="user.username"/ ></font> 를 상자 옆에 넣어준다. username은 맞는 것에 따라 바꾸어 준다.
 
 ```java
 <%@ page language="java" contentType="text/html; charset=UTF-8"
