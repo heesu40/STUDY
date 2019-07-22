@@ -61,7 +61,7 @@ d3.select("#myGraph")
 
 # 실습
 
-#### 처음
+#### 연습
 
 1. 다이나믹 웹 프로젝트 만들자
 2. WebContent 아래 index.jsp를 만들어 실행하여 웹상태 확인
@@ -125,6 +125,10 @@ window.addEventListener("load",function(){
 
 5 .exit()로 요소 삭제
 
+
+
+
+
 chart2.html
 
 ```html
@@ -156,9 +160,9 @@ window.addEventListener("load",function(){
 		.data(dataSet)//데이터 설정(배열을 전달했따)
 		.enter()//데이터 수에 따라 rect요소 생성
 		.append("rect")//생성된 요소 추가
-		.attr("x",0)//배열을 전달했기 떄문에 배열따라 수행한다.
+		.attr("x",0)//배열을 전달했기 떄문에 배열따라 수행한다., x값은 0으로(왜나하면 0에서 시작하므로)
 		.attr("y",function(d,i){//d 는 배열의 값이고 i는 배열의 인덱스 파라미터가 넘어간다.
-			return i*30; //가로 막대의 간격은 30씩 떨어진다
+			return i*30; //가로 막대의 간격은 30씩 떨어진다(간격)
 		})
 		.attr("width", function(d,i){
 			return d+"px";//단위를 붙여서 리턴해야한다. 배열의 실제 값을 리턴하는 것.
@@ -1392,4 +1396,933 @@ window.addEventListener("load",function(){
 ```
 
 
+
+## 복습
+
+1. 객체 선택은 
+
+```js
+	d3.select("#myGraph")            //SVG 요소를 지정
+		.selectAll("rect")               //SVG로 사각형을 표시할 요소를 지정(객체 선택)
+		.data(dataSet)                   //SVG 사각형 생성
+		.enter()                         //데이터 수에 따라 rect 요소 생성(생성)
+		.append("rect")
+		.attr("x", 0)                    //가로형 막대그래프이므로 X 좌표를 0으로 설정()
+		.attr("y",  function(d, i) {     //Y 좌표를 배열의 순서에 따라 계산    
+	              return  i*30;})   //막대그래프의 높이를 30px 단위로 계산
+	     .attr("width", function(d, i){
+	    	return d+"px";
+	    })						   //데이터의 값을 그대로 넓이로 함                
+	    .attr("height", "20px")
+```
+
+2. D3.js로 만들 그래프의 프로그램 구조  
+
+- 데이터 읽어들이기 
+  - CSV(점으로 구분짓는 파일명의 경우), TSV, XML, JSON, TEXT(어떤 파일의 경우 어떤 속성을 쓰는지)
+- 표시할 그래프 지정
+  - D3.js의 레이아웃 객체를 지정하여 데이터로부터 그래프를 표시해야 할 좌표를 계산하여 반환
+- 그래프를 그리는 데 필요한 SVG 도형 요소 준비
+  - DOM 요소나 Canavs 요소 생성 가능
+- 요소의 속성값 변경
+  - attr()
+  - style()
+- 필요하다면 애니메이션 처리
+  - transition()
+- 필요하다면 이벤트에 따른 처리
+  - on()
+
+### 세로막대그래프
+
+###### 세로막대그래프&텍스트 설정
+
+bar1.html
+
+data값이 =height 임으로 y 좌표는 svgheight-height를 해주면 OK
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg {width:320px; height:240px; border: 1px solid black;}
+.bar{fill : orange;}
+.barNum{
+font-size:9pt;
+text-anchor:middle;})
+</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/bar1.js"></script>
+</head>
+<body>
+<h3>세로형 막대그래프에 값을 표시</h3>
+<svg id = "myGraph"></svg>
+</body>
+</html>
+```
+
+bar1.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+//1. 데이터 준비
+var dataSet = [120, 150, 10, 80, 230];
+var svgHeight=240;//SVG의 요소의 높이
+var barElements;//막대그래프의 막대 요소를 저장할 변수
+
+
+barElements=d3.select("#myGraph")
+  .selectAll("rect")//rect요소 지정
+  .data(dataSet)//데이터를 요소에 연결
+    
+  barElements.enter()//데이터 수만큼 반복
+	  			.append("rect")//데이터 수만큼 rect요소가 추가
+	  			.attr("class","bar")//css 클래스 설정
+	  			.attr("height", function(d,i){//높이 설정. 
+	  				return d;//데이터 값 그대로 높이로 지정
+	  			})
+	  			.attr("width", 20)
+	  			
+	  			.attr("x",function(d,i){
+	  				return i*25;
+	  			})
+	  			.attr("y", function(d,i){
+	  				return svgHeight -d;
+	  			})
+	  			
+	  			
+barElements.enter()
+.append("text")
+.attr("class","barNum")
+.attr("x",function(d,i){
+	return i*25+10;
+})
+.attr("y",function(d,i){
+	return svgHeight-d-5;
+	})//y 좌표 설정 ㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠ
+.text(function(d,i){
+	return d;
+})
+
+});
+```
+
+###### 세로형 막대 그래프 눈금 표시
+
+
+
+bar2.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg {width:320px; height:240px; border: 1px solid black;}
+.bar{fill : cyan;}
+.barNum{
+font-size:9pt;
+text-anchor:middle;})
+.axis text{
+font-family:sans-serif;
+font-size:11px;}
+.axis path,
+.axis line{
+fill:none;
+stroke:black;}
+</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/bar2.js"></script>
+</head>
+<body>
+<h3>세로형 막대그래프에 눈금 표시</h3>
+<svg id = "myGraph"></svg>
+</body>
+</html>
+```
+
+bar2.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+//1. 데이터 준비
+var dataSet = [120, 150, 10, 80, 220];
+var offsetX=30;//x좌표의 오프셋(어긋남의 정도 총체적으로 이동?
+var offsetY=10;//y좌표의 오프셋(어긋남의 정도 총체적 이동?
+var svgHeight=240;//SVG의 요소의 높이
+var barElements;//막대그래프의 막대 요소를 저장할 변수
+
+
+barElements=d3.select("#myGraph")
+  .selectAll("rect")//rect요소 지정
+  .data(dataSet)//데이터를 요소에 연결
+    
+  barElements.enter()//데이터 수만큼 반복
+	  			.append("rect")//데이터 수만큼 rect요소가 추가
+	  			
+	  			.attr("class","bar")//css 클래스 설정
+	  			.attr("height", function(d,i){//높이 설정. 
+	  				return d;//데이터 값 그대로 높이로 지정
+	  			})
+	  			.attr("width", 20)
+	  			
+	  			.attr("x",function(d,i){
+	  				return i*25+offsetX;
+	  			})
+	  			.attr("y", function(d,i){
+	  				return svgHeight -d-offsetY;
+	  			})
+	  			
+	  			
+barElements.enter()
+.append("text")
+.attr("class","barNum")
+.attr("x",function(d,i){
+	return i*25+10+offsetX;//offsetx추가
+})
+.attr("y",function(d,i){
+	return svgHeight-d-offsetY;;
+	})//y 좌표 설정 ㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠ
+.text(function(d,i){
+	return d;
+})
+
+    var yScale=d3.scaleLinear()
+    .domain([0,300])//원래 크기
+    .range([300,0]);//실제 출력 크기
+
+var axis= d3.axisLeft(yScale);
+
+d3.select("#myGraph").append("g")//g는 그룹핑 해주는 것?
+.attr("class","axis")
+.attr("transform",
+		"translate("+offsetX+","+((svgHeight-300)-offsetY)+")")//눈금 표시위치를 했으므로 
+//위에서 x 좌표의 값들을 30씩 옮겨주자.(그래프 값과 text값 모두 보내주어야 한다)
+.call(axis)//표현하려고~
+
+});
+```
+
+전체적으로 이동하기 위해서 var offsetX=30;  var offsetY=10;를 지정
+
+###### 눈금간격 조정
+
+bar3.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg {width:320px; height:240px; border: 1px solid black;}
+.bar{fill : cyan;}
+.barNum{
+font-size:9pt;
+text-anchor:middle;})
+.axis text{
+font-family:sans-serif;
+font-size:11px;}
+.axis path,
+.axis line{
+fill:none;
+stroke:black;}
+</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/bar3.js"></script>
+</head>
+<body>
+<h3>눈금간격 조정</h3>
+<svg id = "myGraph"></svg>
+<hr>
+<Br>
+ticks()=눈금 간격 지정, 기본값10<br>
+ticks()는 모두가 지정한 값과 같은 간격이 된다.<br>
+tickValues()는 서로 다른 간격으로 표시<Br>
+tickFormat()는 눈금에 표시할 숫자에 서식 지정<br>
+</body>
+</html>
+```
+
+ticks()=눈금 간격 지정, 기본값10<br>
+ticks()는 모두가 지정한 값과 같은 간격이 된다.<br>
+tickValues()는 서로 다른 간격으로 표시<Br>
+tickFormat()는 눈금에 표시할 숫자에 서식 지정<br>
+
+참고하자~~~
+
+bar3.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+//1. 데이터 준비
+var dataSet = [120, 150, 10, 80, 220];
+var offsetX=30;//x좌표의 오프셋(어긋남의 정도 총체적으로 이동?
+var offsetY=10;//y좌표의 오프셋(어긋남의 정도 총체적 이동?
+var svgHeight=240;//SVG의 요소의 높이
+var barElements;//막대그래프의 막대 요소를 저장할 변수
+
+
+barElements=d3.select("#myGraph")
+  .selectAll("rect")//rect요소 지정
+  .data(dataSet)//데이터를 요소에 연결
+    
+  barElements.enter()//데이터 수만큼 반복
+	  			.append("rect")//데이터 수만큼 rect요소가 추가
+	  			
+	  			.attr("class","bar")//css 클래스 설정
+	  			.attr("height", function(d,i){//높이 설정. 
+	  				return d;//데이터 값 그대로 높이로 지정
+	  			})
+	  			.attr("width", 20)
+	  			
+	  			.attr("x",function(d,i){
+	  				return i*25+offsetX;
+	  			})
+	  			.attr("y", function(d,i){
+	  				return svgHeight -d-offsetY;
+	  			})
+	  			
+	  			
+barElements.enter()
+.append("text")
+.attr("class","barNum")
+.attr("x",function(d,i){
+	return i*25+10+offsetX;//offsetx추가
+})
+.attr("y",svgHeight-5-offsetY)
+//y 좌표 설정 ㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠ
+.text(function(d,i){
+	return d;
+})
+
+    var yScale=d3.scaleLinear()
+    .domain([0,300])//원래 크기
+    .range([300,0]);//실제 출력 크기
+
+var axis= d3.axisLeft(yScale)
+			.ticks(10)//눈금간격
+			.tickValues([10,20,30,50,100,150,200])
+//		.tickFormat(d3.format(",2f"))
+
+d3.select("#myGraph").append("g")//g는 그룹핑 해주는 것?
+.attr("class","axis")
+.attr("transform",
+		"translate("+offsetX+","+((svgHeight-300)-offsetY)+")")//눈금 표시위치 조정과 함께 좌표선 그리기?
+//위에서 x 좌표의 값들을 30씩 옮겨주자.(그래프 값과 text값 모두 보내주어야 한다)
+.call(axis)//표현하려고~
+
+d3.select("#myGraph")
+.append("rect")
+.attr("class","axis_x")
+.attr("width",320)
+.attr("height",1)
+.attr("transform","translate("+offsetX+","+(svgHeight-offsetY)+")")//X 좌표선 그리기
+
+
+barElements.enter()
+.append("text")
+.attr("class","barNum")
+.attr("x",function(d,i){
+	return i*25+10+offsetX;
+})
+
+.attr("y",svgHeight-offsetY+15)
+	//y 좌표 설정 ㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠ
+.text(function(d,i){
+	return ["A","B","C","D","E"][i];//x축 라벨
+})
+
+
+});
+```
+
+
+
+###### 애니메이션
+
+
+
+###### call
+
+바로 앞에 호출된 객체를 매개변수로 넘겨주는 역활(좌표의 축을 그리거나, 등등)
+
+##### pie(원 그래프 그리기)
+
+pie2.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/pie2.js"></script>
+<style>
+svg { width: 320px; height: 240px; border: 1px solid black; }
+.pie{fill:cyan;stroke:black;}
+</style>
+	</head>
+	<body>
+		<h1>원 그래프 표시</h1>
+		<svg id="myGraph"></svg>
+		<br>
+   <br>
+		 
+	</body>
+</html>
+
+```
+
+pie2.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+//1. 데이터 준비
+var dataSet = [20,50, 30, 10, 20];
+var svgHeight=240;
+var svgWidth=320;
+var color=d3.scaleOrdinal(d3.schemeCategory10);//d3.js가 준비한 표준 색상
+
+
+
+
+//원 그래프의 좌표값을 계산하는 메서드
+var pie=d3.pie()//원 그래프 레이아웃
+//원 그래프 외경, 내경 설정: outerRadius(0) 반지름    innerRaidus(100) 안쪽 반지름
+var arc=d3.arc().innerRadius(0).outerRadius(100);
+
+//원 그래프 그리기
+//원그래프의 부채꼴은 path의 좌표로 구성되므로 path요소 지정
+
+var pieElements=d3.select("#myGraph")
+.selectAll("path")//path요소 지정
+//데이터를 요소에 연결, d3,pie()함수는 데어터의 부채꼴의 좌표를 계산해서 리턴
+.data(pie(dataSet))
+
+//데이터 추가
+pieElements.enter()//데이터 수만큼 반복
+.append("path")//데이터 수만큼 path요소 추가
+.attr("class","pie")//css클래스 지정
+.attr("d",arc)//부채꼴 지정
+.attr("transform","translate("+svgWidth/2+", "+svgHeight/2+")")//한가운데에 나와야 함으로 1/2값으로 지정
+//.style("fill",function(d,i){
+//	return ["red","orange","yellow","cyan","#3f3"][i]
+//})//이렇게 색상 지정 위해서는 위이 var color=d3.scaleOrdinal(d3.schemeCategory10)을 지워야 한다. d3.js가 준비한 표준 색상
+.style("fill",function(d,i){
+	return color(i);//표준 10색 중 색을 반환
+})
+
+.transition()
+.duration(1000)
+.delay(function(d,i){// 원 그래프 나타나는 시간 다르게
+	return i*1000;
+})
+.ease(d3.easeLinear)//직선적인 움직임으로 변경(애니메이션의 움직임이다!!!!!!
+//시간에 따라 도형을 변형시키기 위해 시간에 따라 속성값 변화
+.attrTween("d",function(d,i){//보간 처리?????새로운 점을 만들기 위해 수많은 점들을 평균화시키는 것
+
+	
+	var interpolate =d3.interpolate(
+			{startAngle : d.startAngle, endAngle: d.startAngle},//각 부분의 시작 각도
+			{startAngle : d.startAngle, endAngle: d.endAngle});//각 부분의 종료 각도
+	return function(t){//여기서 t는 시간이다
+		return arc(interpolate(t));//시간에 따라 처리
+	}
+	
+
+})
+
+//합계와 수와 문자를 표시
+var textElements=d3.select("#myGraph")
+.append("text")
+.attr("class","total")
+.attr("transform","translate("+svgWidth/2+","+(svgHeight/2+5)+")")
+.text("합계:" +d3.sum(dataSet))//합계 표시
+
+
+
+
+});
+```
+
+###### 색 표현
+
+```js
+.style("fill",function(d,i){
+	return ["red","orange","yellow","cyan","#3f3"][i]
+
+//혹은
+
+var color=d3.scaleOrdinal(d3.schemeCategory10);//d3.js가 준비한 표준 색상
+
+.style("fill",function(d,i){
+	return color(i);//표준 10색 중 색을 반환
+})
+```
+
+
+
+을 이용 한다.
+
+###### 애니메이션 움직임
+
+```js
+.ease(d3.easeLinear) //직선적인 움직임을 표현(애니메이션의 움직임 표현)
+```
+
+
+
+###### 텍스트 추가
+
+```js
+//합계와 수와 문자를 표시
+var textElements=d3.select("#myGraph")
+.append("text")
+.attr("class","total")
+.attr("transform","translate("+svgWidth/2+","+(svgHeight/2+5)+")")
+.text("합계:" +d3.sum(dataSet))//합계 표시
+```
+
+###### 원 두개 그리기
+
+pie3.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/pie3.js"></script>
+<style>
+svg { width: 320px; height: 240px; border: 1px solid black; }
+.pie{fill:cyan;stroke:black;}
+.total{font-size:9pt;text-anchor:middle;}
+.pieNum{font-size:10pt;text-anchor:middle;}
+</style>
+	</head>
+	<body>
+		<h1>원 그래프 표시</h1>
+		<svg id="myGraph"></svg>
+		<br>
+   <br>
+		 
+	</body>
+</html>
+
+```
+
+pie3.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+//1. 데이터 준비
+var dataSet = [10,20, 30, 40, 50];
+var svgHeight=240;
+var svgWidth=320;
+var color=d3.scaleOrdinal(d3.schemeCategory10);//d3.js가 준비한 표준 색상
+
+
+
+
+//원 그래프의 좌표값을 계산하는 메서드
+var pie=d3.pie().value(function(d,i){return d;})//데이터셋의 
+
+//원 그래프 외경, 내경 설정: outerRadius(0) 반지름    innerRaidus(100) 안쪽 반지름
+var arc=d3.arc().innerRadius(30).outerRadius(100);
+
+//원 그래프 그리기
+//원그래프의 부채꼴은 path의 좌표로 구성되므로 path요소 지정
+
+
+var pieElements=d3.select("#myGraph")
+.selectAll("g")//g요소 지정
+//데이터를 요소에 연결, d3,pie()함수는 데어터의 부채꼴의 좌표를 계산해서 리턴
+.data(pie(dataSet))
+.enter()
+.append("g")//중심 계산을 위해 그룹화하기
+.attr("transform","translate("+svgWidth/2+","+svgHeight/2+")")//
+
+
+
+
+
+//데이터 추가
+pieElements//데이터 수만큼 반복
+.append("path")//데이터 수만큼 path요소 추가
+
+.attr("class","pie")//css클래스 지정
+.style("fill",function(d,i){
+	return color(i);//표준 10색 중 색을 반환
+})
+
+.transition()
+.duration(200)
+.delay(function(d,i){// 원 그래프 나타나는 시간 다르게
+	return i*200;
+})
+.ease(d3.easeLinear)//직선적인 움직임으로 변경(애니메이션의 움직임이다!!!!!!
+//시간에 따라 도형을 변형시키기 위해 시간에 따라 속성값 변화
+.attrTween("d",function(d,i){//보간 처리?????새로운 점을 만들기 위해 수많은 점들을 평균화시키는 것
+
+	
+	var interpolate =d3.interpolate(
+			{startAngle : d.startAngle, endAngle: d.startAngle},//각 부분의 시작 각도
+			{startAngle : d.startAngle, endAngle: d.endAngle});//각 부분의 종료 각도
+	return function(t){//여기서 t는 시간이다
+		return arc(interpolate(t));//시간에 따라 처리
+	}
+	
+
+})
+
+//합계와 수와 문자를 표시
+var textElements=d3.select("#myGraph")
+.append("text")
+.attr("class","total")
+.attr("transform","translate("+svgWidth/2+","+(svgHeight/2+5)+")")
+.text("합계:" +d3.sum(dataSet))//합계 표시
+
+pieElements
+.append("text")
+.attr("class","pieNum")
+.attr("transform",function(d,i){
+	return "translate("+arc.centroid(d)+")";
+})
+.text(function(d,i){
+	return d.value;//값 표시
+});
+
+
+
+});
+```
+
+###### csv 파일 데이터 표시(select박스에서 선택한 값이 나오게)
+
+pie4.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/pie3.js"></script>
+<style>
+svg { width: 320px; height: 240px; border: 1px solid black; }
+.pie{fill:cyan;stroke:black;}
+.total{font-size:9pt;text-anchor:middle;}
+.pieNum{font-size:10pt;text-anchor:middle;}
+</style>
+	</head>
+	<body>
+		<h1>원 그래프 표시-csv파일 데이터 표시</h1>
+		<svg id="myGraph"></svg>
+		<form>
+		<select id="year">
+		<option value="2008">2008년</option>
+		<option value="2009">2009년</option>
+		<option value="2010">2010년</option>
+		<option value="2011">2011년</option>
+		<option value="2012">2012년</option>
+		<option value="2013">2013년</option>
+		<option value="2014">2014년</option>
+		
+		</select>
+		
+		</form>
+   <br>
+		 
+	</body>
+</html>
+
+```
+
+pie4.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+//처음에는 2008년 데이터를 표시해둠
+	drawPie("./pie_data/mydata2008.csv");
+	//선택 메뉴가 선택되었을 떄의 처리
+	d3.select("#year").on("change",function(){
+		d3.select("#myGraph").selectAll("*").remove();//호출전 지우기
+		drawPie("./pie_data/mydata"+this.value+".csv",this.value);//다시 호출
+		
+	});//파일 불러오기
+	
+	function drawPie(filename){
+		//데이터셋은 csv파일
+		d3.csv(filename)
+		.then(function(data){
+			var dataSet=[];//데이터를 저장할 배열 변수
+		for(var i in data[0]){//최초 데이터를 처리
+			dataSet.push(data[0][i]);//가로 한 줄 모두를 한꺼번에 
+		}
+		
+		//SVG요소의 넓이와 높이를 구함
+		var svgEle=document.getElementById("myGraph");
+		var svgWidth=window.getComputedStyle(svgEle,null)
+			.getPropertyValue("width");
+		var svgHeight=window.getComputedStyle(svgEle,null)
+			.getPropertyValue("height");
+			svgWidth=parseFloat(svgWidth);//값에는 단위가 붙어 있으면 안된다
+			svgHeight=parseFloat(svgHeight);//값에는 단위가 붙어 있으면 안된다
+			
+			var color=d3.scaleOrdinal(d3.schemeCategory10);
+		
+		
+	
+
+
+
+//원 그래프의 좌표값을 계산하는 메서드
+var pie=d3.pie().value(function(d,i){return d;})//데이터셋의 
+
+//원 그래프 외경, 내경 설정: outerRadius(0) 반지름    innerRaidus(100) 안쪽 반지름
+var arc=d3.arc().innerRadius(30).outerRadius(100);
+
+//원 그래프 그리기
+//원그래프의 부채꼴은 path의 좌표로 구성되므로 path요소 지정
+
+
+var pieElements=d3.select("#myGraph")
+.selectAll("g")//g요소 지정
+//데이터를 요소에 연결, d3,pie()함수는 데어터의 부채꼴의 좌표를 계산해서 리턴
+.data(pie(dataSet))
+.enter()
+.append("g")//중심 계산을 위해 그룹화하기
+.attr("transform","translate("+svgWidth/2+","+svgHeight/2+")")//
+
+
+
+
+
+//데이터 추가
+pieElements//데이터 수만큼 반복
+.append("path")//데이터 수만큼 path요소 추가
+
+.attr("class","pie")//css클래스 지정
+.style("fill",function(d,i){
+	return color(i);//표준 10색 중 색을 반환
+})
+
+.transition()
+.duration(200)
+.delay(function(d,i){// 원 그래프 나타나는 시간 다르게
+	return i*200;
+})
+.ease(d3.easeLinear)//직선적인 움직임으로 변경(애니메이션의 움직임이다!!!!!!
+//시간에 따라 도형을 변형시키기 위해 시간에 따라 속성값 변화
+.attrTween("d",function(d,i){//보간 처리?????새로운 점을 만들기 위해 수많은 점들을 평균화시키는 것
+
+	
+	var interpolate =d3.interpolate(
+			{startAngle : d.startAngle, endAngle: d.startAngle},//각 부분의 시작 각도
+			{startAngle : d.startAngle, endAngle: d.endAngle});//각 부분의 종료 각도
+	return function(t){//여기서 t는 시간이다
+		return arc(interpolate(t));//시간에 따라 처리
+	}
+	
+
+})
+
+//합계와 수와 문자를 표시
+var textElements=d3.select("#myGraph")
+.append("text")
+.attr("class","total")
+.attr("transform","translate("+svgWidth/2+","+(svgHeight/2+5)+")")
+.text("점유율:" +d3.sum(dataSet))//합계 표시
+
+pieElements
+.append("text")
+.attr("class","pieNum")
+.attr("transform",function(d,i){
+	return "translate("+arc.centroid(d)+")";
+})
+.text(function(d,i){
+	return d.value;//값 표시
+});
+});
+}
+
+
+
+});
+```
+
+##### 꺽은선 그래프
+
+line1.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg {width:320px; height:240px; border: 1px solid black;}
+.line {fill:none;stroke:black;}</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/line1.js"></script>
+</head>
+<body>
+<h3>꺽은선 그래프 표시</h3>
+<svg id = "myGraph"></svg>
+</body>
+</html>
+```
+
+line1.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+var svgWidth=320;//SVG요소의 넓이
+var svgHeight=240;//SVG요소의 높이
+var dataSet=[10,47,65,8,64,99,75,22,63,80];//데이터셋
+var margin=svgWidth/(dataSet.length-1);//꺽은선 그래프 간격
+//꺽은선 그래프의 좌표 계산 메서드
+var line=d3.line()//svg의 선
+.x(function(d,i){
+	return i*margin;//x좌표는 표시 순서 x간격
+})
+.y(function(d,i){
+	return svgHeight -d;//데이터로부터 Y좌표 빼기
+})
+//꺽은ㅅ ㅓㄴ 그래프 그리기
+var lineElements=d3.select("#myGraph")
+.append("path")//데이터 수만큼 path요소가 추가
+.attr("d",line(dataSet))//연속선 지정
+
+
+
+});
+```
+
+###### 눈금 표시
+
+line2.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg {width:320px; height:240px; border: 1px solid black;}
+.line {fill:none;stroke:black;}
+.axis text{
+font-family:sans-serif;
+font-size:11px;}
+.axis path,
+.axis line{
+fill:none;
+stroke:cyan;
+}
+.axis_x line{
+fill:none;
+stroke:red;
+}
+</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/line1.js"></script>
+</head>
+<body>
+<h3>꺽은선 그래프 표시-눈금 표시</h3>
+<svg id = "myGraph"></svg>
+</body>
+</html>
+```
+
+line2.js
+
+```js
+window.addEventListener("load",function(){
+var offsetX=30;
+var offsetY=20;
+
+var svgWidth=320;//SVG요소의 넓이
+var svgHeight=240;//SVG요소의 높이
+var dataSet=[10,47,65,8,64,99,75,22,63,80];//데이터셋
+var margin=svgWidth/(dataSet.length-1);//꺽은선 그래프 간격
+//꺽은선 그래프의 좌표 계산 메서드
+var line=d3.line()//svg의 선
+.x(function(d,i){
+	return i*margin+offsetX;//x좌표는 표시 순서 x간격
+})
+.y(function(d,i){
+	return svgHeight -d-offsetY;//데이터로부터 Y좌표 빼기
+})
+//꺽은선 그래프 그리기
+var lineElements=d3.select("#myGraph")
+.append("path")//데이터 수만큼 path요소가 추가
+.attr("class","line")
+.attr("d",line(dataSet))//연속선 지정
+
+
+
+  var yScale=d3.scaleLinear()
+    .domain([0,100])//원래 크기
+    .range([200,0]);//실제 출력 크기
+
+var axis= d3.axisLeft(yScale)
+			.ticks(20)//눈금간격
+d3.select("#myGraph")
+
+	.append("g")//그룹화한다.
+	.attr("class","axis")//클래스 속성 추가 스타일시트 클래스 설정
+	.attr("transform","translate("+offsetX+","+(offsetY)+")")
+	.call(axis)//call()로 눈굼을 표시할 함수를 호출
+			
+
+
+
+//눈금을 설정하고 표시
+
+	
+d3.select("#myGraph")
+.append("rect")
+.attr("class","axis_x")
+.attr("width",svgWidth)
+.attr("height",1)
+.attr("transform","translate("+offsetX+","+(svgHeight-offsetY)+")")//X 좌표선 그리기
+});
+```
 
