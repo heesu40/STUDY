@@ -1761,7 +1761,7 @@ barElements.enter()
 
 바로 앞에 호출된 객체를 매개변수로 넘겨주는 역활(좌표의 축을 그리거나, 등등)
 
-##### pie(원 그래프 그리기)
+### pie(원 그래프 그리기)
 
 pie2.html
 
@@ -2182,7 +2182,7 @@ pieElements
 });
 ```
 
-##### 꺽은선 그래프
+### 꺽은선 그래프
 
 line1.html
 
@@ -2324,5 +2324,1342 @@ d3.select("#myGraph")
 .attr("height",1)
 .attr("transform","translate("+offsetX+","+(svgHeight-offsetY)+")")//X 좌표선 그리기
 });
+```
+
+###### 꺽은선 여러개그리기
+
+line3.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg {width:320px; height:240px; border: 1px solid black;}
+.line{fill:none;stroke:black;}
+.axis text{
+font-family:sans-serif;
+font-size:11px;}
+.axis path,
+.axis line{
+fill:none;
+stroke:cyan;
+}
+.axis_x line{
+fill:none;
+stroke:red;
+}
+.itemA {stroke:#000;}
+.itemB {stroke:#f00;}
+.itemC {stroke:#00f;}
+
+</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/line3.js"></script>
+</head>
+<body>
+<h3>여러개 꺽은 선 그래프 표시</h3>
+<svg id = "myGraph"></svg>
+</body>
+</html>
+```
+
+line3.js
+
+```js
+window.addEventListener("load",function(){
+var offsetX=30;
+var offsetY=20;
+var scale=2.0;//2배 크기로 그리기(세로 배율)
+var svgWidth=320;//SVG요소의 넓이
+var svgHeight=240;//SVG요소의 높이
+var dataSet1=[10,47,65,8,64,99,75,22,63,80];//데이터셋
+var dataSet2=[90,77,55,48,64,90,85,42,13,40];//데이터셋
+var dataSet3=[50,27,45,58,84,70,45,22,30,90];//데이터셋
+var margin=svgWidth/(dataSet1.length-1);//꺽은선 그래프 간격
+drawGraph(dataSet1,"itemA");
+drawGraph(dataSet2,"itemB");
+drawGraph(dataSet3,"itemC");//itemC의 꺽은선 그래프 표시 를 위해 나중에 function(dataSet,cssClassName){}으로 묶어준다.
+drawScale();//눈금 표시함수임으로 function drawScale()으로 눈금 그리는 부분을 {}로 묶어준다. 
+
+
+function drawGraph(dataSet,cssClassName){//위에 선언한 내용 그대로 가져와야함으로 itemA는 cssClassName이다.
+
+//꺽은선 그래프의 좌표 계산 메서드
+var line=d3.line()//svg의 선
+.x(function(d,i){
+	return i*margin+offsetX;//x좌표는 표시 순서 x간격
+})
+.y(function(d,i){
+	return svgHeight -(d*scale)-offsetY;//데이터로부터 Y좌표 빼기 전체 높이에서 데이터*2배를 빼고 offsetY를 뺸다.
+})
+//꺽은선 그래프 그리기
+var lineElements=d3.select("#myGraph")
+
+.append("path")//데이터 수만큼 path요소가 추가
+.attr("class","line "+cssClassName)//cssClassName은 itemA,B,C다.line시 한칸 뛰어야 한다.css에서 선언방식을 따라야한다.
+.attr("d",line(dataSet))//연속선 지정
+//눈금 표시를 위한 스케일 지정
+
+}
+function drawScale(){
+//그래프의 눈금을 그리는 함수 위에서 선언한 함수 이용 한다.
+  var yScale=d3.scaleLinear()
+    .domain([0,100])//원래 크기
+    .range([scale*100,0]);//실제 출력 크기
+
+  
+  //왼쪽 축을 설정하려 한다.
+var axis= d3.axisLeft(yScale)
+			.ticks(20)//눈금간격
+//눈금 표시하려 한다.
+d3.select("#myGraph")//ㄴSVG요소 지정
+
+	.append("g")//그룹화한다.눈금 표시 요소가 
+	.attr("class","axis")//클래스 속성 추가 스타일시트 클래스 설정
+	.attr("transform","translate("+offsetX+","+(offsetY)+")")
+	.call(axis)//call()로 눈굼을 표시할 함수를 호출
+			
+
+//가로 방향의 선을 표시(가로축 설정
+
+	
+d3.select("#myGraph")
+.append("rect")
+.attr("class","axis_x")//클래스 지정
+.attr("width",svgWidth)
+.attr("height",1)
+.attr("transform","translate("+offsetX+","+(svgHeight-offsetY-0.5)+")")//X 좌표선 그리기
+}
+});
+```
+
+###### JSON데이터 꺾은선 그래프 표시
+
+lin4.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+<style>
+svg {width:380px; height:300px; border: 1px solid black;}
+.line{fill:none;stroke:black;}
+.axis text{
+font-family:sans-serif;
+font-size:11px;}
+.axis path,
+.axis line{
+fill:none;
+stroke:cyan;
+}
+.axis_x line{
+fill:none;
+stroke:red;
+}
+.itemA {stroke:#000;}
+.itemB {stroke:#f00;}
+.itemC {stroke:#00f;}
+
+</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/line4.js"></script>
+</head>
+<body>
+<h3>여러개 꺽은 선 그래프 표시</h3>
+<svg id = "myGraph"></svg>
+</body>
+</html>
+```
+
+line4.js
+
+```js
+window.addEventListener("load",function(){
+var offsetX=30;
+var offsetY=20;
+var scale=2.0;//2배 크기로 그리기(세로 배율)
+var svgWidth=320;//SVG요소의 넓이
+var svgHeight=240;//SVG요소의 높이
+var dataSet=[[
+	{year:2004,value:10},
+	{year:2005,value:65},
+	{year:2006,value:8},
+	{year:2007,value:64},
+	{year:2008,value:99},
+	{year:2009,value:77},
+	{year:2010,value:22},
+	{year:2011,value:63},
+	{year:2012,value:80},
+	{year:2013,value:47}
+	
+],[
+	{year:2004,value:90},
+	{year:2005,value:77},
+	{year:2006,value:55},
+	{year:2007,value:48},
+	{year:2008,value:64},
+	{year:2009,value:90},
+	{year:2010,value:85},
+	{year:2011,value:42},
+	{year:2012,value:12},
+	{year:2013,value:36}
+	],
+	[
+		{year:2004,value:50},
+		{year:2005,value:27},
+		{year:2006,value:45},
+		{year:2007,value:58},
+		{year:2008,value:87},
+		{year:2009,value:70},
+		{year:2010,value:45},
+		{year:2011,value:22},
+		{year:2012,value:30},
+		{year:2013,value:90}
+
+]];
+var margin=svgWidth/(dataSet[0].length-1);//꺽은선 그래프 간격
+drawGraph(dataSet[0],"itemA");
+drawGraph(dataSet[1],"itemB");
+drawGraph(dataSet[2],"itemC");//itemC의 꺽은선 그래프 표시 를 위해 나중에 function(dataSet,cssClassName){}으로 묶어준다.
+drawScale();//눈금 표시함수임으로 function drawScale()으로 눈금 그리는 부분을 {}로 묶어준다. 
+
+
+function drawGraph(dataSet,cssClassName){//위에 선언한 내용 그대로 가져와야함으로 itemA는 cssClassName이다.
+
+//꺽은선 그래프의 좌표 계산 메서드
+var line=d3.line()//svg의 선
+.x(function(d,i){
+	return i*margin+offsetX;//x좌표는 표시 순서 x간격
+})
+.y(function(d,i){
+	return svgHeight -(d.value*scale)-offsetY;//데이터로부터 Y좌표 빼기 전체 높이에서 데이터*2배를 빼고 offsetY를 뺸다.
+})
+//꺽은선 그래프 그리기
+var lineElements=d3.select("#myGraph")
+
+.append("path")//데이터 수만큼 path요소가 추가
+.attr("class","line "+cssClassName)//cssClassName은 itemA,B,C다.line시 한칸 뛰어야 한다.css에서 선언방식을 따라야한다.
+.attr("d",line(dataSet))//연속선 지정
+//눈금 표시를 위한 스케일 지정
+
+}
+function drawScale(){
+//그래프의 눈금을 그리는 함수
+  var yScale=d3.scaleLinear()
+    .domain([0,100])//원래 크기
+    .range([scale*100,0]);//실제 출력 크기
+
+  
+  //왼쪽 축을 설정하려 한다.
+var axis= d3.axisLeft(yScale)
+			.ticks(20)//눈금간격
+//눈금 표시하려 한다.
+d3.select("#myGraph")//ㄴSVG요소 지정
+
+	.append("g")//그룹화한다.눈금 표시 요소가 
+	.attr("class","axis")//클래스 속성 추가 스타일시트 클래스 설정
+	.attr("transform","translate("+offsetX+","+(offsetY)+")")
+	.call(axis)//call()로 눈굼을 표시할 함수를 호출
+			
+
+//가로 방향의 선을 표시(가로축 설정
+
+	
+d3.select("#myGraph")
+.append("rect")
+.attr("class","axis_x")//클래스 지정
+.attr("width",svgWidth)
+.attr("height",1)
+.attr("transform","translate("+offsetX+","+(svgHeight-offsetY-0.5)+")")//X 좌표선 그리기
+
+//가로 눈금을 표시하기 위해 D3스케일 설정
+var xScale=d3.scaleLinear()//스케일 설정
+.domain([new Date("2004/1/1"),new Date("2013/12/31")])//2004년부터 2013년까지
+.range([0,svgWidth])//표시 크기
+
+var bottemAxis =d3.axisBottom(xScale)
+.ticks(5)
+.tickFormat(function(d,i){
+	var formatTime=d3.timeFormat("%Y년%m월");//m은 월 M은 일이 나온다.
+	return formatTime(d);
+})
+//가로 눈금 표시
+d3.select("#myGraph")
+.append("g")
+.attr("class","axis")
+.attr("transform","translate("+offsetX+","+(svgHeight-offsetY)+")")
+.call(bottemAxis)
+
+.selectAll("text")//눈금의 문자를 대상으로 처리
+.attr("transform","rotate(90)")//90도 회전
+.attr("dx","0.7em")//위치 조정
+.attr("dy","-0.4em")//위치 조정
+.style("text-anchor","start")//표시 위치 지정
+
+
+}//drawScale()end
+});
+```
+
+###### 영역 안을 칠한 꺽은선 그래프 표시
+
+line5.html
+
+```html
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <title>Sample</title>
+<script src="https://d3js.org/d3.v4.js"></script> 
+<script src="./js/line4.js"></script>
+      <style>      
+      </style>
+   </head>
+   <body>
+      <h1>영역 안을 칠한 꺾은선 그래프 표시</h1>
+    
+      <div id="my_dataviz"></div>
+      <br>
+   </body>
+</html>
+```
+
+
+
+line5.js.
+
+```js
+window.addEventListener("load", function(){
+
+var margin = {top:10, right:30, bottom:30, left:50},
+width = 460 - margin.left - margin.right,
+height = 400 - margin.top - margin.bottom;
+
+   var svg = d3.select("#my_dataviz")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform",
+            "translate(" +margin.left + "," + margin.top + ")");
+
+   d3.csv("./datas/orders.csv",
+      function(d){
+         return {date:d3.timeParse("%Y-%m-%d")(d.date), value:d.value}
+      },
+   
+   function(data){
+      var x = d3.scaleTime()
+         .domain(d3.extent(data, function(d){return d.date;}))
+         .range([0, width]);
+      svg.append("g")
+         .attr("transform", "translate(0,"+ height + ")")
+         .call(d3.axisBottom(x));
+
+   var y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d){return+d.value;})])
+      .range([height, 0]);
+   svg.append("g")
+      .call(d3.axisLeft(y));
+   
+   svg.append("path")
+      .datum(data)
+      .attr("fill", "#cce5df")
+      .attr("stroke", "#69b3a2")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.area()
+         .x(function(d){return x(d.date)})
+         .y0(y(0))
+         .y1(function(d){return y(d.value)})
+      )
+   })
+   
+   
+}); //addEventListener() end
+```
+
+
+
+###### 산포도
+
+plot1.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/plot1.js"></script>
+<style>
+svg { width: 320px; height: 240px; border: 1px solid black; }
+.mark{fill:cyan; stroke:none;}
+</style>
+	</head>
+	<body>
+		<h1>산포도 표시</h1>
+		<svg id="myGraph"></svg>
+		<br>
+   <br>
+		 
+	</body>
+</html>
+
+```
+
+plot1.js
+
+```js
+window.addEventListener("load",function(){
+	
+var svgWidth=320;
+var svgHeight=240;
+//데이터 셋
+var dataSet=[
+	[30,40],[120,115],[125,90],[150,160],[300,190],
+	[60,40],[140,145],[165,110],[200,170],[250,190]
+];
+
+//산포도 그리기
+var circleElements=d3.select("#myGraph")
+.selectAll("circle")
+.data(dataSet)
+
+
+circleElements.enter()
+.append("circle")
+.attr("class","mark")
+.attr("cx",function(d,i){
+	return d[0];//최소 요소를 x좌표로 함
+})
+.attr("cy",function(d,i){
+	return svgHeight-d[1];
+})
+.attr("r",5)//반지름을 지정
+
+//애니메이션 추가
+//데이터셋 갱신
+function updateDate(dataSet){
+	var result=dataSet.map(function(d,i){//배열 요소 수만큼 반복
+		var x=Math.random() * svgWidth;
+		var y=Math.random() * svgHeight;
+		return [x,y];
+	})
+	return result;
+}
+//산포도 갱신
+
+function updateGraph(dataSet){
+	d3.select("#myGraph").selectAll("*").remove();//기존을 삭 지우고~
+	circleElements=d3.select("#myGraph")//다시 생성!
+	.selectAll("circle")
+	.data(dataSet)
+	
+	circleElements.enter()
+	.append("circle")//데이터의 개수만큼 circle 요소가 추가됨
+	.attr("class","mark")
+	.transition()
+	.attr("cx",function(d,i){
+		return d[0];//x좌표를 설정
+	})
+	.attr("cy",function(d,i){
+		return svgHeight-d[1];//y좌표를 설정
+	})
+	.attr("r",5)//반지름을 지정
+}
+
+//타이머를 사용하여 2초마다 단위를 변화시킴
+setInterval(function(){
+	dataSet=updateDate(dataSet);//데이터 갱신
+	updateGraph(dataSet);
+},2000);
+
+});
+
+
+
+```
+
+###### 산포도 표시- 일정 시간 간격으로 움직이는 애니메이션
+
+plot2.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/plot2.js"></script>
+<style>
+svg { width: 380px; height: 300px; border: 1px solid black; }
+.mark{fill:cyan; stroke:none;}
+.axis text{
+font-family:sans-serif;
+font-size:11px;
+}
+.axis path,
+.axis line{
+fill:none;
+stroke:black;
+}
+</style>
+	</head>
+	<body>
+		<h1>산포도 표시- 일정 시간 간격으로 움직이는 애니메이션</h1>
+		<svg id="myGraph"></svg>
+		<br>
+   <br>
+		 
+	</body>
+</html>
+
+```
+
+
+
+plot2.js
+
+```js
+
+window.addEventListener("load",function(){
+	var offsetX=30;
+	var offsetY=20;
+	var svgWidth=320;
+	var svgHeight=240;
+//데이터 셋
+var dataSet=[
+	[30,40],[120,115],[125,90],[150,160],[300,190],
+	[60,40],[140,145],[165,110],[200,170],[250,190]
+];
+
+//산포도 그리기
+var circleElements=d3.select("#myGraph")
+.selectAll("circle")
+.data(dataSet)
+
+
+circleElements.enter()
+.append("circle")
+.attr("class","mark")
+.attr("cx",function(d,i){
+	return d[0]+offsetX;//최소 요소를 x좌표로 함
+})
+.attr("cy",function(d,i){
+	return svgHeight-d[1]-offsetY;
+})
+.attr("r",5)//반지름을 지정
+
+//애니메이션 추가
+//데이터셋 갱신
+function updateDate(dataSet){
+	var result=dataSet.map(function(d,i){//배열 요소 수만큼 반복
+		var x=Math.random() * svgWidth;
+		var y=Math.random() * svgHeight;
+		return [x,y];
+	})
+	return result;
+}
+//산포도 갱신
+
+function updateGraph(dataSet){
+	d3.select("#myGraph").selectAll("*").remove();//기존을 삭 지우고~
+	circleElements=d3.select("#myGraph")//다시 생성!
+	.selectAll("circle")
+	.data(dataSet)
+	
+	circleElements.enter()
+	.append("circle")//데이터의 개수만큼 circle 요소가 추가됨
+	.attr("class","mark")
+	.transition()
+	.attr("cx",function(d,i){
+		return d[0]+offsetX;//x좌표를 설정
+	})
+	.attr("cy",function(d,i){
+		return svgHeight-d[1]-offsetY;//y좌표를 설정
+	})
+	.attr("r",5)//반지름을 지정
+}
+function drawScale(dataSet){
+d3.select("#myGraph")
+.selectAll("g")
+.remove();//눈금 요소 삭제
+
+	var maxX=d3.max(dataSet,function(d,i){
+	return d[0];//x좌표값
+});
+	var maxY=d3.max(dataSet,function(d,i){
+	return d[1];
+});
+
+	var yScale=d3.scaleLinear()
+.domain([0,maxY])
+.range([maxY,0])
+	var axis=d3.axisLeft(yScale);
+
+d3.select("#myGraph")
+.append("g")
+.attr("class","axis")
+.attr("transform","translate("+offsetX+", "+(svgHeight-maxY-offsetY)+")")
+.call(axis)
+
+	var xScale=d3.scaleLinear()
+.domain([0,maxX])
+.range([0,maxX])
+var bottomAxis=d3.axisBottom(xScale);
+
+d3.select("#myGraph")
+.append("g")
+.attr("class","axis")
+.attr("transform","translate("+offsetX+", "+(svgHeight-offsetY)+")")
+.call(bottomAxis)
+}
+drawScale(dataSet);
+
+//타이머를 사용하여 2초마다 단위를 변화시킴
+setInterval(function(){
+	dataSet=updateDate(dataSet);//데이터 갱신
+	updateGraph(dataSet);
+	drawScale(dataSet);
+},2000);
+
+});
+
+
+
+```
+
+###### 산포도 표시: 애니메이션+그리드 표현
+
+plot3.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/plot3.js"></script>
+<style>
+svg { width: 380px; height: 300px; border: 1px solid black; }
+.mark{fill:cyan; stroke:none;}
+.axis text{
+font-family:sans-serif;
+font-size:11px;
+}
+.axis path,
+.axis line{
+fill:none;
+stroke:black;
+}
+.grid{
+stroke:gray;
+stroke-dasharray:4,2;
+shape-rendering:crispEdges;
+}
+</style>
+	</head>
+	<body>
+		<h1>산포도 표시:애니메이션+그리드 표현</h1>
+		<svg id="myGraph"></svg>
+		<br>
+   <br>
+		 
+	</body>
+</html>
+
+```
+
+plot3.js
+
+```js
+
+window.addEventListener("load",function(){
+	var offsetX=30;
+	var offsetY=20;
+	var svgWidth=320;
+	var svgHeight=240;
+	var svg=d3.select("#myGraph");//svg요소를 지정
+//데이터 셋
+var dataSet=[
+	[30,40],[120,115],[125,90],[150,160],[300,190],
+	[60,40],[140,145],[165,110],[200,170],[250,190]
+];
+
+//산포도 그리기
+var circleElements=svg.selectAll("circle").data(dataSet)
+
+
+circleElements.enter()
+.append("circle")
+.attr("class","mark")
+.attr("cx",function(d,i){
+	return d[0]+offsetX;//최소 요소를 x좌표로 함
+})
+.attr("cy",function(d,i){
+	return svgHeight-d[1]-offsetY;
+})
+.attr("r",5)//반지름을 지정
+
+//애니메이션 추가
+//데이터셋 갱신
+function updateDate(dataSet){
+	var result=dataSet.map(function(d,i){//배열 요소 수만큼 반복
+		var x=Math.random() * svgWidth;
+		var y=Math.random() * svgHeight;
+		return [x,y];
+	})
+	return result;
+}
+//산포도 갱신
+
+function updateGraph(dataSet){
+	d3.select("#myGraph").selectAll("*").remove();//기존을 삭 지우고~모든 요소를 지운다.
+	circleElements=d3.select("#myGraph")//다시 생성!
+	.selectAll("circle")
+	.data(dataSet)
+	
+	circleElements.enter()
+	.append("circle")//데이터의 개수만큼 circle 요소가 추가됨
+	.attr("class","mark")
+	.transition()
+	.attr("cx",function(d,i){
+		return d[0]+offsetX;//x좌표를 설정
+	})
+	.attr("cy",function(d,i){
+		return svgHeight-d[1]-offsetY;//y좌표를 설정
+	})
+	.attr("r",5)//반지름을 지정
+}
+function drawScale(dataSet){
+d3.select("#myGraph")
+.selectAll("g")
+.remove();//눈금 요소 삭제
+
+	var maxX=d3.max(dataSet,function(d,i){
+	return d[0];//x좌표값
+});
+	var maxY=d3.max(dataSet,function(d,i){
+	return d[1];
+});
+
+	var yScale=d3.scaleLinear()
+.domain([0,maxY])
+.range([maxY,0])
+	var axis=d3.axisLeft(yScale);
+
+d3.select("#myGraph")
+.append("g")
+.attr("class","axis")
+.attr("transform","translate("+offsetX+", "+(svgHeight-maxY-offsetY)+")")
+.call(axis)
+
+	var xScale=d3.scaleLinear()
+.domain([0,maxX])
+.range([0,maxX])
+var bottomAxis=d3.axisBottom(xScale);
+
+d3.select("#myGraph")
+.append("g")
+.attr("class","axis")
+.attr("transform","translate("+offsetX+", "+(svgHeight-offsetY)+")")
+.call(bottomAxis)
+
+
+//그리드 표시를 위해 여기다가 추가한다
+var grid=svg.append("g")
+//가로 방향과 세로 방향의 그리드 간격 자동 생성
+var rangeX=d3.range(50,maxX,50);
+var rangeY=d3.range(20,maxY,20);
+
+//가로 방향 그리드생성
+grid.selectAll("line.y")
+.data(rangeY)
+.enter()
+.append("line")
+.attr("class","grid")
+.attr("x1",offsetX)
+.attr("y1",function(d,i){
+	return svgHeight-d-offsetY;
+})
+.attr("x2",maxX + offsetX)
+.attr("y2",function(d,i){
+	return svgHeight-d-offsetY;
+})
+//세로 방향의 그리드 생성
+grid.selectAll("line.x")
+.data(rangeX)
+.enter()
+.append("line")
+.attr("class","grid")
+.attr("x1",function(d,i){
+	return d+offsetX;
+})
+.attr("y1",svgHeight-offsetY)
+.attr("x2",function(d,i){
+	return d+offsetX;
+})
+.attr("y2",svgHeight-offsetY-maxY)
+}//drawScale()end
+drawScale(dataSet);
+
+//타이머를 사용하여 2초마다 단위를 변화시킴
+setInterval(function(){
+	dataSet=updateDate(dataSet);//데이터 갱신
+	updateGraph(dataSet);
+	drawScale(dataSet);
+},2000);
+
+});
+
+
+
+```
+
+drawScale의 경우 dataSet을 빼고 싶으면 모든 함수 안의 저 값을 빼면 된다.
+
+
+
+###### 산포도 표시:풍선도움말
+
+plot4.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/plot4.js"></script>
+<style>
+svg { width: 380px; height: 300px; border: 1px solid black; }
+.mark{fill:cyan; stroke:none;}
+.axis text{
+font-family:sans-serif;
+font-size:11px;
+}
+.axis path,
+.axis line{
+fill:none;
+stroke:black;
+}
+.grid{
+stroke:gray;
+stroke-dasharray:4,2;
+shape-rendering:crispEdges;
+}
+.tip{
+position:absolute;
+top:0px;
+left:0px;
+z-index:9999;
+visibility:hidden;
+border:1px solid black;
+background-color:yellow;
+width:80px;
+height:16px;
+overflow:hidden;
+text-align:center;
+font-size:9pt;
+font-family:Tahoma,Optima,Helvetica;
+color:cyan;
+}
+</style>
+	</head>
+	<body>
+		<h1>산포도 표시:풍선도움말</h1>
+		<svg id="myGraph"></svg>
+		<br>
+   <br>
+		 
+	</body>
+</html>
+
+```
+
+plot4.js
+
+```js
+
+window.addEventListener("load",function(){
+	var offsetX=30;
+	var offsetY=20;
+	var svgWidth=320;
+	var svgHeight=240;
+	var svg=d3.select("#myGraph");//svg요소를 지정
+//데이터 셋
+var dataSet=[
+	[30,40],[120,115],[125,90],[150,160],[300,190],
+	[60,40],[140,145],[165,110],[200,170],[250,190]
+];
+
+//산포도 그리기
+var circleElements=svg.selectAll("circle").data(dataSet)
+
+
+circleElements.enter()
+.append("circle")
+.attr("class","mark")
+.attr("cx",function(d,i){
+	return d[0]+offsetX;//최소 요소를 x좌표로 함
+})
+.attr("cy",function(d,i){
+	return svgHeight-d[1]-offsetY;
+})
+.attr("r",5)//반지름을 지정
+
+//애니메이션 추가
+//데이터셋 갱신
+function updateDate(dataSet){
+	var result=dataSet.map(function(d,i){//배열 요소 수만큼 반복
+		var x=Math.random() * svgWidth;
+		var y=Math.random() * svgHeight;
+		return [x,y];
+	})
+	return result;
+}
+//산포도 갱신
+
+function updateGraph(dataSet){
+	d3.select("#myGraph").selectAll("*").remove();//기존을 삭 지우고~모든 요소를 지운다.
+	circleElements=d3.select("#myGraph")//다시 생성!
+	.selectAll("circle")
+	.data(dataSet)
+	
+	circleElements.enter()
+	.append("circle")//데이터의 개수만큼 circle 요소가 추가됨
+	.attr("class","mark")
+	.transition()
+	.attr("cx",function(d,i){
+		return d[0]+offsetX;//x좌표를 설정
+	})
+	.attr("cy",function(d,i){
+		return svgHeight-d[1]-offsetY;//y좌표를 설정
+	})
+	.attr("r",5)//반지름을 지정
+}
+function drawScale(dataSet){
+d3.select("#myGraph")
+.selectAll("g")
+.remove();//눈금 요소 삭제
+
+	var maxX=d3.max(dataSet,function(d,i){
+	return d[0];//x좌표값
+});
+	var maxY=d3.max(dataSet,function(d,i){
+	return d[1];
+});
+
+	var yScale=d3.scaleLinear()
+.domain([0,maxY])
+.range([maxY,0])
+	var axis=d3.axisLeft(yScale);
+
+d3.select("#myGraph")
+.append("g")
+.attr("class","axis")
+.attr("transform","translate("+offsetX+", "+(svgHeight-maxY-offsetY)+")")
+.call(axis)
+
+	var xScale=d3.scaleLinear()
+.domain([0,maxX])
+.range([0,maxX])
+var bottomAxis=d3.axisBottom(xScale);
+
+d3.select("#myGraph")
+.append("g")
+.attr("class","axis")
+.attr("transform","translate("+offsetX+", "+(svgHeight-offsetY)+")")
+.call(bottomAxis)
+
+
+//그리드 표시를 위해 여기다가 추가한다
+var grid=svg.append("g")
+//가로 방향과 세로 방향의 그리드 간격 자동 생성
+var rangeX=d3.range(50,maxX,50);
+var rangeY=d3.range(20,maxY,20);
+
+//가로 방향 그리드생성
+grid.selectAll("line.y")
+.data(rangeY)
+.enter()
+.append("line")
+.attr("class","grid")
+.attr("x1",offsetX)
+.attr("y1",function(d,i){
+	return svgHeight-d-offsetY;
+})
+.attr("x2",maxX + offsetX)
+.attr("y2",function(d,i){
+	return svgHeight-d-offsetY;
+})
+//세로 방향의 그리드 생성
+grid.selectAll("line.x")
+.data(rangeX)
+.enter()
+.append("line")
+.attr("class","grid")
+.attr("x1",function(d,i){
+	return d+offsetX;
+})
+.attr("y1",svgHeight-offsetY)
+.attr("x2",function(d,i){
+	return d+offsetX;
+})
+.attr("y2",svgHeight-offsetY-maxY)
+}//drawScale()end
+drawScale(dataSet);
+
+//풍선 도움말을 생성
+var tooltip=d3.select("body")
+.append("divvv")
+.attr("class","tip")
+function showTooltip(){
+	//풍선 도움말을 표시
+	circleElements=d3.select("#myGraph")
+	.selectAll("circle")
+	circleElements.on("mouseover",function(d){//클릭시 그 점의 좌표를 가져오기위해 아래의 var값을 추가한다.
+		var x=parseInt(d[0]);
+		var y=parseInt(d[1]);
+		var data=d3.select(this).datum();
+		var dx=parseInt(data[0]);
+		var dy=parseInt(data[1]);
+		tooltip
+			.style("left",offsetX +x+"px")
+			.style("top",svgHeight+offsetY-y+"px")
+			.style("visibility","visible")//풍선 도움말을 표시
+			.text("★"+dx+", "+dy)
+			
+	})
+	circleElements.on("mouseout",function(){
+		tooltip.style("visibility","hidden")//풍선 도움말을 숨김
+	})
+}
+showTooltip()//호출을 해야한다!!!!!!!!!!!!!!!!!!!!!
+
+//타이머를 사용하여 2초마다 단위를 변화시킴
+setInterval(function(){
+	dataSet=updateDate(dataSet);//데이터 갱신
+	updateGraph(dataSet);
+	drawScale(dataSet);
+	showTooltip();
+},2000);
+
+});
+
+
+
+```
+
+#### 트리맵
+
+뿌리 값이 있어야 한다!
+
+
+
+treemap1.html
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>treemap1</title>
+<style>
+
+</style>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script src="./js/treemap1.js"></script>
+</head>
+<body>
+<svg width="800" height="600"></svg>
+</body>
+</html>
+```
+
+treemap1.js
+
+```js
+window.addEventListener("load",function(){
+	
+
+var width =document.querySelector("svg").clientWidth;
+var height=document.querySelector("svg").clientHeight;
+var data={
+		"name":"A",
+		"children":[
+			{"name":"B","value":25},
+			{"name":"C",
+				"children":[
+					{"name":"D","value":10},
+					{"name":"E","value":15},
+					{"name":"F","value":10}
+				]},
+				{"name":"G","value":15},
+				{"name":"H",
+						"children":[
+							{"name":"I","value":20},
+							{"name":"J","value":10}
+						]
+				},
+				{"name":"K","value":10}
+				
+		]
+};
+root=d3.hierarchy(data);//데이터를 계층 구조로 표현하기 위한 레이아웃 리턴되는 것은 상위 root이다.
+root
+.sum(function(d){return d.value;})//합계를 구하고
+.sort(function(a,b){return b.height-a.height||b.value-a.value;})//
+
+var treemap =d3.treemap()//트리맵 레이아웃
+.size([width,height])
+.padding(1)//안쪽 여백을 조금씩 주었다. 나누기 위해서(네모 반듯한 정렬에서의 나눔 여백이다.)
+.round(true);//약간 부드럽게 선처리 한다.
+treemap(root);//계층 구조 데이터를 넘겨주는 것이다. 위에다 그린 저런 구조에다가
+
+var g=d3.select("svg")//svg요소에서
+.selectAll(".node")//모든 요소를 선택을 해와서
+.data(root.leaves())//잎사귀에 해당하는 것을 (계층구조로 데이터를 만들었기 떄문에
+.enter()
+.append("g")
+.attr("class","node")
+.attr("transform",function(d) 
+		{return "translate("+ d.x0+", "+ (d.y0) +")";});
+
+
+g.append("rect")
+.style("width",function(d){return d.x1-d.x0;})
+.style("height",function(d){return d.y1-d.y0;})
+.style("fill",function(d){
+	while(d.depth>1)d=d.parent;
+	return d3.schemeCategory10[parseInt(d.value % 7)];//열가지 색깔 지정
+})
+.style("opacity",0.6)//투명도도 줄거다
+
+g.append("text")
+.attr("text-anchor","start")
+.attr("x",5)
+.attr("dy",30)
+.attr("font-size","150%")
+.attr("class","node-label")
+.text(function(d){return d.data.name+":"+d.value;});
+
+});
+```
+
+### map 레이아웃
+
+d3.js 지도 투영 방법 https://github.com/d3/d3-geo-projection/
+
+TopoJSON형식을 이용하기 위해서 는 TopoJSON형식의 라이브러리를 사용해야 한다.
+
+ < script src="http://d3js.org/topojson.v1.min.js"></script>
+
+D3.js 지도 데이터를 표시하려면 projeciton 라이브러리를 삽입해야한다.
+
+
+
+map1.html
+
+```html
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Insert title here</title>
+ <style>
+    svg { background-color: #eee; }
+    svg .municipality { fill: red; }
+    svg .municipality:hover { stroke: #333; }
+    svg .municipality.p0 { fill: rgb(247,251,255); }
+    svg .municipality.p1 { fill: rgb(222,235,247); }
+    svg .municipality.p2 { fill: rgb(198,219,239); }
+    svg .municipality.p3 { fill: rgb(158,202,225); }
+    svg .municipality.p4 { fill: rgb(107,174,214); }
+    svg .municipality.p5 { fill: rgb(66,146,198); }
+    svg .municipality.p6 { fill: rgb(33,113,181); }
+    svg .municipality.p7 { fill: rgb(8,81,156); }
+    svg .municipality.p8 { fill: rgb(8,48,107); }
+    svg text { font-size: 10px; }
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script src="./js/map1.js"></script>
+</head>
+<body>
+  <div id="chart"></div>
+</body>
+</html>
+```
+
+map1.js
+
+```js
+//window.addEventListener("load",function(){
+//	
+//
+//var width=760, height=500;
+//
+//var svg=d3.select("#chart").append("svg")
+//	.attr("width",width)
+//	.attr("height",height)
+//	
+//var projection =d3.geo.mercator()//메르카토르 투영 도법
+//.center([128,36])
+//.scale(4000)
+//.translate([width/2,height/2]);
+//
+//var path=d3.geo.path()
+//.projection(projection);
+//
+//var quantize=d3.scale.quantize()//양자화
+//.domain([0,1000])
+//.range(d3.range(9).map(function(i){return "p"+i;}));
+//
+//var popByName=d3.map();//지도 레이아웃
+//
+//queue()
+//.defer(d3.json,"./datas/municipalities-topo-simple.json")
+//.defer(d3.csv,"./datas/population.csv",function(d){
+//	popByName.set(d.name,+d.population);
+//})
+//.await(ready);
+//
+//function ready(error,data){
+//	var features=topojson.feature(data,data.objects["municipalities-geo"]).features;
+//	
+//	 features.forEach(function(d) {
+//		    d.properties.population = popByName.get(d.properties.name);
+//		    d.properties.density = d.properties.population / path.area(d);
+//		    d.properties.quantized = quantize(d.properties.density);
+//		  });
+//	
+//	svg.selectAll("path")
+//	.data(features)
+//	.enter().append("path")
+//	.attr("class",function(d){
+//	return "municipality"+d.properties.quantized;})
+//	.attr("d",path)
+//	.attr("id",function(d){
+//		return d.properties.name;})
+//	.append("title")
+//	.text(function(d){
+//		return d.properties.name+": "+d.properties.population/10000+"만 명"});
+//	
+//	svg.selectAll("text")
+//	.data(features.filter(function(d){
+//		return d.properties.name.endsWith("시");
+//	}))
+//	.enter().append("text")
+//	.attr("transform",function(d){
+//		return "translate("+path.centroid(d)+")";})
+//	.attr("dy",".35em")
+//	.attr("class","region-label")
+//	.text(function(d){
+//		return d.properties.name;});
+//}
+//
+//
+//
+//});
+window.addEventListener("load", function(){
+	var width = 760,
+    height = 500;
+
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var projection = d3.geo.mercator() //硫붾Ⅴ移댄넗瑜� �ъ쁺 諛⑸쾿�� �ㅼ젙
+    .center([128, 36])
+    .scale(4000)
+    .translate([width/2, height/2]);
+//�ъ쁺諛⑸쾿怨� �쒖떆�� 異뺤쿃�대굹 �쒖떆 �꾩튂, �뚯쟾 媛곷룄 �깆쓣 �ㅼ젙
+var path = d3.geo.path()
+    .projection(projection); 
+
+var quantize = d3.scale.quantize() //�묒옄��
+    .domain([0, 1000])
+    .range(d3.range(9).map(function(i) { return "p" + i; }));
+
+var popByName = d3.map();//吏��� �덉씠�꾩썐
+
+queue()
+    .defer(d3.json, "./datas/municipalities-topo-simple.json")
+    .defer(d3.csv, "./datas/population.csv", function(d) {
+        popByName.set(d.name, +d.population);
+    })
+    .await(ready);
+
+function ready(error, data) {
+  var features = topojson.feature(data, data.objects["municipalities-geo"]).features;
+
+  features.forEach(function(d) {
+    d.properties.population = popByName.get(d.properties.name);
+    d.properties.density = d.properties.population / path.area(d);
+    d.properties.quantized = quantize(d.properties.density);
+  });
+
+  svg.selectAll("path")
+      .data(features)
+    .enter().append("path")
+      .attr("class", function(d) { return "municipality " 
+    	              + d.properties.quantized; })
+      .attr("d", path)
+      .attr("id", function(d) { return d.properties.name; })
+    .append("title")
+    .text(function(d) { return d.properties.name + ": " 
+    	          + d.properties.population/10000 + "만 명" });
+
+  svg.selectAll("text")
+      .data(features.filter(function(d) { 
+    	  return d.properties.name.endsWith("시"); 
+    	  }))
+      .enter().append("text")
+      .attr("transform", function(d) { return "translate(" 
+    	                            + path.centroid(d) + ")"; })
+      .attr("dy", ".35em")
+      .attr("class", "region-label")
+      .text(function(d) { return d.properties.name; });
+}
+}); //addEventListener() end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 
