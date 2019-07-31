@@ -935,6 +935,16 @@ randomBytesPromise(64)
 - readFile의 결과물은 버퍼라는 형식으로 제공됩니다.
 - 버퍼는 사람이 읽을 수 있는 형식이 아니므로 toString()을 사용해 문자열로 변환합니다
 
+
+
+###### 특징
+
+1. 동기의 경우 다른 일 못하고 대기
+2. 비동기 다른 일 수행 가능(콜백 함수 호출로 인하여)
+   - 수백개의 I/O요청이 와도 메인 스레드는 백그라운드에 요청 처리 위임하고 요청 처리 완료시 그때 콜백 함수 처리를 한다. 
+3. 블로킹과 논블로킹은 백그라운드 작업 완료 여부의 차이다.
+4. 동기 비동기는 바로바로 return 되는가의 차이다
+
 ```
 저를 읽어주세요
 ```
@@ -1012,4 +1022,1213 @@ fs.unlink('mynewfile2.txt', function (err) {
 ```
 
 
+
+
+
+#### fs 의 동기 비동기 확인
+
+```
+
+```
+
+
+
+#### fs.access(경로 옵션, 콜백)
+
+- fs.access(경로, 옵션, 콜백): 폴더나 파일에 접근할 수 있는지를 체크. 두 번째 인자로 상수들을 넣고, F_OK는 파일 존재 여부, R_OK는 읽기 권한 여부, W_OK는 쓰기 권한 여부를 체크한다. 파일/폴더나 권한이 없다면 에러가 발생하는데, 파일/폴더가 없을 때의 에러 코드는 ENOENT이다.
+- fs.mkdir(경로, 콜백): 폴더를 만드는 메서드입니다. 이미 폴더가 있다면 에러가 발생하므로 먼저 access() 메서드를 호출해서 확인하는 것이 중요합니다.
+- fs.open(경로, 옵션, 콜백): 파일의 아이디(fd 변수)를 가져오는 메서드입니다. 파일이 없다면 파일을 생성한 뒤 그 아이디를 가져옵니다. 가져온 아이디를 사용해 fs.read()나 fs.write()로 읽거나 쓸 수 있습니다. 두 번째 인자로 어떤 동작을 할 것인지 설정할 수 있습니다. 쓰려면 w, 읽으려면 r, 기존 파일에 추가하려면 a입니다. 예제에서는 w로 설정했으므로 파일이 없을 때 새로 만들 수 있었습니다. r이었다면 에러가 발생하였을 것입니다.
+- fs.rename(기존 경로, 새 경로, 콜백): 파일의 이름을 바꾸는 메서드입니다. 기존 파일 위치와 새로운 파일 위치를 적어주면 됩니다. 반드시 같은 폴더를 지정할 필요는 없으므로 잘라내기 같은 기능을 할 수도 있습니다.
+- fs.readdir(경로, 콜백): 폴더 안의 내용물을 확인할 수 있습니다. 배열 안에 내부 파일과 폴더명이 나옵니다.
+- fs.unlink(경로, 콜백): 파일을 지울 수 있습니다. 파일이 없다면 에러가 발생하므로 먼저 파일이 있는지를 꼭 확인해야 합니다.
+- fs.rmdir(경로, 콜백): 폴더를 지울 수 있습니다. 폴더 안에 파일이 있다면 에러가 발생하므로 먼저 내부 파일을 모두 지우고 호출해야 합니다.
+
+```js
+//fsCreate.js
+
+const fs = require('fs');
+
+fs.access('./folder', fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK, (err) => {
+  if (err) {
+    if (err.code ==='ENOENT') {
+      console.log('폴더 없음');
+      fs.mkdir('./folder', (err) => {
+        if (err) {
+          throw err;
+        }
+        console.log('폴더 만들기 성공');
+        fs.open('./folder/file.js','w', (err, fd) => {
+          if (err) {
+            throw err;
+          }
+          console.log('빈 파일 만들기 성공', fd);
+ 
+fs.rename('./folder/file.js','./folder/newfile.js', (err) => {
+            if (err) {
+              throw err;
+            }
+            console.log('이름 바꾸기 성공');
+          });
+        });
+      });
+    } else {
+      throw err;
+    }
+  } else {
+    console.log('이미 폴더 있음');
+  }
+});
+
+```
+
+```js
+//fsDelete.js
+
+const fs = require('fs');
+fs.readdir('./folder', (err, dir) => {
+  if (err) {
+    throw err;
+  }
+  console.log('폴더 내용 확인', dir);
+  fs.unlink('./folder/newFile.js', (err) => {
+    if (err) {
+      throw err;
+    }
+    console.log('파일 삭제 성공');
+    fs.rmdir('./folder', (err) => {
+      if (err) {
+        throw err;
+      }
+      console.log('폴더 삭제 성공');
+    });
+  });
+});
+
+```
+
+
+
+#### fs 의 copyFile()  
+
+1. node 8.5버전에서 새로 추가된 파일 복사 메서드
+2. 첫번 쨰 인자로 복사할 파일을 두번째 인자로 복사될 경로를, 세번째 인자로 복사 후 실행될 콜백 함수 지정
+
+```js
+//copyFile.js
+
+const fs=require('fs');
+
+
+fs.copyFile('readme4.txt','writeme4.txt',(error)=>{
+    if(error){
+        return console.error(error);
+    }
+    console.log("복사 완료");
+});
+```
+
+
+
+#### 버퍼와 스트림 이해
+
+- 파일을 읽거나 쓰는 방식 - 버퍼를 이용하는 방식, 스트림을 이용하는 방식
+- 예] 버퍼링은 데이터를 모으는 동작이고, 스트리밍은  데이터를 조금씩 전송하는 동작입니다. 
+- 스트리밍하는 과정에서 버퍼링을 할 수도 있습니다. (전송이 너무 느리면   최소한의 데이터를 모아야 하고, 데이터가 처리 속도보다 빨리 전송되어도 미리 전송받은 데이터를 저장할 공간이 필요합니다)
+- 노드는 파일을 읽을 때 메모리에 파일 크기만큼 공간을 마련해두며, 파일 데이터를 메모리에 저장한 뒤 사용자가 조작할 수 있도록 해줍니다. (이 경우 문제점은 파일이 메모리보다 크면 안된다)
+- 메모리에 저장된 데이터가 바로 버퍼입니다.
+
+/// **스트림**은 단방향(output input 하는 방식)
+
+- byte[] 바이트 배열을 read하고 write해서 좀더 이용가능성을 높힌다.
+
+/// **채널**은 양방향(버퍼에 넣어 놓으면 write 할 수 있다. 포지션 지정해서 중간에 랜덤하게 액세스 가능)
+
+##### 버퍼
+
+- JavaScript는 유니 코드와 호환되지만 바이너리 데이터에는 적합하지 않습니다. 
+- TCP 스트림이나 파일 시스템을 다루는 동안, 옥텟(octet ) 스트림을 처리해야합니다
+- Node는 정수 배열과 비슷한 원시(raw) 데이터를 저장하는 인스턴스를 제공
+- V8 heap 외부의 raw 메모리 할당에 해당하는 Buffer 클래스를 제공
+- 전역 객체
+- 새롭게 만들기 위해서는 new 키워드를 이용한다
+
+버퍼생성
+
+```js
+//buffer 생성
+
+var buf = new Buffer(10);
+var buf = new Buffer([10, 20, 30, 40, 50]);
+var buf = new Buffer("Simply Easy Learning", "utf-8");
+
+```
+
+
+
+buffer에 쓰기
+
+```js
+//buffer에 쓰기 buf.write(string[, offset][, length][, encoding])
+
+buf = new Buffer(256);
+len = buf.write("Simply Easy Learning");
+console.log("Octets written : "+  len);
+
+```
+
+buffer에 읽기
+
+```js
+//buffer에서 읽기 buf.toString([encoding][, start][, end])
+
+buf = new Buffer(26);
+for (var i = 0 ; i < 26 ; i++) {
+  buf[i] = i + 97;
+}
+
+console.log( buf.toString('ascii'));       // outputs: abcdefghijklmnopqrstuvwxyz
+console.log( buf.toString('ascii',0,5));   // outputs: abcde
+console.log( buf.toString('utf8',0,5));    // outputs: abcde
+console.log( buf.toString(undefined,0,5)); // encoding defaults to 'utf8', outputs abcde
+
+```
+
+buffer를 json으로 변환
+
+```js
+//buffer 를 JSON으로 변환  buf.toJSON()
+
+var buf = new Buffer('Simply Easy Learning');
+var json = buf.toJSON(buf);
+console.log(json);
+
+```
+
+buffer 연결
+
+```js
+//buffer 연결  Buffer.concat(list[, totalLength])
+
+var buffer1 = new Buffer('TutorialsPoint ');
+var buffer2 = new Buffer('Simply Easy Learning');
+var buffer3 = Buffer.concat([buffer1,buffer2]);
+
+console.log("buffer3 content: " + buffer3.toString());
+```
+
+buffer 비교
+
+```js
+//buffer 비교  buf.compare(otherBuffer);
+
+var buffer1 = new Buffer('ABC');
+var buffer2 = new Buffer('ABCD');
+var result = buffer1.compare(buffer2);
+
+if(result < 0) {
+   console.log(buffer1 +" comes before " + buffer2);
+} else if(result === 0) {
+   console.log(buffer1 +" is same as " + buffer2);
+} else {
+   console.log(buffer1 +" comes after " + buffer2);
+}
+
+```
+
+buffer복사
+
+```js
+//buffer 복사  buf.copy(targetBuffer[, targetStart][, sourceStart][, sourceEnd])
+
+var buffer1 = new Buffer('ABC');//저장한 후 
+
+//copy a buffer
+var buffer2 = new Buffer(3);//사이즈만 생성
+buffer1.copy(buffer2);//타켓(buffer2)에 소스(buffer1를 )를 저장
+console.log("buffer2 content: " + buffer2.toString());//buffer2를 읽어 복사 확인
+
+```
+
+buffer slice, slicing a buffer, lenth of the buffer
+
+```js
+//buffer slice  buf.slice([start][, end])
+//일부만 가져오고 싶을때
+var buffer1 = new Buffer('TutorialsPoint');
+
+//slicing a buffer
+var buffer2 = buffer1.slice(0,9);
+console.log("buffer2 content: " + buffer2.toString());
+
+var buffer = new Buffer('TutorialsPoint');
+
+//length of the buffer
+console.log("buffer length: " + buffer.length); //버퍼의 길이
+
+```
+
+ ##### 스트림(stream)
+
+원본에서 데이터를 읽거나 데이터를 대상에 연속적으로 쓸 수있게 해주는 개체 
+
+1. Node.js 스트림 유형 
+
+- Readable - 읽기 작업에 사용되는 스트림
+- Writable - 쓰기 작업에 사용되는 스트림
+- Duplex - 읽기 및 쓰기 작업에 모두 사용할 수있는 스트림
+- Transform - 입력을 기반으로 출력이 계산되는 양방향 스트림
+- 각 유형의 Stream은 EventEmitter 인스턴스이며 서로 다른 시간에 여러 이벤트를 발생
+
+2. 이벤트
+
+- data이벤트 - 읽을 수있는 데이터가있는 경우 시작
+- end이벤트 - 읽을 데이터가 더 이상 없을 때 시작
+- error이벤트 - 데이터 수신 또는 쓰기 오류가 발생하면 시작
+- finish 이벤트 - 모든 데이터가 기본 시스템으로 플러시 된 경우 시작
+
+```
+//input.txt
+Streams are objects that let you read data from a source or write data to a destination in continuous fashion
+
+```
+
+
+
+stream 읽기
+
+```js
+//  stream으로부터 읽기
+var fs = require("fs");
+var data = '';
+var readerStream = fs.createReadStream('input.txt');
+// Set the encoding to be utf8. 
+readerStream.setEncoding('UTF8');//인코딩 해야하다.
+// Handle stream events --> data, end, and error 핸들러 이벤트 다 지정
+readerStream.on('data', function(chunk) {
+   data += chunk;
+});
+readerStream.on('end',function() {
+   console.log(data);
+});
+readerStream.on('error', function(err) {
+   console.log(err.stack);
+});
+console.log("Program Ended");
+```
+
+
+
+strea 쓰기
+
+```js
+//  stream에 쓰기
+var fs = require("fs");
+var data = 'Simply Easy Learning';
+// writable stream 생성
+var writerStream = fs.createWriteStream('output.txt');
+// utf8로 인코딩한 data를 stream 에 쓰기
+writerStream.write(data,'UTF8');
+// Mark the end of file
+writerStream.end();
+// Handle stream events --> finish, and error
+writerStream.on('finish', function() {
+   console.log("Write completed.");
+});
+writerStream.on('error', function(err) {
+   console.log(err.stack);
+});
+console.log("Program Ended");
+
+```
+
+
+
+Stream Piping
+
+​	한 스트림의 출력을 다른 스트림의 입력으로 제공
+
+```js
+var fs = require("fs");
+// Create a readable stream
+var readerStream = fs.createReadStream('input.txt');
+// Create a writable stream
+var writerStream = fs.createWriteStream('output.txt');
+// Pipe the read and write operations
+// read input.txt and write data to output.txt
+readerStream.pipe(writerStream);
+
+console.log("Program Ended");
+
+```
+
+Stream Chaining
+
+- 한 스트림의 출력을 다른 스트림에 연결하고 여러 스트림 작업 체인을 만드는 메커니즘
+
+```js
+var fs = require("fs");
+var zlib = require('zlib');//압출해주는 모듈이다.
+// input.txt가 압축되어 현재 디렉토리에 input.txt.gz라는 파일이 생성
+fs.createReadStream('input.txt')
+   .pipe(zlib.createGzip())//pipe 메서드가 있어서  압축을 한다.
+   .pipe(fs.createWriteStream('input.txt.gz'));//압축파일로 생성
+  
+console.log("File Compressed."); 
+
+```
+
+
+
+```js
+var fs = require("fs");
+var zlib = require('zlib');
+//input.txt.gz을  input.txt로 압축풀기
+fs.createReadStream('input.txt.gz')//압출 풀 대상
+   .pipe(zlib.createGunzip())
+   .pipe(fs.createWriteStream('input2.txt'));//다른 이름으로 압출파일 푼다
+  
+console.log("File Decompressed.");
+
+```
+
+
+
+##### 버퍼와 스트림의 이해 (각종 메서드)
+
+- Buffer - 버퍼를 직접 다룰 수 있는 객체
+- from(문자열): 문자열을 버퍼로 바꿀 수 있습니다. length 속성은 버퍼의 크기를 알려줍니다. 바이트 단위입니다.
+- toString(버퍼): 버퍼를 다시 문자열로 바꿀 수 있습니다. 이때 base64나 hex를 인자로 넣으면 해당 인코딩으로도 변환할 수 있습니다.
+- concat(배열): 배열 안에 든 버퍼들을 하나로 합칩니다.
+- alloc(바이트): 빈 버퍼를 생성합니다. 바이트를 인자로 지정해주면 해당 크기의 버퍼가 생성됩니다.
+
+
+
+```js
+//buffer.js
+
+const buffer = Buffer.from('저를 버퍼로 바꿔보세요');
+console.log('from():', buffer);
+console.log('length:', buffer.length);
+console.log('toString():', buffer.toString());
+
+const array = [Buffer.from('띄엄'), Buffer.from('띄엄'), Buffer.from('띄어쓰기')];//3개의 버퍼가 생긴것이다.
+const buffer2 = Buffer.concat(array);//이것을 컴캣해서
+console.log('concat():', buffer2.toString());
+
+const buffer3 = Buffer.alloc(5);//결과 찍는 것
+console.log('alloc():', buffer3);
+
+```
+
+- 모든 내용을 버퍼에 다 쓴 후에야 다음 동작으로 넘어가므로 파일 읽기, 압축, 파일 쓰기 등의 조작을 연달아 할 때 매번 전체 용량을 버퍼로 처리해야 다음 단계로 넘어갈 수 있다.
+- 버퍼의 크기를 작게 만들어서 여러 번에 나눠서 보내는 방식 **스트림**이라 한다. 
+  - 예] 버퍼 1MB를 만든 후 100MB 파일을 백 번에 걸쳐 보내는 것(그래서 버퍼랑 스트림을 같이 써야 한다.)
+
+- createReadStream - 파일을 읽는 스트림 메서드
+- 첫 번째 인자로 읽을 파일 경로를 넣습니다. 
+- 두 번째 인자는 옵션로서 highWaterMark 는  버퍼의 크기(바이트 단위)를 정할 수 있습니다.(기본값은 64KB) 
+- readStream은 이벤트 리스너 (data, end, error 이벤트)를 붙여서 사용합니다. 
+
+ ```js
+//createReadStream.js
+
+const fs = require('fs');
+const readStream = fs.createReadStream('./readme3.txt', { highWaterMark: 16 });
+const data = [];
+readStream.on('data', (chunk) => {
+  data.push(chunk);
+  console.log('data :', chunk, chunk.length);
+});
+readStream.on('end', () => {
+  console.log('end :', Buffer.concat(data).toString());
+});
+readStream.on('error', (err) => {
+  console.log('error :', err);
+});
+
+ ```
+
+- 쓰기 스트림 메서드 - createWriteStream() 
+- finish 이벤트 리스너 - 파일 쓰기가 종료되면 콜백 함수가 호출됩니다.
+- writeStream에서 제공하는 write() 메서드로 넣을 데이터를 씁니다.
+- 데이터를 다 썼다면 end() 메서드로 종료를 알려줍니다. 이때 finish 이벤트가 발생합니다.
+- createReadStream으로 파일을 읽고 그 스트림을 전달받아 createWriteStream으로 파일을 쓸 수도 있습니다. 
+
+
+
+
+
+- 읽기 스트림과 쓰기 스트림을 만들어둔 후 두 개의 스트림 사이를 pipe 메서드로 연결해주면 자동으로 데이터가 writeStream으로 넘어갑니다.
+- pipe는 스트림 사이에 연결할 수 있습니다
+- zlib 모듈 - 파일 압축 모듈
+- createGzip() - 스트림을 지원, readStream과 writeStream 중간에서 파이핑을 할 수 있습니다. 버퍼 데이터가 전달되다가 gzip 압축을 거친 후 파일로 쓰여집니다.
+
+
+
+
+
+
+
+##### Events Module
+
+1. Node.js는 이벤트에 10개가 넘는 이벤트 핸들러를 연결한 경우 오류로 간주합니다.
+2. setMaxListeners(limit) : 이벤트 핸들러 연결 개수를 limit 만큼 조절합니다.
+   - 제한할 수 있다. 제한 가능
+3. removeListener(eventName, handler) : 특정 이벤트의 이벤트 핸들러를 제거합니다.
+4. removeAllListener([eventName]) : 모든 이벤트 핸들러를 제거합니다.
+5. once(eventName, eventHandler) : 이벤트 핸들러를 한 번만 연결합니다.
+6. on(이벤트명, 콜백): 이벤트 이름과 이벤트 발생 시의 콜백을 연결해줍니다. (이벤트 리스닝)이벤트 하나에 이벤트 여러 개를 연결 할 수 있습니다.
+7. addListener(이벤트명, 콜백): on과 기능이 동일
+   - 일반적으로는 ON 과 ADD를 사용한다.
+8. emit(이벤트명): 이벤트를 호출하는 메서드입니다. 이벤트 이름을 인자로 넣어주면 미리 등록해뒀던 이벤트 콜백이 실행됩니다. 
+   - 인수로 이벤트를 지정하면 이벤트 핸드러를 호출하는 결과가 나타난다.
+9. off(이벤트명, 콜백): Node 10 버전에서 추가된 메서드로, removeListener와 기능이 동일
+10. listenerCount(이벤트명): 현재 리스너가 몇 개 연결되어 있는지 확인합니다.
+
+```js
+process.once('uncaughtException', function(error) {
+    console.log('예외 발생');
+});
+ 
+setInterval(function () {
+    error.error.error('^ ^');//에러를 발생시킨 것이다.에러 객체의 에러 속성의 에러를 말생한다.허나 위에 process.once를 지정했기에 한번만 나타날 것이다.
+}, 3000);
+
+```
+
+Events-이벤트 생성, 연결, 제거 코드 예제
+
+```js
+const EventEmitter = require('events');
+
+const myEvent = new EventEmitter();//이벤트 에밋객체 생성한다.
+myEvent.addListener('event1', () => {
+  console.log('이벤트 1');
+});//우리가 지정하는 이벤트이다.
+myEvent.on('event2', () => {
+  console.log('이벤트 2');
+});//on 메서드로 핸들러 하나 더 추가
+myEvent.on('event2', () => {
+  console.log('이벤트 2 추가');
+});
+
+myEvent.emit('event1'); //이벤트 발생시킨것
+myEvent.emit('event2');
+
+myEvent.once('event3', () => {
+  console.log('이벤트 3');
+});//이벤트 한번만되도록 once
+myEvent.emit('event3');
+myEvent.emit('event3');
+
+myEvent.on('event4', () => {
+  console.log('이벤트 4');
+});
+myEvent.removeAllListeners('event4');//이벤트 4제거
+myEvent.emit('event4');//이벤트4 실행해도 제거되엇 나오는거 없다.
+
+const listener = () => {
+  console.log('이벤트 5');
+};
+myEvent.on('event5', listener);
+myEvent.removeListener('event5', listener);//이벤트5제거
+myEvent.emit('event5');//이벤트 5실행해도 제거 안된다.
+ 
+console.log(myEvent.listenerCount('event2'));//이벤트 몇개있나 확인해보자
+//이벤트 3은 한번만이었으므로 없어졌고 4,5는 삭제했다. 결국 남은 건 2개
+
+```
+
+
+
+Node.js에서 이벤트를 연결할 수 있는 모든 객체는 EventEmitter 객체의 상속을 받는다.
+
+EventEmitter : node.js 의 모든 이벤트처리가 정의된 기본객체로, 이벤트를 사용하기 위해서는 이 객체를 재정의해서 사용해야할 수 있다.
+
+on( ) : 이벤트를 연결하는 함수다.   on( ) 함수를 이용해서  이벤트를 캐치 , 모든 이벤트처리는 이런 동일한 루틴을 거쳐서 사용하게 된다.
+
+emit( ) : 이벤트를 발생시키는 함수이고,   emit('data') 의 형태로 이벤트를 발생시켜야 한다.
+
+```js
+// 1. 이벤트가 정의되 있는 events 모듈 생성. 이전 버전의 process.EventEmitter() 는 deprecated!
+var EventEmitter = require('events');
+// 2. 생성된 이벤트 모듈을 사용하기 위해 custom_object로 초기화
+var custom_object = new EventEmitter();
+// 3. events 모듈에 선언되어 있는 on( ) 함수를 재정의 하여 'call' 이벤트를 처리 
+custom_object.on('call', ()=> {//call 이벤트를 등록한다. on 은 이벤트를 연결한다.
+    console.log('called events!');
+});
+// 4. call 이벤트를 강제로 발생 emit으로 이벤트를 호출한다.
+custom_object.emit('call');
+
+```
+
+
+
+Events 
+
+- 이벤트를 이용해서 매초 콘솔창에 주기적으로 현재시간을 출력하는 타이머 모듈 생성
+
+```js
+//custom_module_timer.js
+var EventEmitter = require('events');
+// 1. setInterval 함수가 동작하는 interval 값을 설정합니다. 1초에 한번씩 호출
+var sec = 1;
+
+// 2. timer변수를 EventEmitter 로 초기화
+exports.timer = new EventEmitter();
+
+// 3. javascript 내장함수인 setInterval 을 사용해서 1초에 한번씩 timer 객체에 tick 이벤트 발생
+setInterval(function(){
+    exports.timer.emit('tick');
+}, sec*1000);
+
+```
+
+
+
+```js
+//call_timer.js
+var module = require('./custom_module_timer');
+
+// 1. module 내부에 선언된 timer객체를 통해 tick 이벤트를 캐치하고, 이벤트 발생시마다 현재시간을 출력
+module.timer.on('tick', function(time){
+    var time = new Date(); // 2. 현재 시간을 가져오기 위한 Date 객체 생성
+    console.log('now:'+time);
+});//1초마다 tick이벤트를 발생하면 콘솔에 현재시간 출력
+
+```
+
+
+
+try~catch
+
+- 하나뿐인 스레드(싱글 스레드)가 에러로 인해 멈춘다는 것은 전체 서버가 멈춘다.
+
+```js
+//error1.js
+
+setInterval(() => {
+  console.log('시작');
+  try {
+    throw new Error('서버를 고장내주마!');
+  } catch (err) {
+    console.error(err);//에러를 콘솔에 출력
+  }
+}, 1000)//에러를 강제 발생
+
+```
+
+- 노드 자체에서 잡아주는 에러
+- 노드 내장 모듈의 에러는 실행 중인 프로세스를 멈추지 않는다.
+- 에러 로그를 기록해두고 나중에 원인을 찾아 수정한다.
+- throw를 하는 경우에는 반드시 try catch문으로 throw한 에러를 잡아주어야 합니다.
+
+```js
+//error2.js  - fs.unlink()로 없는 파일을 삭제
+// try catch가 없는 상태 임에도 에러를 잡을까?
+//노드 자체적으로 예외 처리를 해준다는 것 
+const fs = require('fs');
+
+setInterval(() => {
+  fs.unlink('./abcdefg.js', (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+}, 1000);
+
+```
+
+예측 불가능한 에러를 처리하는 방법
+
+- process 객체에 uncaughtException 이벤트 리스너 연결 - 처리하지 못한 에러가 발생했을 때 이벤트 리스너가 실행되고 프로세스가 유지됩니다. 
+- 단순히 에러 내용을 기록하는 정도로 사용하고 process.exit()로 프로세스를 종료하는 것이 좋습니다. 
+- 노드는 uncaughException 이벤트 발생 후 다음 동작이 제대로 동작하는지를 보증하지 않습니다
+
+```js
+//error3.js
+
+process.on('uncaughtException', (err) => {
+  console.error('예기치 못한 에러', err);
+});
+
+setInterval(() => {
+  throw new Error('서버를 고장내주마!');
+}, 1000);//1초 지나서 에러발생
+
+setTimeout(() => {
+  console.log('실행됩니다');
+}, 2000);
+
+```
+
+
+
+#### Net 모듈
+
+- TCP 프로토콜 기반의 소켓 프로그래밍을 지원하는 코어 모듈
+- Node.js에서 소켓은 Stream이면서 EventEmitter이다. (기존이 이벤트 뿐만 아니라 사용자 정의 이벤트를 만들어 사용자 정의 프로토콜을 설계할 수 있다) 
+
+| net.createServer([options],   [connectionListener])          | •TCP   서버를 생성   •서버에   새로운 요청이 올 때마다 connection   이벤트가 발생   •'connectionListener'   매개 변수는 자동으로 'connection'이벤트의 리스너로 추가된다   •‘options’는 {allowHalfOpen: false}가 기본값이며 true를 지정하면 소켓이 FIN   패킷을 받았을 때 FIN   패킷을 자동으로 보내지 않습니다.   (*FIN 패킷은 소켓을 더 이상 사용하지 않겠다는 의미로서,   ‘allowHalfOpen’은   한쪽에서 연결을 종료했을 때 반대쪽도 종료할 것인지를 결정 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| net.connect(options,   [connectionListener])   net.connect(port,   [host], [connectionListener])   net.connect(path,   [connectionListener]) | •새로운   소켓 객체를 생성하고 해당 위치로 소켓을 연다.    •소켓이   설정되면‘connection’   이벤트가 발생되고,   ‘connectionListener’ 매개   변수는‘connection’   이벤트에 대한 리스너로서 추가된다.   •host’를 생략하면 IPv4에 맞는 모든 주소로부터 연결을 받습니다.   •‘port’에 0을   넣으면 임의의 포트를 선택   •비동기   함수 |
+| server.listen(port,   [host], [backlog], [callback])   server.listen(path,   [callback])   server.listen(handle,   [callback]) | •지정된   서버(port,   host, path, …)의   커넥션 연결을 시작한다.(대기상태로 기다린다)      •서버가   실행되면 ‘listening’   이벤트가 발생되고,   ‘callback’ 매개 변수는 ‘listening’   이벤트에 대한 리스너로서 추가된다. |
+
+| server.address()         | 서버에 호스트와 포트에 대한 정보가 담겨 있습니다   IP 주소와 포트 번호와 같은 서버 정보를 운영체제로부터 가져온다.    ‘listening’   이벤트가 발생한 후에만 메소드 호출이 가능하다. |
+| ------------------------ | ------------------------------------------------------------ |
+| server.pause(msec)       | 서버가 밀리세컨드 동안 새 요청을 받지 않습니다.         서버에 부하가 심한 경우 유용하게 사용할 수 있습니다. |
+| server.close([callback]) | 새로운 커넥션 연결을 중단하고 기존의 커넥션만 유지한다.         비동기로 실행됨 모든 커넥션이 종료되었을 때 서버를 닫는다.    서버는 ‘close’ 이벤트를 발생시키고 선택적으로 ‘close’   이벤트를 받을 수 있는 콜백을 매개 변수로 정할 수 있다. |
+| server.maxConnections    | 서버가 최대로 받아들일 수 있는 연결 수를 지정                |
+| server.connections       | 서버의 동시 연결 connection수를 알 수 있음                   |
+
+
+
+```js
+// createServer.js 
+var net = require('net'); 
+var server = net.createServer(function(socket) {
+	console.log('createServer()');  // 연결이 되면 서버 로그에 남는 메시지
+	socket.on('end', function() {//넘어온 소켓객체에 on 으로 이벤틍 ㅕㄴ결
+		console.log('socket end');  // 연결이 끊어지면 서버 로그에 남는 메시지
+	});
+	socket.write('Hello World\r\n');  // 클라이언트에게 보여지는 메시지
+}); 
+server.listen(8124, function() {//아무거나 지정해도 된다(8000번도 오케이 범위가 무엇이었는지는 까묵..)
+	console.log('서버가 %d 포트에 연결되었습니다.', server.address().port);  // 서버가 실행되면 서버 로그에 남는 메시지
+});
+
+```
+
+노드로 실행한 후 아래 를 진행해야 한다.
+
+허나 telnet 이 비실행사태라면 실행을 해주어야 하는데 제어판에서
+
+프로그램 및 기능에서 윈도우 기능 사용/사용안함에서 talnet 기능을 사용함으로 바꿔주면 된다.
+
+텔렛 클라리언트 체크 후 저장! 확인을 눌러주자.
+
+윈도 커맨드 창은 시작프로그램 눌렀을 때 나오는 검색창을 말한다.
+
+```js
+// 윈도 커맨드창에서
+ 
+telnet localhost 8124 
+
+```
+
+
+
+##### net.Server의 이벤트
+
+| listening   이벤트  | server.listen()이 호출될 때 발생                             |
+| ------------------- | ------------------------------------------------------------ |
+| connection   이벤트 | 새 연결이 생겼을 때 발생   function(socket)   {} , 파라미터인 socket은 연결된 소켓으로 net.Socket의 객체 |
+| error   이벤트      | 서버에서 에러가 날 때 발,   error 이벤트 발생 후에는 close   이벤트가 발생함 |
+| close   이벤트      | 서버가 닫혔을 때 발생                                        |
+
+
+
+##### net.Socket
+
+- net.Socket은 TCP나 유닉스 소켓의 추상객체로써 이중 통신 방식의 스트림 인터페이스를 구현
+
+| socket.setEncoding(encoding)                 | 소켓으로 받는 데이터의 인코딩을 지정    ascii, utf8, base64를 사용할 수 있ek. |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| socket.write(data,   [encoding], [callback]) | 소켓에 데이터를 보내기 위해 사용   encoding은 data가   문자열일 때 사용하고 기본값을 UTF-8      커널 버퍼로 모든 데이터를 보내면 true를, 아직   큐에 쌓여있다면 false를 리턴   퍼가 비워져서 다시 쓸 수 있는 상태가 되면 drain   이벤트가 발생   콜백함수는 데이터가 모두 쓰여졌을 때 호출됨 |
+| socket.end([data],   [encoding])             | FIN   패킷을 보내 소켓을 닫기 때문에 서버 쪽에서는 데이터를 계속해서   보낼 수 있습니다.    end()   함수에 data,   encoding 파라미터를 주면 socket.write() 를 하고 sockec.end() 를 한 것과 동일합니다. |
+| socket.pause()                               | 소켓에서 데이터를 읽는 것을 멈추기 때문에 data   이벤트가 더 이상 발생하지 않습니다.  다시   데이터를 받기 위해서는 socket.resume()을 실행합니다. |
+| socket.remoteAddress                         | 접속한 클라이언트의 원격 IP를 돌려줍니다                     |
+| socket.write()                               | 소켓으로 데이터를 보내는데 만약 보낼 수 없을 때는 데이터를 큐에 넣고   추후에 다시 전송합니다. |
+| socket.bufferSize                            | 현재 버퍼의 문자 수를 나타내는 프로퍼티(버퍼에   존재하는 문자열은 실제 데이터를 보낼 때 인코딩되기 때문에 socket.bufferSize가 알려주는 크기는 인코딩되기 전의 문자 크기) |
+
+
+
+| socket.connect(port,   [host], [connectListener])   socket.connect(path,   [connectListener]) | •일반적으로   net.connect 래핑 함수를 호출하여 소켓을 열기 때문에 사용자 정의 소켓을 구현해야 할   경우에만 사용한다.    •   ‘connectListener’ 매개 변수는 ‘connect’ 이벤트에 대한 리스너로서 추가된다. |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| socket.destroy()                                             | •소켓의   I/O   활동을 발생하지 않게 하는 메소드이며, 에러가   발생했을 경우에필요하다. |
+| socket.resume()                                              | •데이터   읽기를 재개한다                                    |
+| socket.setTimeout(timeout,   [callback])                     | •소켓에   설정된 초과 시간이 지나면 ’timeout’   이벤트가 발생하며,   ‘callback’ 매개 변수는 ‘timeout’   이벤트의 리스너로서 추가된다.   •‘timeout’   이벤트가발생하여도 커넥션은 유지된다.    •커넥션을   끊기 위해서는 사용자가 end   메소드나 destroy 메소드를 호출해야 한다. |
+| socket.setNoDelay([noDelay])                                 | •Nagle   알고리즘을 비활성화하고, 기본적으로 TCP 연결은 Nagle 알고리즘을사용하므로 데이터를 보내기 전에 이를 버퍼에 저장한다.   •‘noDelay’ 매개 변수를 설정하면 write   메소드가 호출될 때마다 곧바로 데이터를 전송한다 |
+| socket.setKeepAlive([enable],   [initialDelay])              | •Keep-Alive   기능의 활성화 유무를 설정하는 메소드이다. 기본적으로   비활성화 되어있으며 지연 시간을 설정할 수 있다. |
+
+
+
+| socket.address()    | •IP   주소와 포트 번호와 같은 서버 정보를 운영체제로부터 가져온다. |
+| ------------------- | ------------------------------------------------------------ |
+| socket.remotePort   | •원격   포트를 가지는 프로퍼티                               |
+| socket.bytesRead    | •소켓이   받은 총 바이트 수를 가지는 프로퍼티                |
+| socket.bytesWritten | •소켓에   보낸 총 바이트 수를 가지는 프로퍼티                |
+
+socket.on(event,listener)
+
+| connect   이벤트 | 소켓 연결이 되면 발생                                        |
+| ---------------- | ------------------------------------------------------------ |
+| data   이벤트    | 소켓에서 데이터를 받으면 발생                                |
+| end   이벤트     | 소켓으로 FIN 받았을 때 발생                                  |
+| drain   이벤트   | 쓰기 버퍼가 비워졌을 때 발생                                 |
+| timeout이벤트    | 시간이 초과된 경우 발생                                      |
+| error   이벤트   | 에러가 나면 발생, error 이벤트 발생 후에는 close   이벤트가 발생함 |
+| close   이벤트   | 소켓이 완전히 닫혔을 때 발생                                 |
+
+
+
+```js
+// tcpserver.js
+var net = require('net');
+//서버를 생성
+var server = net.createServer(function(socket){
+   console.log(socket.address().address +" connected");
+   //client로부터 오는 data를 화면에 출력
+   socket.on('data', function(data) {
+      console.log('rcv:'+data);
+   });
+   //client와 접속이 끊기는 메시지 출력
+   socket.on('close', function() {
+      console.log('client disconnected');
+   });
+   //client가 접속하면 화면에 출력해주는 메시지
+   socket.write('welcome to server');
+   });
+//에러가 발생할 경우 화면에 에러메시지 출력
+server.on('error', function(err) {
+    console.log('err' + err);
+});
+//Port 5000으로 접속이 가능하도록 대기
+server.listen(5000, function(){
+    console.log('listening on 5000...');
+});//listen 5000번 포트를 부르고 대기하고 있다고 콘솔로 찍었따.
+
+```
+
+
+
+```js
+// tcpclient.js
+var net = require('net');
+//서버 5000번 포트로 접속
+var socket = net.connect( { port: 5000} );
+socket.on('connect', function( ){
+   console.log("connected to server!");
+    setInterval(function() {  //1000ms의 간격으로 hello korea를 서버로 요청
+         socket.write('hello korea!');
+      }, 1000);
+    socket.on('data', function(chunk) {  //서버로부터 받은 데이터를 화면에 출력
+      console.log('recv : ' + chunk);
+   });
+   socket.on('end', function( ) {   //접속이 종료되었을 때 메시지 출력
+      console.log('disconnected');
+   });
+   socket.on('error', function(err) {   //에러가 발생할 경우 화면에 에러메시지 출력
+       console.log('err : ' + err);
+});
+socket.on('timeout', function(){   ////connection에서 timeout이 발생하면 메시지 출력
+    console.log('connection timeout');
+});
+});
+
+```
+
+cmd 두개를 열어서 해보자. 세개 열어서 또 연결해도 된다.
+
+
+
+
+
+## NPM 패키지 매니저
+
+#### npm
+
+- Node Package Manager
+
+- package.json 으로 패키지를 관리한다.
+
+- 자바스크립트 프로그램은 패키지라는 이름으로 npm에 등록되어 있으므로 특정 기능을 하는 패키지가 필요하다면 npm에서 찾아 설치합니다
+
+- npm에 업로드된 노드 모듈을 패키지라고 부릅니다. 
+
+- 패키지가 다른 패키지를 사용할 수도 있습니다. (의존관계)
+
+- Node.js에서는 자주 쓰이고 재사용되는 자바스크립트 코드들을 패키지로 만들어서 사용할 수 있습니다. 
+
+- 패키지를 모아놓은 저장소를 npm이라 한다.
+
+- https://npmjs.com/ 이곳에 등록되어 있는 패키지 모듈 확인 가능
+
+- Node.js를 설치하면 자동으로 npm이 설치된다.
+
+- `npm -v`로 버전을 체크(cmd 창에서 앞에것을 쳐준다.)
+
+- 1npm update -g` npm 최신버전으로 업데이트
+
+- npm은 package.json (패키지 관리)을 만드는 명령어를 제공합니다.
+
+  
+
+- package name: 패키지의 이름입니다. package.json의 name 속성에 저장됩니다.
+- version: 패키지의 버전입니다. npm의 버전은 다소 엄격하게 관리됩니다.  
+- entry point: 자바스크립트 실행 파일 진입점입니다. 보통 마지막으로 module.exports를 하는 파일을 지정합니다. package.json의 main 속성에 저장됩니다.
+- test command: 코드를 테스트할 때 입력할 명령어를 의미합니다. package.json scripts 속성 안의 test 속성에 저장됩니다.
+- git repository: 코드를 저장해둔 Git 저장소 주소를 의미합니다. 나중에 소스에 문제가 생겼을 때 사용자들이 이 저장소에 방문해 문제를 제기할 수도 있고, 코드 수정본을 올릴 수도 있습니다. package.json의 repository 속성에 저장됩니다.
+- keywords: 키워드는 npm 공식 홈페이지([https://npmjs.com](https://npmjs.com/))
+   에서 패키지를 쉽게 찾을 수 있게 해줍니다. package.json의 
+   keywords 속성에 저장됩니다.
+- license: 해당 패키지의 라이선스를 넣어주면 됩니다. 
+
+```js
+$ npm init
+....
+package name : (폴더명) [프로젝트 이름 입력]
+version : (1.0.0) [프로젝트 버전 입력]
+description : [프로젝트 설명 입력]
+entry point : index.js
+test command : [엔터 키 클릭]
+git repository : [엔터 키 클릭]
+keywords : [엔터 키 클릭]
+author : [여러분의 이름 입력]
+license : (ISC) [엔터 키 클릭]
+
+```
+
+cmd 를 들어가서 test파일위치에서 npm init 를 친다
+
+그 후 엔터엔터~
+
+그러면 package.json파일 생성된것을 확인 할 수 있다. 각각은 바꿀 수 있다. 저 위의 내용을 정보로서 알고 있어야 한다.
+
+##### npm 명령
+
+- npm install 패키지@버전 :  특정한 버전을 설치
+- npm install 주소 : 특정한 저장소에 있는 패키지를 설치 
+- npm update : 설치한 패키지를 업데이트
+- npm dedupe :  npm의 중복된 패키지들을 정리할 때 사용
+- npm docs :  패키지에 대한 설명을 보여줍니다.
+- npm root :  node_modules의 위치를 알려줍니다.
+- npm outdated :  오래된 패키지가 있는지 알려줍니다
+- npm ls :  패키지를 조회하는 명령어, 현재 설치된 패키지의 버전과 dependencies를 트리 구조로 표현합니다. 
+- npm ll  더 자세한 정보를 줍니다. 
+- npm ls [패키지명] :  해당 패키지가 있는지와, 해당 패키지가 어떤 패키지의 dependencies인지 보여줍니다.
+- npm search : npm 저장소에서 패키지를 검색하는 명령어
+- npm owner : 키지의 주인이 누군지 알려주는 명령어
+- npm bugs : 버그가 발생했을 때 어떻게 패키지의 주인에게 연락을 취할지 알려줍니다. 
+- npm [start | stop | restart | test | run ]
+- npm cache :  npm 내의 cache를 보여줍니다.
+- npm rebuild : npm을 다시 설치하는 명령어 
+- npm config : npm의 설정을 조작하는 명령어
+- npm uninstall [패키지명] :  해당 패키지를 제거하는 명령어
+- npm info [패키지명]은 패키지의 세부 정보를 파악하고자 할 때 사용하는 명령어입니다. package.json의 내용과 의존 관계, 설치 가능한 버전 정보 등이 표시됩니다. 
+
+##### package.json
+
+- 프로젝트에서 필요로 하는 패키지명과 함께 패키지 버전관리에 사용됨  
+- npm init 명령어로 package.json 생성 (프로젝트 폴더 안으로 cmd를 통해서 이동한 후 입력)
+- 노드 어플리케이션 / 모듈의 경로에 위치
+- 패키지의 속성을 정의
+- scripts 부분은 npm 명령어를 저장해두는 부분
+
+```js
+$npm run [스크립트 명령어]//아래에 명령어 두개를 등록했다. test랑 start
+$npm run test
+$npm run  start
+
+
+```
+
+
+
+```js
+//package.json  형식
+{
+  "name": “akasha",
+  "version": "1.0.0",
+  "description": "npm description",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [//키워드는 임의로 작성
+    “akasha",
+    "npm",
+    "nodejs",
+    "lecture"
+ ],
+  "author": “Akasha.Park",
+  "license": “ "
+}
+
+```
+
+
+
+만들어둔 package.json파일을 열고 (편집) start에 "node tcp.js" 라 쓰자(아까 만든 server파일)
+
+그후 저장후 cmd 창에서 위의 명령어 중 npm run start를 작성하면 node tcp 실행됨을 알 수 있다.
+
+
+
+
+
+- npm install 명령어에 --save 옵션은  dependencies에 패키지 이름을 추가하는 옵션이지만 npm@5부터는 기본값으로 설정되어 있으므로 생략가능
+- node_modules폴더가 생성되고 의존하는  다른 패키지들이 저장됩니다
+- 설치한 패키지들이 dependencies 속성에 기록됩니다.
+-  node_modules는 언제든지 npm install로 설치할 수 있으므로 node_modules는 
+   보관할 필요가 없다
+
+
+
+참고로 이것은 package.json형식을 설치했떤 test 파일내에서 계속 해야한다.
+
+```js
+//package.json  형식
+
+{
+  "name": "npmtest",
+  // 생략
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3"
+ }
+}
+
+```
+
+```js
+$npm install [패키지 이름]
+$ npm install express 
+```
+
+그러면 package-lock파일이 생긴다(보면 설치된 모듈들을 확인 가능)
+
+
+
+##### 개발용 패키지를 설치
+
+실제 배포 시에는 사용되지 않고, 개발 중에만 사용되는 패키지들
+
+npm install --save-dev [패키지] [...]로 설치
+
+ackage.json에 새로운 속성  
+
+```js
+$ npm install --save-dev nodemon
+
+```
+
+
+
+```js
+//package.json  형식
+
+{
+  ...
+  "devDependencies": {
+    "nodemon": "^1.17.3"
+ }
+}
+
+```
+
+추가 확인해보자.
+
+##### 전역 설치
+
+- 패키지를 현재 폴더의 node_modules에 설치하는 것이 아니라 npm이 설치되어 있는 폴더(윈도의 경우 기본 경로는 C:\Users\사용자이름\AppData\Roamng\npm)에 설치합니다. 
+- 전역 설치한 패키지는 콘솔의 커맨드로 사용할 수 있습니다.
+- rimraf는 리눅스나 macOS의 rm -rf 명령어를 윈도에서도 사용할 수 있게 해주는 패키지입니다. rm -rf는 지정한 파일이나 폴더를 지우는 명령어)
+- 전역 설치했으므로 rimraf 명령어를 콘솔에서 사용할 수 있습니다. 
+- 전역 설치한 패키지는 package.json에 기록되지 않습니다.
+
+```js
+$ npm install --global rimraf 
+$ rimraf node_modules
+
+```
+
+- rimraf 모듈을 package.json의 devDependencies 속성에 기록한 후, 앞에 npx 명령어를 붙여 실행하면 됩니다. 패키지를 전역 설치한 것과 같은 효과를 얻을 수 있습니다.
+
+
+
+```js
+$ npm install --save-dev rimraf
+
+$ npx rimraf node_modules
+```
+
+
+
+
+
+- 모든 패키지가 npm에 등록되어 있는 것은 아닙니다. 일부 패키지는 오픈 소스가 아니거나 개발 중인 패키지라서 GitHub나 nexus 등의 저장소에 보관되어 있을 수도 있습니다. 
+
+- npm install [저장소 주소] 명령어를 통해 설치
+
+##### 패키지 배포
+
+![1564546407720](C:\Users\student\Documents\GitHub\javaStudy\사진\npm)
+
+- npm adduser :  npm 로그인을 위한 명령어( npm 공식 사이트에서 가입한 계정으로 로그인) 패키지를 배포할 때 로그인이 필요합니다. 
+- npm whoami는 로그인한 사용자가 누구인지 알려줍니다. 로그인된 상태가 아니라면 에러가 발생
+- §npm logout은 npm adduser로 로그인한 계정을 로그아웃할 때 사용합니다.
+- npm version [버전] 명령어를 사용하면 package.json의 버전을 올려줍니다. 
+- npm deprecate [패키지명][버전] [메시지] : 해당 패키지를 설치할 때 경고 메시지를 띄우게 하는 명령어
+- npm publish : 자신이 만든 패키지를 배포할 때 사용
+- npm unpublish는 배포한 패키지를 제거할 때 사용 (24시간 이내에 배포한 패키지만 제거할 수 있습니다.)
+- npm 공식 문서(https://docs.npmjs.com/)의 CLI Commands에서 명령어 확인
+
+- 패키지로 만들 코드는 package.json의 main 부분의 파일명과 일치해야 합니다. 
+- npm에서 이 파일이 패키지의 진입점임을 알 수 있습니다.
+- npm은 패키지의 이름이 겹치는 것을 허용하지 않습니다.
+- 패키지 이름 사용 확인 - npm info [패키지명]
+
+```js
+//index.js
+
+module.exports = () => {
+  return'hello package';
+};
+
+```
+
+
+
+```js
+$ npm publish npmtest-1234
+$ npm unpublish npmtest-1234 --force
+$ npm info npmtest-1234
+
+```
+
+
+
+## http 모듈로 웹 서버 만들기
+
+#### HTTP Module
+
+- 클라이언트에서 서버로 요청(request)을 보내고, 서버에서는 요청의 내용을 읽고 처리한 뒤 클라이언트에게 응답(response)을 보냅니다.
+- 서버에는 요청을 받는 부분과 응답을 보내는 부분이 있어야 합니다.
+- 요청과 응답은 이벤트 방식으로 클라이언트로부터 요청이 왔을 때 어떤 작업을 수행할지 이벤트 리스너를 미리 등록해두어야 합니다. 
+
+```jade
+//createServer.js
+
+const http = require('http');
+
+http.createServer((req, res) => {
+  // 여기에 어떻게 응답할지 적어줍니다.
+});
+
+```
+
+
+
+##### HTML 파일 읽어 전송
+
+```html
+<!--demofile1.html-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Node.js 웹 서버</title>
+</head>
+<body>
+    <h1>Node.js 웹 서버</h1>
+    <p>만들 준비되셨나요?</p>
+</body>
+</html>
+
+```
+
+```js
+//httpServer2.js
+
+const http = require('http');
+const fs = require('fs');
+
+http.createServer((req, res) => {
+  fs.readFile('./demofile1.html', (err, data) => {
+    if (err) {
+      throw err;
+    }
+    res.end(data);
+  });
+}).listen(8080, () => {
+  console.log('8080번 포트에서 서버 대기 중입니다!');
+});
+
+```
+
+cmd 창에서 실행후 브라우저에서 http://localhost:8080 를 입력시 자동으로 html 파일을 읽어 온다.
+
+##### Http, File System Module (이미지와 음악 파일 제공)
+
+```js
+var fs = require('fs');
+var http = require('http'); 
+http.createServer(function (request, response) {
+    // Image File Read
+    fs.readFile('lion.jpeg', function(error, data) {
+        response.writeHead(200, {'Content-Type': 'image/jpeg'});
+        response.end(data);
+    });    
+}).listen(30000, function() {
+    console.log('Server running at http://127.0.0.1:8081');
+ });  
+http.createServer(function (request, response) {
+    // Music File Read
+    fs.readFile('Sam Smith.mp3', function(error, data) {
+        response.writeHead(200, {'Content-Type': 'audio/mp3'});
+        response.end(data);
+    });    
+}).listen(30000, function() {
+    console.log('Server running at http://127.0.0.1:8081');
+});
+
+```
+
+
+
+##### 쿠키와 세션
+
+- 쿠키는 키와 값이 들어 있는 작은 데이터 조각으로, 이름, 값, 파기 날짜와 경로 정보를 가지고 있습니다. 
+- 쿠키는 서버와 클라이언트에서 모두 저장하고 사용할 수 있습니다. 
+- 쿠키는 일정 기간 동안 데이터를 저장할 수 있으므로 일정 기간 동안 로그인을 유지하는 데 사용됩니다.
+- response 객체를 사용하면 클라이언트에게 쿠키를 할당할 수 있습니다. 
+- 쿠키를 할당할 때 응답 헤더의 Set-Cookie 속성을 사용합니다. Set-Cookie 속성에는 쿠키의 배열을 넣습니다.
+
+``` js
+//server3.js
+
+const http = require('http');
+const parseCookies = (cookie ='') =>
+  cookie
+    .split(';')
+    .map(v => v.split('='))
+    .map(([k, ...vs]) => [k, vs.join('=')])
+    .reduce((acc, [k, v]) => {
+      acc[k.trim()] = decodeURIComponent(v);
+      return acc;
+    }, {});
+http.createServer((req, res) => {
+  const cookies = parseCookies(req.headers.cookie);
+  console.log(req.url, cookies);
+  res.writeHead(200, {'Set-Cookie':'mycookie=test' });//set-Cookie는 브라우저한테 값을 쿠키로 저장하라는 의미
+  res.end('Hello Cookie');
+})
+  .listen(8082, () => {
+    console.log('8082번 포트에서 서버 대기 중입니다!');
+  });
+
+```
+
+쿠키는 req.headers.cookie에 들어 있습니다
+
+- 쿠키명=쿠키값: 기본적인 쿠키의 값입니다. mycookie=test 또는 name=zerocho 같이 설정합니다.
+- Expires=날짜: 만료 기한입니다. 이 기한이 지나면 쿠키가 제거됩니다. 기본값은 클라이언트가 종료될 때까지입니다.
+- Max-age=초: Expires와 비슷하지만 날짜 대신 초를 입력할 수 있습니다. 해당 초가 지나면 쿠기가 제거됩니다. Expires보다 우선합니다.
+- Domain=도메인명: 쿠키가 전송될 도메인을 특정할 수 있습니다. 기본값은 현재 도메인입니다.
+- Path=URL: 쿠키가 전송될 URL을 특정할 수 있습니다. 기본값은 ‘/’이고 이 경우 모든 URL에서 쿠키를 전송할 수 있습니다.
+- Secure: HTTPS일 경우에만 쿠키가 전송됩니다.
+- HttpOnly: 설정 시 자바스크립트에서 쿠키에 접근할 수 없습니다. 쿠키 조작을 방지하기 위해 설정하는 것이 좋습니다. 
 
