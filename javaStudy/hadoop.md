@@ -102,19 +102,36 @@ hostname 호스트네임 을 실행하고 hostname을 실행하면 변경된 hos
 ```
 
 # .bashrc 환경설정
+
+-  특정 실행파일을 쉽게 실행하기 위해  . bash_profile에 환경변수를 추가하는데, 예를 들어  /usr/app/eclipse가 설피 되었을시 eclipse를 실행시 #//usr/app/eclipse/bin/eclipse 같은 방법으로 실행해야 하는데 간단하게 #eclipse만 입력해도 실행하고 싶을시! 환경변수 등록을 해준다. 그것이 (.bash_profile)
+
+```cmd
 [root@master local]# su hadoop
 [hadoop@master local]$ cd ~
 [hadoop@master ~]$ vi .bash_profile
+[hadoop@master ~]$ source .bash_profile ::bash_profile 적용되도록 할때
+[hadoop@master ~]$ hadoop version ::설치버전 확인
+```
 
-![1565751662680](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡)
 
-![1565751675465](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡2)
+
+
+
+![1565751662680](D:\gitgithub\STUDY\javaStudy\사진\하둡)
+
+![1565751675465](D:\gitgithub\STUDY\javaStudy\사진\하둡2)
+
+
+
+
 
 제대로 되었는지 확인한번 해보자~
 
 1. 그후 모든 것을 끈 후 저장된 장소로 가서 가상파일을 복사한다. 전체를! 하나를 master, 하나는 slave로 저장
 2. vmware 로 master를 실행하자. 실행시 위치와 이름이 바뀌었기 때문에 copied로 하자. 후에 tad 에 오른쪽 버튼을 눌러 셋팅에서 이름을 master로 이름변경하고 hostname이 master임을 확인하자
-3. vmware로 slace를 실행하고, 똑같이 copied하고,  똑같이 tab에 오른쪽 버튼을 눌러 이름을 slave1로 셋팅하고 hostname을 slave1로 바꾸자. 
+3. vmware로 slave를 실행하고, 똑같이 copied하고,  똑같이 tab에 오른쪽 버튼을 눌러 이름을 slave1로 셋팅하고 hostname을 slave1로 바꾸자. 
+4. 이름을 바꾸는 것은 그저 헷갈릴까봐!
+5. 그 후 위의    hostname 바꾸는 방식으로 각각 master 와  slave로 바꿔주자.
 
 master ipaddress 192.168.255.130
 
@@ -139,11 +156,11 @@ slave1 ipaddress 192.168.255.129
 
 ssh설정시 하둡 계정이 아니 마스터 계정으로 해주어야 하기 때문에 exit를 눌러 로그아웃 후 해준다.
 
-![1565760279745](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡3)
+![1565760279745](D:\gitgithub\STUDY\javaStudy\사진\하둡3)
 
 slave 노드에 베포할 공개키를 인증키로 복사한다!
 
-![1565760524822](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡4)
+![1565760524822](D:\gitgithub\STUDY\javaStudy\사진\하둡4)
 
 slave에서 인증키 설정한다
 
@@ -172,6 +189,8 @@ master 노드에서 테스트
 rm id_rsa.pub 혹은 rm -rf ./* 해주자
 
 ### 하둡 실행하는 쉘 스크립트 파일에서 필요한 환경변수 설정
+
+
 
 ```
 [hadoop@master ~]$ cd /usr/local/hadoop-2.7.7/
@@ -316,6 +335,8 @@ vi hdfs-site.xml
 root 에서 ( su -)
 
 yum install iptables-services-y 설치를 미리 하고
+
+ 위에것이 안된다면  [root@master ~]# yum -y install iptables-services  이리작성해주자.
 
 아래를 dport 22 아래에 추가해 주어야 한다!
 
