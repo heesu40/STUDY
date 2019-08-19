@@ -113,7 +113,15 @@ hostname 호스트네임 을 실행하고 hostname을 실행하면 변경된 hos
 [hadoop@master ~]$ hadoop version ::설치버전 확인
 ```
 
+- **path 등록**
 
+- PATH에 필요폴더를 추가 하면 굳이 해당폴더 이동필요 없이,
+
+- tab으로 그위치의 파일에 접근할 수있다.
+
+- PATH=$PATH:$HOME/bin:[원하는 폴더 위치] 
+
+  
 
 
 
@@ -437,9 +445,13 @@ livenode 를 클릭해서 라이브노드가 2개임을 확인하자
 
 ### 만약 확인시 라이브노드가 1개라면 다시 설정 해 볼 내용!
 
-1. systemctl enable iptables 를 입력하여 activedt상태인지 확인!(slave도!)
+1. systemctl enable iptables 를 입력하여 actived상태인지 확인!(slave도!)
 
-Live Node가 2개가 아닐 시 
+2. 그 후  systemctl  stop iptabels 한후 systemctl start optables 한다. 그 후 다시 하둡 실행!
+
+   
+
+3. 그래도 Live Node가 2개가 아닐 시 
 
 먼저 master 와 slave둘다 
 
@@ -715,7 +727,7 @@ chown -R hadoop:hadoop /usr/local/eclipse/
 ls -al(로 그룹명 변화 확인)
 ```
 
-
+![1566180247001](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡7)
 
 ```java
 
@@ -793,7 +805,7 @@ Hello hadoop HDFS[hadoop@master ~]$ hadoop jar ./fileio.jar test.txt "Hello hado
 
 
 
-####  WordCount 프로그래밍 순서
+####  WordCount 프로그래밍 순서(reducer)
 
 ```java
 package lab.hadoop.wordcount;
@@ -930,4 +942,763 @@ public class WordCount {
 [hadoop@master ~]$ hadoop fs -cat /output/part-r-00000
 로 확인해보자!!!!!
 ```
+
+
+
+## 항공기 정보 정리해보기
+
+1. http://stat-computing.org/dataexpo/2009/the-data.html 에서 2007년과 2008년의 .csv파일 다운
+
+2. 압축 풀기
+
+   - [hadoop@master Downloads]$ bunzip2 ./2007.csv.bz2
+   - [hadoop@master Downloads]$ bunzip2 ./2008.csv.bz2
+
+3. 하둡에 파일을 만들기
+
+   - [hadoop@master ~]$ hadoop fs -mkdir /data/airline 
+   - [hadoop@master ~]$ hadoop fs -put ./Downloads/2008.csv  /data/airline/
+   - [hadoop@master ~]$ hadoop fs -ls /data/airline  (하둡에 넣은 파일 확인해보자)
+   - [hadoop@master ~]$ hadoop fs -mkdir /output/airline
+   - [hadoop@master ~]$ hadoop fs -ls /output
+
+4. 이클립스에서 작업
+
+   ```java
+   package lab.hadoop.airline;
+   
+   import java.io.IOException;
+   
+   import org.apache.hadoop.io.IntWritable;
+   import org.apache.hadoop.io.LongWritable;
+   import org.apache.hadoop.io.Text;
+   import org.apache.hadoop.mapreduce.Mapper;
+   
+   
+   
+   public class DepartureDelayCountMapper extends 
+   	Mapper<LongWritable, Text, Text, IntWritable> {
+   		
+   	//map 출력값(value)
+   		private final static IntWritable outputValue = new IntWritable(1);
+   	//map 출력키(key)
+   		private Text outputKey = new Text();
+   	
+   public void map(LongWritable key, Text value, Context context) throws IOException,InterruptedException {
+   	if( key.get()>0) {
+   		//콤마 구분자 분리
+   		String[] colums = value.toString().split(",");
+   		if(colums != null && colums.length >0) {
+   			try{
+   				//출력키 설정
+   				outputKey.set(colums[0]+ "," +colums[1]);
+   				if(!colums[15].equals("NA")) {
+   					int depDelayTime =Integer.parseInt(colums[15]);
+   					if(depDelayTime >0) {
+                           //출력데이터 설정
+   						context.write(outputKey,outputValue);
+   					}
+   						
+   					}
+   				}catch(Exception e) {
+   					e.printStackTrace();
+   				}
+   		}
+   	}
+   }
+   }
+   ```
+
+   ```java
+   package lab.hadoop.airline;
+   
+   import java.io.IOException;
+   
+   import org.apache.hadoop.io.IntWritable;
+   import org.apache.hadoop.io.Text;
+   import org.apache.hadoop.mapreduce.Reducer;
+   
+   public class DelayCountReducer extends Reducer<Text,IntWritable, Text, IntWritable> {
+   	private IntWritable result =new IntWritable();
+   	//
+   	public void reduce(Text key, Iterable<IntWritable>values, Context context)throws IOException, InterruptedException{
+   		int sum=0;
+   		for(IntWritable value: values)
+   			sum+= value.get();
+   		result.set(sum);
+   		context.write(key, result);
+   	}
+   
+   }
+   
+   ```
+
+5. 출력할 드라이브 설정
+
+   ```java
+   package lab.hadoop.airline;
+   
+   
+   
+   import org.apache.hadoop.conf.Configuration;
+   import org.apache.hadoop.fs.FileSystem;
+   import org.apache.hadoop.fs.Path;
+   import org.apache.hadoop.io.IntWritable;
+   import org.apache.hadoop.io.Text;
+   import org.apache.hadoop.mapreduce.Job;
+   import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+   import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+   import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+   import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+   
+   public class DepartureDelayCount {
+   
+   	public static void main(String[] args) throws Exception {
+   		Configuration conf= new Configuration();
+   		
+   		if(args.length !=2) {
+   			System.err.println("Usage: DepartureDelayCount <input> <output>");
+   			System.exit(2);//셀 커맨드 잘못 사용시 종료!
+   		}
+   		FileSystem hdfs=FileSystem.get(conf);
+   		//route check 
+   				//경로 체크
+   				Path path= new Path(args[1]);
+   				if(hdfs.exists(path)) {
+   					hdfs.delete(path,true);
+   				}
+   				
+   		//job 이름 설정
+   		Job job=new Job(conf, "DepartureDelayCount");
+   		//입출력 데이터 경로 설정
+   		FileInputFormat.addInputPath(job, new Path(args[0]));
+   		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+   		//job 클래스 설정
+   		job.setJarByClass(DepartureDelayCount.class);
+           //mapper클래스 설정
+   		job.setMapperClass(DepartureDelayCountMapper.class);
+           //Reducer 클래스 설정
+   		job.setReducerClass(DelayCountReducer.class);
+   		
+           //입출력 데이터 포맷 설정
+   		job.setInputFormatClass(TextInputFormat.class);
+   		job.setOutputValueClass(TextOutputFormat.class);
+   	    //출력키 및 출력값 유형 설정
+   		job.setOutputKeyClass(Text.class);
+   		job.setOutputValueClass(IntWritable.class);
+   		
+   		job.waitForCompletion(true);
+   	}
+   
+   }
+   
+   ```
+
+6. 아카이브를 만들자
+
+   - 먼저 이클립스에서 자르파일로 export하고 export 저장위치는 home아래 (main class설정! 자동으로 뜬다)
+   - [hadoop@master ~]$ hadoop jar ./departure.jar /data/airline  /output/airline
+   - [hadoop@master ~]$ hadoop fs -ls /output/airline(파일 완료 확인)
+   - [hadoop@master ~]$ hadoop fs -cat /output/airline/part-r-00000(이것으로 누적 합계를 확인!)
+
+
+
+### ?
+
+```java
+package lab.hadoop.delaycount;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+
+public class DelayCountMapper extends Mapper<LongWritable,Text , Text, IntWritable>{
+    //<입력키 유형, 입력값 유형, 출력키 유형, 출력값 유형>을 의미
+
+
+	private String workType;
+	private Text outputKey =new Text();
+	private final static IntWritable outputValue= new IntWritable(1);
+
+
+	@Override
+	protected void setup(Mapper<LongWritable, Text, Text, IntWritable>.Context context)
+			throws IOException, InterruptedException {//setup은 Mapper class에서 작업시작히 한번 호출 되는 메서드
+
+		workType=context.getConfiguration().get("workType");
+	}
+	
+	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException{//입력 분할에서 각 키 / 값 쌍마다 한 번씩 호출된다.
+		if (key.get()>0) {
+			String[] colums=value.toString().split(",");
+			if(colums !=null && colums.length>0) {
+				try {
+					if(workType.equals("departure")) {//실행시 옵션을 줄때 그것이 departure인가?
+						if(!colums[15].equals("NA")){
+							int depDelayTime=Integer.parseInt(colums[15]);
+							if(depDelayTime>0) {
+								outputKey.set(colums[0]+","+colums[1]);
+                                //colums[0]=year colums[1]=month
+                                //출력 데이터 생성
+								context.write(outputKey, outputValue);
+							}
+						}
+                        //도착 지연 데이터 출력
+					}else if(workType.equals("arrival")) {//실행시 옵션을 줄때 그것이 arrival 인가?
+						if(!colums[14].equals("NA")) {
+							int arrDelayTime=Integer.parseInt(colums[14]);
+							if(arrDelayTime>0) {
+                                //출력키 설정
+								outputKey.set(colums[0]+","+colums[1]);
+                                //출력 데이터 생성
+								context.write(outputKey, outputValue);
+							}
+						}
+					}
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}
+
+```
+
+
+
+```java
+package lab.hadoop.delaycount;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+
+public class DelayCountReducer extends Reducer<Text,IntWritable, Text, IntWritable> {
+	private IntWritable result =new IntWritable();
+	
+	public void reduce(Text key, Iterable<IntWritable>values, Context context)throws IOException, InterruptedException{
+		int sum=0;
+		for(IntWritable value: values)
+			sum+= value.get();
+		result.set(sum);
+		context.write(key, result);
+	}
+
+}
+
+```
+
+
+
+```java
+package lab.hadoop.delaycount;
+
+
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+
+public class DelayCount extends Configured implements Tool{
+	
+	public int run(String[] args) throws Exception{
+	
+		String[] otherArgs=new GenericOptionsParser(getConf(),args).getRemainingArgs();
+		//입추력 데이터 경로 확
+		if(args.length !=2) {
+			System.err.println("Usage: DelayCount <in> <out>");
+			System.exit(2);
+		}
+		//job이름 설정 
+		Job job=new Job(getConf(), "DelayCount");
+		
+		FileSystem hdfs=FileSystem.get(getConf());
+		//route check 
+				//경로 체크
+				Path path= new Path(args[1]);
+				if(hdfs.exists(path)) {
+					hdfs.delete(path,true);
+				}
+		//입출력 데이터 경로 설
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		//job클래스 설
+		job.setJarByClass(DelayCount.class);
+		job.setMapperClass(DelayCountMapper.class);
+		job.setReducerClass(DelayCountReducer.class);
+		
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputValueClass(TextOutputFormat.class);
+	
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(IntWritable.class);
+		
+		job.waitForCompletion(true);
+        //실행시키는 코드!
+		return 0;
+	}
+	public static void main(String[] args)throws Exception{
+		//Tool 인터페이스 실행
+		int res=ToolRunner.run(new Configuration(),new DelayCount(),args);
+		System.out.println("##RESULT:"+res);
+	}
+}
+
+```
+
+- 실행해 보자
+- [hadoop@master ~]$ hadoop fs -mkdir /output/delaycount
+- [hadoop@master ~]$ hadoop jar ./delaycount.jar -D workType=arrival /data/airline /output/delaycount
+  - 여기서 -D workType 은 처음 Mapper class 시 주었던 것 arrival 로
+- [hadoop@master ~]$ hadoop fs -mkdir /output/delaycount2
+- [hadoop@master ~]$ hadoop jar ./delaycount.jar -D workType=departure /data/airline  /output/delaycount2
+  - 이번에는 -D workType =departure로 해보자.
+
+## 정렬
+
+1. 맵리듀스의 핵심 기능
+2. 하나의 리듀스 테스크만 실행되게 하면 쉽게 해결 가능 하지만, 여러 데이터 노드가 구성된 상황에서 하나의 리듀스 테스크만 실행하는 것은 분산 환경의 장점을 살리지 못하는 것!
+3. 대량의 데이터를 정렬시 부하도 상당함
+4. 하둡이 제공하는 정렬 방식
+   - 보조 정렬, 
+
+### 보조 정렬
+
+1. 키의 값들을 그룹핑하고, 그룹핑된 레코드에 순서를 부여
+2. 구현 순서
+   - 기존 키의 값들을 조합한 복합키(Composite Key)정의
+   - 키의 값 중에서 그룹핑 키로 사용할 키 결정
+   - 복합키의 레코드를 정렬하기 위한 비교기(comparator)정의
+   - 그룹핑 키를 파티셔닝할 파티셔녀(partitioner)정의
+   - 그룹 핑 키를 정렬하기 위한 비교기(Comparator)정의
+
+```java
+package lab.hadoop.sort;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableUtils;
+
+public class DateKey implements WritableComparable<DateKey> {
+	//년, 월을 키로 사용할 것(년은 문자여도 월의 경우 숫자로 해야 정렬된다..?)
+	///직렬하기 위한
+	private String year;
+	private Integer month;
+	public DateKey() {
+		
+	}
+	public DateKey(String year, Integer month) {
+		super();
+		this.year = year;
+		this.month = month;
+	}
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		year=WritableUtils.readString(in);
+		month=in.readInt();
+		
+	}
+	@Override
+	public void write(DataOutput out) throws IOException {
+		WritableUtils.writeString(out, year);
+		out.writeInt(month);
+		
+	}
+	@Override
+	public int compareTo(DateKey key) {
+		int result = year.compareTo(key.year);
+		if(0==result) {
+			result=month.compareTo(key.month);
+			
+		}
+		return result;
+		
+	}
+	public String getYear() {
+		return year;
+	}
+	public void setYear(String year) {
+		this.year = year;
+	}
+	public Integer getMonth() {
+		return month;
+	}
+	public void setMonth(Integer month) {
+		this.month = month;
+	}
+/*	@Override
+	public String toString() {
+		return (new StringBuilder()).append(year).append(",").append(month).toString();
+		
+	}*/
+	@Override
+	public String toString() {
+		return "DateKey [year=" + year + ", month=" + month + "]";
+	}
+	
+	
+	
+	
+}
+
+```
+
+
+
+```java
+package lab.hadoop.sort;
+
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
+
+public class DateKeyComparator extends WritableComparator{
+	protected DateKeyComparator() {
+		super(DateKey.class,true);
+	}
+	@SuppressWarnings("rawtypes")
+	@Override
+	public int compare(WritableComparable w1, WritableComparable w2) {
+		//복합키 클래스 캐스팅
+		
+		DateKey k1=(DateKey) w1;
+		DateKey k2=(DateKey) w2;
+		
+		//연도 비교
+		int cmp=k1.getYear().compareTo(k2.getYear());
+		if(cmp !=0) {
+			return cmp;
+			
+		}
+		///월 비교
+		return k1.getMonth() == k2.getMonth() ? 0:(k1.getMonth()<k2.getMonth() ? -1:1);
+	}
+	
+}
+
+```
+
+그룹핑 키의 파티셔널~
+
+``` java
+package lab.hadoop.sort;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.mapreduce.Partitioner;
+
+public class GroupKeyPartitioner extends Partitioner<DateKey, IntWritable>{
+
+	@Override
+	public int getPartition(DateKey key, IntWritable val, int numPartitions) {
+		
+		int hash=key.getYear().hashCode();
+		int partition=hash % numPartitions;
+		return partition;
+	}
+}
+```
+
+그룹핑 키의 비교기(comparator)
+
+```java
+package lab.hadoop.sort;
+
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.WritableComparator;
+
+public class GroupKeyComparator extends WritableComparator{
+protected GroupKeyComparator() {
+	super(DateKey.class,true);
+}
+@SuppressWarnings("rawtypes")
+@Override
+public int compare(WritableComparable w1, WritableComparable w2) {
+	
+DateKey k1=(DateKey)w1;
+DateKey k2 =(DateKey)w2;
+//연도값 비교
+return k1.getYear().compareTo(k2.getYear());
+}
+}
+
+```
+
+enum(상수)
+
+```java
+package lab.hadoop.sort;
+
+public enum DelayCounters {
+not_available_arrival,
+scheduled_arrival,
+early_arrival,
+not_available_departure,
+scheduled_departure,
+early_departure;
+}
+
+```
+
+
+
+reducer
+
+```java
+package lab.hadoop.sort;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+
+public class DelayCountReducerWithDateKey extends Reducer<DateKey,IntWritable,DateKey,IntWritable>{
+	//병렬로 여러개의 아웃풋 을 생성하는 것!
+	private MultipleOutputs<DateKey,IntWritable>mos;
+	//reduce출력키
+	private DateKey outputKey=new DateKey();
+	//reduce 출력
+	private IntWritable result=new IntWritable();
+	
+	@Override
+	protected void setup(Context context)
+			throws IOException, InterruptedException {
+	mos=new MultipleOutputs<DateKey,IntWritable>(context);
+	}
+	public void reduce(DateKey key,Iterable<IntWritable> values,Context context)throws IOException,InterruptedException{
+		//콤마 구분자 분리
+		String[] colums =key.getYear().split(",");
+		
+		int sum =0;
+		Integer bMonth=key.getMonth();
+		
+		if(colums[0].equals("D")) {
+			for(IntWritable value:values) {
+				if (bMonth !=key.getMonth()) {
+					result.set(sum);
+					outputKey.setYear(key.getYear().substring(2));
+					outputKey.setMonth(bMonth);
+					mos.write("departure", outputKey, result);
+					sum=0;
+				}
+				sum+=value.get();
+				bMonth=key.getMonth();
+			}
+			if(key.getMonth()==bMonth) {
+				outputKey.setYear(key.getYear().substring(2));
+				outputKey.setMonth(key.getMonth());
+				result.set(sum);
+				mos.write("departure", outputKey, result);
+			}
+		}else {
+			for(IntWritable value:values) {
+				if(bMonth !=key.getMonth()) {
+					result.set(sum);
+					outputKey.setYear(key.getYear().substring(2));
+					outputKey.setMonth(bMonth);
+					mos.write("arrival", outputKey, result);
+					sum=0;
+				}
+				sum+=value.get();
+				bMonth=key.getMonth();
+			}
+			if(key.getMonth()==bMonth) {
+				outputKey.setYear(key.getYear().substring(2));
+				outputKey.setMonth(key.getMonth());
+				result.set(sum);
+				mos.write("arrival", outputKey, result);
+			}
+				}
+			}
+	@Override
+	protected void cleanup(Context context)
+			throws IOException, InterruptedException {
+		mos.close();
+	}
+	
+		
+	}
+
+
+```
+
+
+
+mapper
+
+```java
+package lab.hadoop.sort;
+
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+
+public class DelayCountMapperWithDateKey extends Mapper<LongWritable,Text,DateKey,IntWritable> {
+
+	//map출력값
+	private final static IntWritable outputValue=new IntWritable(1);
+	//
+	private DateKey outputKey =new DateKey();
+	
+	public void map(LongWritable key,Text value,Context context)throws IOException,InterruptedException{
+		if (key.get()>0) {
+			//콤마 구분자 분리
+			String[] colums=value.toString().split(",");
+			if(colums !=null&&colums.length>0) {
+				try {
+					//출발지연 제이터 출력
+					if(!colums[15].equals("NA")) {
+						int depDelayTime=Integer.parseInt(colums[15]);
+						if(depDelayTime>0) {
+							//출력키 설정 
+							outputKey.setYear(("D,"+colums[0]));
+							outputKey.setMonth(new Integer(colums[1]));
+							//출력데이터 생성
+							context.write(outputKey, outputValue);
+						}else if(depDelayTime==0) {
+							context.getCounter(DelayCounters.scheduled_departure).increment(1);
+						}else if(depDelayTime<0) {
+							context.getCounter(DelayCounters.early_departure).increment(1);
+						}
+					}else {
+						context.getCounter(DelayCounters.not_available_departure).increment(1);
+					}
+					//도착 지연 데이터 출력
+					if(!colums[14].equals("NA")) {
+						int arrDelayTime=Integer.parseInt(colums[14]);
+						if(arrDelayTime>0) {
+							//출력키 설정 
+							outputKey.setYear(("A,"+colums[0]));
+							outputKey.setMonth(new Integer(colums[1]));
+							//출력데이터 생성
+							context.write(outputKey, outputValue);
+						}else if(arrDelayTime==0) {
+							context.getCounter(DelayCounters.scheduled_arrival).increment(1);
+						}else if(arrDelayTime<0) {
+							context.getCounter(DelayCounters.early_arrival).increment(1);
+						}
+					}else {
+						context.getCounter(DelayCounters.not_available_arrival).increment(1);
+					}
+					
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}
+	}
+}
+
+```
+
+driver
+
+```java
+package lab.hadoop.sort;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+
+import lab.hadoop.delaycount.DelayCount;
+
+public class DelayCountwithDateKey extends Configured implements Tool{
+	public int run(String[] args) throws Exception{
+		
+		String[] otherArgs=new GenericOptionsParser(getConf(),args).getRemainingArgs();
+		//입추력 데이터 경로 확
+		if(args.length !=2) {
+			System.err.println("Usage: DelayCountwithDateKey <in> <out>");
+			System.exit(2);
+		}
+		//job이름 설정 
+		Job job=new Job(getConf(), "DelayCountWithDateKey");
+		
+		FileSystem hdfs=FileSystem.get(getConf());
+		//route check 
+				//경로 체크
+				Path path= new Path(args[1]);
+				if(hdfs.exists(path)) {
+					hdfs.delete(path,true);
+				}
+		//입출력 데이터 경로 설
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		//job클래스 설
+		job.setJarByClass(DelayCountwithDateKey.class);
+		job.setPartitionerClass(GroupKeyPartitioner.class);
+		job.setGroupingComparatorClass(GroupKeyComparator.class);
+		job.setSortComparatorClass(DateKeyComparator.class);
+		
+		//Mapper클래스 설정
+		job.setMapperClass(DelayCountMapperWithDateKey.class);
+		//Reducer클래스 설
+		job.setReducerClass(DelayCountReducerWithDateKey.class);
+		
+		job.setMapOutputKeyClass(DateKey.class);
+		job.setMapOutputValueClass(IntWritable.class);
+		
+		//입출력 데이터 포맷 설정
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+		
+	
+	
+		//출력키 및 출력값 유형 설정 
+		job.setOutputKeyClass(DateKey.class);
+		job.setOutputValueClass(IntWritable.class);
+		//MultipleOupputs 설정
+		MultipleOutputs.addNamedOutput(job, "departure", TextOutputFormat.class, DateKey.class, IntWritable.class);
+		MultipleOutputs.addNamedOutput(job, "arrival",TextOutputFormat.class,DateKey.class , IntWritable.class);
+		
+		
+		job.waitForCompletion(true);
+		return 0;
+	}
+	public static void main(String[] args)throws Exception{
+		//Tool 인터페이스 실행
+		int res=ToolRunner.run(new Configuration(),new DelayCountwithDateKey(),args);
+		System.out.println("##RESULT:"+res);
+	}
+
+}
+
+```
+
+
 
