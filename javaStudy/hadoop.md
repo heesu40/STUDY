@@ -1,4 +1,4 @@
-# hadoop
+# 1hadoop
 
 1. 신뢰성 있고, 확장성 있는 분산 컴퓨팅을 위한 오픈 소스 분산 병렬(파일 시스템) 프레임워크
 
@@ -46,9 +46,7 @@
    - HDFS,GFS, Object
 2. Record(document) 구조 저장 -NoSQL
 
-
-
-### Oracle
+# 설치 방법
 
 - Oracle.com 에서 Java SE Development Kit 8u221 를 다운받는다. 리눅스 x64버전으로
 - hadoop-2.7.7 다운 받고
@@ -101,7 +99,7 @@ hostname 호스트네임 을 실행하고 hostname을 실행하면 변경된 hos
 
 ```
 
-# .bashrc 환경설정
+### .bashrc 환경설정
 
 -  특정 실행파일을 쉽게 실행하기 위해  . bash_profile에 환경변수를 추가하는데, 예를 들어  /usr/app/eclipse가 설피 되었을시 eclipse를 실행시 #//usr/app/eclipse/bin/eclipse 같은 방법으로 실행해야 하는데 간단하게 #eclipse만 입력해도 실행하고 싶을시! 환경변수 등록을 해준다. 그것이 (.bash_profile)
 
@@ -113,7 +111,7 @@ hostname 호스트네임 을 실행하고 hostname을 실행하면 변경된 hos
 [hadoop@master ~]$ hadoop version ::설치버전 확인
 ```
 
-- **path 등록**
+**path 등록**
 
 - PATH에 필요폴더를 추가 하면 굳이 해당폴더 이동필요 없이,
 
@@ -160,7 +158,7 @@ slave1 ipaddress 192.168.255.129
 //master 와 slave둘다 바꿔준다.
 ```
 
-## ssh 설정
+### ssh 설정
 
 ssh설정시 하둡 계정이 아니 마스터 계정으로 해주어야 하기 때문에 exit를 눌러 로그아웃 후 해준다.
 
@@ -233,10 +231,6 @@ slave2
 [hadoop@master hadoop]$ mkdir /usr/local/hadoop-2.7.7/tmp
 
 그 후 
-
-vi core-site.xml 에 가서
-
-
 
 [hadoop@master hadoop]$ vi core-site.xml
 
@@ -403,7 +397,7 @@ slave1에도 같은 설정을 해주고 양쪽다 systemctl status iptables 로 
 
 만약 위에께 안된다면 
 
-[hadoop@master ~] $ source ~/.bash_profile 해주면 위에것이 된다
+[hadoop@master ~] $ source ~/.bash_profile 해주면 namenode포맷이 된다
 
 ### hadoop 시작
 
@@ -519,15 +513,21 @@ etc  lib      LICENSE.txt  NOTICE.txt  sbin        tmp
 
 $ hadoop dfsadmin -safemode leave 
 
+#### 시작시 서버 상태 확인해 보자
+
+1. root 계정에서 `[root@master ~]# iptables -L`로 상태 확인
+2. 자동으로 iptables에 접속 안되어있다면 firewalld를 끄자.(**주의점은 iptables가 안 연결 된 상태에서 firewalld 상태를  mark(끄게) 된다면 위험하다**)
+3. `[root@master ~]# systemctl stop firewalld`
+   `[root@master ~]# systemctl mask firewalld`
+4. `[root@master ~]# systemctl status  firewalld` 로 꺼진 상태를 확인하자! 이제는 자동으로 iptables과 연결 될 것이다.
 
 
 
 
 
+## 1. hadooop
 
-## hadooop
-
-### 하둡 분산 파일 시스템(HDFS)관리
+### 1.1 하둡 분산 파일 시스템(HDFS)관리
 
 **hadoop** **fs -옵션 …**
 
@@ -617,13 +617,13 @@ Tomorrow is saturday!
 
 ```
 
-### 안전모드
+### 1.2안전모드
 
 하둡 실행 후 ^z 나 ^s와 같이 비정상 종료를 할 경우 hadoop은 safe모드로 진입한다. 이때는 파일 복사 삭제 등이 안된다.
 
-### 도구
+### 1.3도구
 
-###  dfsadmin
+###  1.4dfsadmin
 
 hadoop dfsadmin -help 하면  다양한 관리 동작 명령어를 알 수 있다.
 
@@ -632,11 +632,11 @@ hadoop dfsadmin -help 하면  다양한 관리 동작 명령어를 알 수 있�
 3. deamonlog : 로그 레벨 동적 변경
 4. dfsadmin : HDFS 상태 확인. HDFS 퇴거, DataNode 참가 등
 
-### 로깅
+### 1.5로깅
 
 log4j는 
 
-### 클러스터에서 노드를 추가하기
+### 1.6클러스터에서 노드를 추가하기
 
 1. nclude 파일에 새 노드의 네트워크 주소를 추가한다.
    - dfs.hosts와 mapreduce.jobtracker.hosts.filename속성을 통해 하나의 공유 파일을 참조한다.
@@ -648,7 +648,7 @@ log4j는
 5.  새로운 데이터 노드와 대스크 트래커를 시작한다.
 6.  새로운 데이터 노드와 태스크 트래커가 웹 UI에 나타나는지를 확인한다.
 
-## MapReduce Programming
+## 2. MapReduce Programming
 
 1. MapReduce 프레임워크는 페타바이트 이상의 대용량 데이터를 신뢰할 수 없는 컴퓨터로 구성된 클러스터 환경에서 병렬 처리를 지원하기 위해서 개발되었습니다.
 
@@ -671,7 +671,7 @@ log4j는
 
    
 
-### 용어
+### 2.1용어
 
 1. 작업(Job)
 
@@ -714,7 +714,7 @@ log4j는
 
 
 
-### 이클립스 설치
+### 2.2이클립스 설치
 
 ```
 su - 
@@ -803,9 +803,7 @@ Hello hadoop HDFS[hadoop@master ~]$ hadoop jar ./fileio.jar test.txt "Hello hado
 //확인해보자!!! 잘 나오는가!?
 ```
 
-
-
-####  WordCount 프로그래밍 순서(reducer)
+### 2.3WordCount 프로그래밍 순서(reducer)
 
 ```java
 package lab.hadoop.wordcount;
@@ -943,9 +941,7 @@ public class WordCount {
 로 확인해보자!!!!!
 ```
 
-
-
-## 항공기 정보 정리해보기
+### 2.4항공기 정보 정리해보기(연습1)
 
 1. http://stat-computing.org/dataexpo/2009/the-data.html 에서 2007년과 2008년의 .csv파일 다운
 
@@ -1103,7 +1099,7 @@ public class WordCount {
 
 
 
-### ?
+### 2.5 연습2
 
 ```java
 package lab.hadoop.delaycount;
@@ -1271,15 +1267,15 @@ public class DelayCount extends Configured implements Tool{
 - [hadoop@master ~]$ hadoop jar ./delaycount.jar -D workType=departure /data/airline  /output/delaycount2
   - 이번에는 -D workType =departure로 해보자.
 
-## 정렬
+## 3. 정렬(sorting)
 
 1. 맵리듀스의 핵심 기능
 2. 하나의 리듀스 테스크만 실행되게 하면 쉽게 해결 가능 하지만, 여러 데이터 노드가 구성된 상황에서 하나의 리듀스 테스크만 실행하는 것은 분산 환경의 장점을 살리지 못하는 것!
 3. 대량의 데이터를 정렬시 부하도 상당함
 4. 하둡이 제공하는 정렬 방식
-   - 보조 정렬, 
+   - 보조 정렬, 부분정렬, 전체 정렬
 
-### 보조 정렬
+### 3.1 보조 정렬
 
 1. 키의 값들을 그룹핑하고, 그룹핑된 레코드에 순서를 부여
 2. 구현 순서
@@ -1699,6 +1695,717 @@ public class DelayCountwithDateKey extends Configured implements Tool{
 }
 
 ```
+
+### 복습
+
+#### 1. 분산 컴퓨팅
+
+- 어플리케이션이 한 host에서만 수행이 되는 것이 아닌 client의 요청에 의해 다양한(두개 이상의) host에 요청 처리가 되는 것을 분산 컴퓨팅이라 한다.
+- 조건
+  1. 장애 허용(노드 중 하나가 비정상적 작동해도 메인 시스템에 부정적 영향 없다)
+  2. 복구능력(분산 클러스터 노드에서 수행중인 작업이 실패해도 손실 발생 없다.)
+  3. 선형적 확장성(컴퓨팅 능력, 스토리지 공간 확장등,성능도 선형적으로 증가)
+
+#### 2. 하둡 아키텍처
+
+- HDFS, Yarn , MapReduce, API
+
+#### 3. 하둡 클러스터
+
+- 하둡 분산파일 시스템(HDFS)과 클러스서 리소스 매니저(Yarn)를 기반으로 하는 하둡 소프트웨어를 사용하는 컴퓨터들의 집합 (ex 야후의 경우 이런 클러스터가 1만개 이상)
+
+- hadoop2.0부터 마스터 노드 2개 이상 구성가능하며 이로인해 고가용성 지원가능(Active, Standby) 하며 주 키퍼도 함께 구성을 해야한다
+
+- **마스터노드 + 워커노트(slave 노드)**로 구성
+
+  - 마스터노트(Active,Standby) 
+
+    > 하둡 클러스터의 작업을 중재
+    >
+    > 하둡 클라이언트는 파일을 저장, 읽고, 처리하려면 master노드에 접속해야한다.
+    >
+    > namenode 구성해서 파일 시스템의 메타정보를 읽고 쓰는 작업 처리(namenode는 프로세스라 생각하면 된다.)
+    >
+    > JobTracker는 mapreduce 작업을 중재하는 프로세스, Datanode에 task 할당
+
+  - 워커노트 (slave node)
+
+    > 마스터 노드의 지시를 받아 명령을 수행(실제 데이터를 저장, 데이터를 처리 프로세싱하는 노드)
+
+- HDFS 는 HDFS의 스토리지를 관리&구성
+
+  - Namenode
+
+    > HDFS 파일 시스템 디렉토리 트리와 파일의 위치등 HDFS스토리지 관련 메타 정보(블럭 데이터와 데이터 노드에 매핑)를 관리
+    >
+    > 파일 , 디렉토리, 생성, 열기, 쓰기 오퍼레이션 수행
+    >
+    > 어떤 데이터 노드에 복제되고, 복제 후 삭제 할지 결정
+    >
+    > 데이터 노드에서 보내온 하트비와 블럭 리포트를 처리(블럭 위치 유지, 데이터 노드의 상태 관리)
+
+  - SecondaryNameNode
+
+    > 한 시간 간격 으로 Http 프로토콜을 이용해서 메모리에 있는 FS이미지를 가져오고 기록된 edit log를 결합하여 새로운 FS이미지를 만들어서 교체하는 작업을 한다. 즉 *업데이트 관리* (fsimage파일과 editlog파일을 merge한다 라고 표현)
+
+  - DataNode
+
+    > 마스터 노드에 접속 유지, 3초 간격으로 heartbit , block report를 주기적으로 전송, 마스터 노드의 요청을 처리(block 저장=청크,block 삭제),로컬 파일 시스템에 블럭을 저장, 데이터에 대한 읽기, 쓰기 수행, 데이터 블럭 생성 및 삭제 수행, 클러스터에 데이터 블럭 복제
+
+  - Yarn(하둡운영시스템)
+
+    > **리소스 매니저 (resouce manager)**는 마스터 노드에서 실행, 클러스터의 리소르를 나눠주는 역할, TaskTracker들의 Task를 스케줄링
+    >
+    > **노드 매니저(node manager) **는 워커 노드에서 실행, Task들을 실행시키고 관리, Task실행을 위해서  resource manager와 밀접하게 통신, Task 상태 관리, 노드 상태 관리
+    >
+    > **어플리케이션 매니저(application manager)** 클러스터에서의 메인프로세스로 어플리케이션별로 하나씩 실행, 클러스터에서 실행되는 어플리케이션의 실행조율, 리소스 매니저와 밀접하게 통신하며 리소스 관리 
+
+- 하둡 클러스터에서 장애 허용과 복구 능력을 위해 sharding(분산), replication(복제)수행
+
+- 배치 처리, 파일 기반 처리(map의 처리 결과도 map처리된 datanode에 저장, reducer의 출력결과도 hdfs에 저장,disk기반, stream기반, sequential하게 처리)
+
+### 복습 끝
+
+***
+
+먼저 준비하자.
+
+1. `[hadoop@master sbin]$ ./start-all.sh ` 하둡 실행
+2. `[hadoop@master sbin]$ ./mr-jobhistory-daemon.sh  start historyserver` 히스토리 실행
+3. `[hadoop@master sbin]$ jps `확인!
+
+### 3.2 사이드 조인
+
+1. 맵 사이드 조인
+
+-  setup 메서드에서 조인될 데이터를 준비합니다.
+-  Hashtable을 전역변수로 선언하고 Hashtable에 데이터를 저장함
+-  읽어들일 데이터가 분산캐시에 등록되어 있어야 함
+- ​    파일의 유형에 따라 등록하는 파일이 다름
+-  map 메서드에서 write할 때 Hashtable의 값을 키로 저장합니다.
+-  실행하기 전에 분산캐시로 사용할 파일을 HDFS 에 업로드 해야 함
+- 조인될 데이터를 setup 메서드에서 Hashtable에 저장
+- 조인될 데이터가 많을 경우 Hashtable에 저장되는 데이터의 증가로 성능 저하 우려리듀스 사이드 조인
+
+2. 리듀스 사이드 조인
+
+-  두 개의 데이터를 키/값으로 출력합니다.
+-  조인될 키를 구분하기 위해 키 뒤에 임의의 문자 추가해서 출력
+-  ex)
+-  WN_A(항공운항통계 데이터의 항공사 코드)
+-  WN_B(항공사 코드 데이터의 항공사 코드)
+-  리듀스에서 출력 시 추가된 문자열에 따라 다른 키의 값을 키로 저장
+-  _A가 붙어있으면 키를 WN_B의 값으로 저장
+- 조인될 데이터의 키와 조인할 데이터의 키에 두 키를 구분할 수 있는 문자열을 추가하여 맵의 출력으로 보냄
+- 리듀서에서 키에 따라 다른 키의 값으로 대체
+
+### 3.3 연습(맵 사이드 조인)
+
+1. http://stat-computing.org/dataexpo/2009/supplemental-data.html 로 들어가 carriers.csv 파일을 다운로드
+
+2.  파일생성
+
+   - [hadoop@master ~]$ hadoop fs -mkdir /data/metadata
+   - [hadoop@master ~]$ hadoop fs -ls /data
+   - [hadoop@master ~]$ hadoop fs -put ./Downloads/carriers.csv  /data/metadata
+   - [hadoop@master ~]$ hadoop fs -ls /data/metadata
+
+3. 이클립스에서 mapper 만들면 된다! reducer필요없다
+
+   ```java
+   import java.io.BufferedReader;
+   import java.io.FileReader;
+   import java.io.IOException;
+   import java.util.Hashtable;
+   
+   import org.apache.hadoop.filecache.DistributedCache;
+   import org.apache.hadoop.fs.Path;
+   import org.apache.hadoop.io.LongWritable;
+   import org.apache.hadoop.io.Text;
+   import org.apache.hadoop.mapreduce.Mapper;
+   
+   public class MapperWithMapsideJoin extends
+   		Mapper<LongWritable, Text, Text, Text> {
+   
+   	private Hashtable<String, String> joinMap 
+   	                     = new Hashtable<String, String>();
+   
+   	// map 출력키
+   	private Text outputKey = new Text();
+   
+   	@Override
+   	public void setup(Context context) throws IOException, 
+   	                                       InterruptedException {
+   		try {
+   			// 분산캐시 조회
+   			Path[] cacheFiles = DistributedCache.getLocalCacheFiles(context
+   					.getConfiguration());
+   			// 조인 데이터 생성
+   			if (cacheFiles != null && cacheFiles.length > 0) {
+   				String line;
+   				String[] tokens;
+   				BufferedReader br = new BufferedReader(new FileReader(
+   						cacheFiles[0].toString()));
+   				try {
+   					while ((line = br.readLine()) != null) {
+   						tokens = line.toString().replaceAll("\"", "")
+   								.split(",");
+   						joinMap.put(tokens[0], tokens[1]);
+   					}
+   				} finally {
+   					br.close();
+   				}
+   			} else {
+   				System.out.println("### cache files is null!");
+   			}
+   		} catch (IOException e) {
+   			e.printStackTrace();
+   		}
+   	}
+   
+   	public void map(LongWritable key, Text value, Context context)
+   			throws IOException, InterruptedException {
+   
+   		if (key.get() > 0) {
+   			// 콤마 구분자 분리
+   			String[] colums = value.toString().split(",");
+   			if (colums != null && colums.length > 0) {
+   				try {
+   					outputKey.set(joinMap.get(colums[8]));
+   					context.write(outputKey, value);
+   				} catch (Exception e) {
+   					e.printStackTrace();
+   				}
+   			}
+   		}
+   	}
+   
+   ```
+
+drive 클래스
+
+
+
+```java
+package lab.hadoop.join;
+
+
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+
+public class MapsideJoin extends Configured implements Tool {
+
+	public int run(String[] args) throws Exception {
+		String[] otherArgs = new GenericOptionsParser(getConf(), args)
+				.getRemainingArgs();
+		// 입력출 데이터 경로 확인
+		if (otherArgs.length != 3) {
+			System.err.println("Usage: MapsideJoin <metadata> <in> <out>");
+			System.exit(2);
+		}
+		
+		Configuration conf = new Configuration();
+
+		// 파일 시스템 제어 객체 생성
+		FileSystem hdfs = FileSystem.get(conf);
+		// 경로 체크
+		Path path = new Path(args[2]);
+		if (hdfs.exists(path)) {
+			hdfs.delete(path, true);
+		}
+		
+		// Job 이름 설정
+		Job job = new Job(getConf(), "MapsideJoin");
+
+		// 분산 캐시 설정
+		DistributedCache.addCacheFile(new Path(otherArgs[0]).toUri(),
+				job.getConfiguration());
+
+		// 입출력 데이터 경로 설정
+		FileInputFormat.addInputPath(job, new Path(otherArgs[1]));
+		FileOutputFormat.setOutputPath(job, new Path(otherArgs[2]));
+
+		// Job 클래스 설정
+		job.setJarByClass(MapsideJoin.class);
+		// Mapper 설정
+		job.setMapperClass(MapperWithMapsideJoin.class);
+		// Reducer 설정
+		job.setNumReduceTasks(0);
+
+		// 입출력 데이터 포맷 설정
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+
+		// 출력키 및 출력값 유형 설정
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+
+		job.waitForCompletion(true);
+		return 0;
+	}
+
+	public static void main(String[] args) throws Exception {
+		// Tool 인터페이스 실행
+		int res = ToolRunner.run(new Configuration(), new MapsideJoin(), args);
+		System.out.println("## RESULT:" + res);
+	}
+}
+
+}
+
+```
+
+데이터를 3개를 받도록 한다< metadata>< in>< out> 이렇게 세개!
+
+- `[hadoop@master ~]$ hadoop fs -mkdir /output/mapjoin`
+
+- `[hadoop@master ~]$ hadoop jar ./mapjoin.jar  /data/metadata/carriers.csv /data/airline  /output/mapjoin ` 
+
+  > < metadata> < in> < out> 이 순서로 jar해주자~
+
+  
+
+### 3.4 연습(리듀스 사이드 조인)
+
+```java
+package lab.hadoop.join;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+
+public class CarrierCodeMapper extends Mapper<LongWritable,Text,Text,Text>{
+//태크 선언
+	public final static String DATA_TAG="A";
+	
+	private Text outputKey= new Text();
+	private Text outputValue=new Text();
+	
+	public void map(LongWritable key, Text value,Context context)throws IOException,InterruptedException{
+		if(key.get()>0) {
+			String[] colums =value.toString().replaceAll("\"", "").split(",");
+			if(colums != null&&colums.length>0) {
+				outputKey.set(colums[0]+"_"+DATA_TAG);
+				outputValue.set(colums[1]);
+				context.write(outputKey, outputValue);
+			}
+		}
+	}
+}
+
+```
+
+
+
+```java
+package lab.hadoop.join;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+
+public class MapperWithReducesideJoin extends Mapper<LongWritable,Text,Text,Text>{
+//태크 선언
+	public final static String DATA_TAG="B";
+	
+	//map출력
+	private Text outputKey= new Text();
+	
+	
+	public void map(LongWritable key, Text value,Context context)throws IOException,InterruptedException{
+		if(key.get()>0) {
+			String[] colums =value.toString().split(",");
+			if(colums != null&&colums.length>0) {
+				try {
+				outputKey.set(colums[8]+"_"+DATA_TAG);
+				context.write(outputKey, value);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			}
+		}
+	}
+}
+
+```
+
+reducer
+
+```java
+package lab.hadoop.join;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+
+public class ReducerWithReducesideJoin extends Reducer<Text,Text,Text,Text>{
+
+	//reducer출력키
+	private Text outputKey= new Text();
+	private Text outputValue=new Text();
+	
+	public void reduce(Text key, Iterable<Text>values,Context context)throws IOException,InterruptedException{
+		//태크조회
+		String tagValue=key.toString().split("_")[1];
+		for(Text value :values) {
+			///출력키 설정
+		
+		if(tagValue.equals(CarrierCodeMapper.DATA_TAG)) {
+			outputKey.set(value);
+			//출력값 설정 및 출력 데이터 생성
+		}else if(tagValue.equals(MapperWithReducesideJoin.DATA_TAG)) {
+			outputValue.set(value);
+			context.write(outputKey, outputValue);
+		}
+		
+			}
+		}
+	}
+
+
+```
+
+driver class
+
+```java
+package lab.hadoop.join;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+
+public class ReducesideJoin extends Configured implements Tool{
+
+
+		public int run(String[] args) throws Exception {
+			String[] otherArgs = new GenericOptionsParser(getConf(), args)
+					.getRemainingArgs();
+			// 입력출 데이터 경로 확인
+			if (otherArgs.length != 3) {
+				System.err.println("Usage: ReducesideJoin <metadata> <in> <out>");
+				System.exit(2);
+			}
+			
+			Configuration conf = new Configuration();
+
+			// 파일 시스템 제어 객체 생성
+			FileSystem hdfs = FileSystem.get(conf);
+			// 경로 체크
+			Path path = new Path(args[2]);
+			if (hdfs.exists(path)) {
+				hdfs.delete(path, true);
+			}
+			
+			// Job 이름 설정
+			Job job = new Job(getConf(), "ReducesideJoin");
+			
+			//출력 데이터 경로 설정
+			FileOutputFormat.setOutputPath(job, new Path(otherArgs[2]));
+			
+			// 분산 캐시 설정
+			DistributedCache.addCacheFile(new Path(otherArgs[0]).toUri(),
+					job.getConfiguration());
+
+			
+
+			// Job 클래스 설정
+			job.setJarByClass(ReducesideJoin.class);
+			
+			// Reducer 설정
+			job.setReducerClass(ReducerWithReducesideJoin.class);
+
+			// 입출력 데이터 포맷 설정
+			job.setInputFormatClass(TextInputFormat.class);
+			job.setOutputFormatClass(TextOutputFormat.class);
+
+			// 출력키 및 출력값 유형 설정
+			job.setOutputKeyClass(Text.class);
+			job.setOutputValueClass(Text.class);
+			
+			//MultipleInputs 설정
+			MultipleInputs.addInputPath(job, new Path(otherArgs[0]), TextInputFormat.class,CarrierCodeMapper.class);
+			MultipleInputs.addInputPath(job, new Path(otherArgs[1]), TextInputFormat.class,MapperWithReducesideJoin.class);
+
+			job.waitForCompletion(true);
+			return 0;
+		}
+
+		public static void main(String[] args) throws Exception {
+			// Tool 인터페이스 실행
+			int res = ToolRunner.run(new Configuration(), new ReducesideJoin(), args);
+			System.out.println("## RESULT:" + res);
+		}
+	
+
+	}
+
+
+```
+
+- `[hadoop@master ~]$ hadoop fs -mkdir /output/reducejoin`
+- `[hadoop@master ~]$ hadoop fs -ls /output/reducejoin`
+- `[hadoop@master ~]$ hadoop jar ./reducejoin.jar  /data/metadata/carriers.csv  /data/airline  /output/reducejoin`
+- `[hadoop@master ~]$ hadoop fs -ls /output/reducejoin`
+- `[hadoop@master ~]$ hadoop fs -cat /output/reducejoin/part-r-00000`
+
+## 4. HIVE
+
+1. OLTP- transaction 처리 목적 
+   - DML-> DW(data warehouse)로 이관(ETL) 작업, 분석 쿼리
+   - select를 통해 데이터 요약정리
+2. OLAP
+
+### 4.1 Hive를 통해 MapReduce를 실행
+
+1. "SQL"기반의 하둡 에코 시스템을 HIVE라 한다.
+2. 다소 복합한 "MR 프로그래밍"이 보다 친근하고, 직관적인 "SQL"지원
+3. 다이나믹한 검색 조건 지정(다시 jar압축 할 필요 없다)
+4. 매번 "Name Node"배포 없이 원격에서"MR job"실행 지원
+
+#### 4.1.1 Hive 내장모드
+
+1. 설정 변경을 하지 않는 기본 구성
+2. DBMS로 Derby를 이용
+3. 혼자서 테스트 용도로 사용하기에 적합한 구성
+
+#### 4.1.2 Hive 로컬 모드
+
+1. Hive 클라이언트와 메타스토어로부터 DBMS를 독립시킨 것
+2. DBMS는 JDBC를 통해 접속
+3. 로컬 모드에서는 다수의 접속을 동시에 허용하지만 Hive클라이언트가 모드 같은 노드에 존재
+
+#### 4.1.3 Hive 원격 모드
+
+1. DBMS뿐만 아니라 메타스토어도 독립시킨 구성
+2. 메타스토어도 독립됐기에 직렬화 통신(?)필요
+3. Hive클라이언트가 Thrift API를 경유해서 원격으로 메타스토어에 접속가능 
+
+#### 4.1.4 HiveQL 
+
+1. SQL유사 언어로써 MapReduce실행하는 것이다
+2. 페이스북 멤버 중심으로 개발 진행 중
+3. HiveQL이 취급하는 데이터는 논리적 행과 열과 이루어진 테이블로 HDFS상에 파일로 존재
+4. HiveQL로 기술한 쿼리는 MapReduce 같은 일련의 처리로 변환되어 테이블로 조작
+5. 컴파일 없이 바로 실행 가능하므로, Ad-hoc처리에 적합
+6. Hive는 테이블 정의 등의 정보를 Metastore로 관리하며, 테이블 Meta정보를 저장하기 위해 RDBMS가 필요
+
+#### 4.1.5 Hive의  RDBMS와 다른 차이점
+
+1. 온라인 처리에 부적합
+2. 인텍스 및 트랜잭션 기능이 없다
+3. 콜백 처리가 없다
+4. MapReduce의 Keep.failed.task.files파라미터는 MapReduce잡이 실패하면 MapReduce프레임워크 중간 파일은 종료시에 삭제되도록 초기 설정
+5. Hive에는 Update나 Delete문이 없다.
+
+#### 4.1.6 Hive 데이터
+
+1. Hive데이터는 HDFS상의 파일로 존재, Hive테이블은 HDFS디렉토리로 존재
+2. Hive 데이터베이스나 스키마도 HDFS상의 디렉토리로 존재 (/user/hive/warehouse/테이블명 디렉터리로 존재)
+3. Hive에서 컬럼이나 속성 등 테이블 실체가 아닌, 속성 정보에 해당하는 테이블 정의는 Metastore라 불리며, RDBMS에 저장
+4. Hive의 테이블 정의에서는 파티션이라 불리는 물리적 관리 단위 지정
+5. 파티션은 HDFS 상의 디렉토리를 분할 하는 것과 같다
+6. 파티션을 설정함으로 처리 범위 제어 가능, 처리 고속화 가능
+7. 파티션 내의 모든 데이터가 필요 없어지면, 파티션 단위로 삭제 할수 있어 관리 수월, 백업, 분할, 등등 가능
+8. HiveQL의 흐름은 Hive쿼리문 앞에 EXPLAIN을 붙여 실행하면 확인 가능(실행계획 확인 가능)
+9. HiveQL은 Stage라는 단위로 MapReduce나 부속 처리로 변환하여, Stage간 의존 관계가 생성
+
+https://cwiki.apache.org/confluence/display/Hive/LanguageManual
+
+- HiveQL이 기술되어 있다.
+
+### 4.2 설치
+
+##### 4.2.1 다운로드
+
+http://www.apache.org/dyn/closer.cgi/hive/에서 apache-hive-1.2.2-bin.tar.gz를 찾거나
+
+http://apache.tt.co.kr/hive/hive-1.2.2/ 에서 apache-hive-1.2.2-bin.tar.gz 다운로드
+
+```cmd
+[hadoop@master ~]$ cd Downloads/
+[hadoop@master Downloads]$ wget http://apache.tt.co.kr/hive/hive-1.2.2/apache-hive-1.2.2-bin.tar.gz
+#이리 해도 다운 가능! 
+```
+
+##### 4.2.2 압축 풀기
+
+```cmd
+#root계정에서
+[root@master local]# tar -xzvf /home/hadoop/Downloads/apache-hive-1.2.2-bin.tar.gz 
+#압축풀고! 소유자를 바꾸어 주자
+[root@master local]# chown -R hadoop:hadoop apache-hive-1.2.2-bin/
+[root@master local]# ls -l
+#확인 하고 심볼릭 링크 만들어서 이름 짧게!(바로가기)
+[root@master local]# ln -s apache-hive-1.2.2-bin hive
+[root@master local]# ls -l
+#소유자 바꾸기
+[root@master local]# chown -R hadoop:hadoop hive
+[root@master local]# ls -l
+drwxr-xr-x.  8 hadoop hadoop 159 Aug 20 16:51 apache-hive-1.2.2-bin
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 bin
+drwxrwxr-x.  8 hadoop hadoop 191 Aug 20 15:55 eclipse
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 etc
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 games
+drwxr-xr-x. 11 hadoop hadoop 172 Aug 16 17:14 hadoop-2.7.7
+lrwxrwxrwx.  1 hadoop hadoop  21 Aug 20 16:53 hive -> apache-hive-1.2.2-bin
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 include
+drwxr-xr-x.  7 hadoop hadoop 245 Jul  4 20:37 jdk1.8.0_221
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 lib
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 lib64
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 libexec
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 sbin
+drwxr-xr-x.  5 root   root    49 Aug 13 13:12 share
+drwxr-xr-x.  2 root   root     6 Apr 11  2018 src
+#이리 나오게 되며 ls apache-hive-1.2.2-vin 이나 ls hive 나 값이 같음을 확인할 수 있다!(바로가기임으로)
+
+
+
+```
+
+##### 4.2.3 환경변수 설정
+
+```cmd
+#마스터에서 hadoop 환경설정 파일 변경
+[root@master local]# su - hadoop
+[hadoop@master ~]$ vi .bash_profile
+
+export HIVE_HOME=/usr/local/hive
+export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HIVE_HOME/bin:
+[hadoop@master ~]$ source .bash_profile
+#소스 실행
+```
+
+##### 4.2.4 hive 메타스토어 mysql 구성(로컬 모드)
+
+mysql-community-release-el6-5.noarch.rpm과 mysql-connector-java-5.1.36.tar.gz 다운로드
+
+```cmd
+[hadoop@master Downloads]$ unzip mysql.zip
+#압출 풀기
+
+#마스터 노드에 hive 메타스토어 mysql 구성 (로컬모드)
+[root@master ~]# rpm -ivh /home/hadoop/Downloads/mysql-community-release-el6-5.noarch.rpm
+#위치가 다르다면 다르게 해서 하자~ 
+[root@master ~]#  ls -la /etc/yum.repos.d/
+[root@master ~]# yum install mysql-server
+
+[root@master ~]# ls /usr/bin/mysql
+#있는지 확인 (실행파일이다)
+[root@master ~]# ls /usr/sbin/mysqld
+#있는지 확인(서버 실행 파일)
+[root@master ~]#  service mysqld start
+#터미널에서 mysql를 실행
+
+[root@master ~]# mysql --version
+#클라이언트로 버전을 확인!
+[root@master ~]# netstat -anp | grep mysql
+#포트 번호를 mysql에서 사용하는지 확인하는 것
+```
+
+##### 4.2.5 mysql 실행
+
+```cmd
+[root@master ~]# mysql
+#mysql실행
+#루트 사용자의 암호를 설정한다.
+ 
+mysql> grant all privileges on *.* to hive@localhost identified by 'hive' with grant option;  
+mysql> show databases;
+mysql> use mysql;
+mysql> show tables;
+mysql> select user from user;
+mysql> flush privileges;
+
+```
+
+##### 4.2.6 Hive-env.sh 설정파일 생성 및 변경
+
+```cmd
+#하둡 계정으로
+# hive-env.sh  설정파일 생성 및 변경
+[hadoop@master ~]$ cd /usr/local/hive/conf/
+[hadoop@master ~]$ cp hive-env.sh.template  hive-env.sh
+[hadoop@master ~]$ vi hive-env.sh
+HADOOP_HOME=/usr/local/hadoop-2.7.7
+#주석처리되어 있기 때문에 #를 지우고 위의 경로를 작성해준다.
+[hadoop@master ~]$  chmod 755 hive-env.sh 
+#권한을 바꿔준다!
+
+
+
+```
+
+##### 4.2.7 설정파일 변경
+
+```xml
+# /usr/local/hive/conf/hive-site.xml을 수정
+[hadoop@master ~]$ vi /usr/local/hive/conf/hive-site.xml
+<!--파일이 없기 때문에 새로 만들어 주자. -->
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+<property>
+  <name>hive.metastore.local</name>
+  <value>true</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionURL</name>
+  <value>jdbc:mysql://localhost:3306/metastore_db?createDatabaseIfNotExist=true</value>
+  <description>JDBC connect string for a JDBC metastore</description>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionDriverName</name>
+  <value>com.mysql.jdbc.Driver</value>
+  <description>Driver class name for a JDBC metastore</description>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionUserName</name>
+  <value>hive</value>
+  <description>username to use against metastore database</description>
+</property>
+
+<property>
+  <name>javax.jdo.option.ConnectionPassword</name>
+  <value>hive</value>
+  <description>password to use against metastore database</description>
+</property> 
+  </configuration>
+
+```
+
+
 
 
 
