@@ -2405,6 +2405,441 @@ HADOOP_HOME=/usr/local/hadoop-2.7.7
 
 ```
 
+##### 4.2.8 metastore로 사용할 database 생성 및 metastore에 스키마 생성
+
+```cmd
+[hadoop@master ~]$ su -
+[root@master ~] mysql -u root -p
+Enter password:
+mysql> show databases;
+mysql> CREATE DATABASE metastore_db;
+
+mysql> USE metastore_db;
+mysql> show tables;
+mysql> SOURCE /usr/local/hive/scripts/metastore/upgrade/mysql/hive-schema-1.1.0.mysql.sql;
+mysql> show tables;
+```
+
+##### 4.2.9hive에서 mysql 커넥터를 위해(jdbc 드라이버)
+
+```cmd
+[hadoop@master ~]$ tar -xvf ./Downloads/mysql-connector-java-5.1.36.tar.gz
+[hadoop@master ~]$ ls
+[hadoop@master ~]$ cd  /home/hadoop/mysql-connector-java-5.1.36/
+[hadoop@master ~]$ cp  mysql-connector-java-5.1.36-bin.jar /usr/local/hive/lib/
+```
+
+
+
+##### 4.2.10 하둡 실행과 hive연동 확인
+
+```cmd
+#하둡 시작
+[hadoop@master ~]$ cd /usr/local/hadoop-2.7.7/sbin
+[hadoop@master ~]$ ./start-all.sh
+
+#hive 실행
+[hadoop@master ~]$ hive
+hive> show databases;
+hive> create database test_db;#데이터베이스생성
+hive> use test_db;
+hive> create table test(name varchar(10)); # 테이블 생성
+hive> describe test; #테이블 확인
+#실제로 하둡에 디렉토리가 생성되었나 확인해보자
+[hadoop@master ~]$ hadoop fs -ls -R /user/
+drwxr-xr-x   - hadoop supergroup          0 2019-08-21 09:27 /user/hive
+drwxr-xr-x   - hadoop supergroup          0 2019-08-21 09:27 /user/hive/warehous      e
+drwxr-xr-x   - hadoop supergroup          0 2019-08-21 09:52 /user/hive/warehous      e/test_db.db
+drwxr-xr-x   - hadoop supergroup          0 2019-08-21 09:52 /user/hive/warehous      e/test_db.db/test
+#생성되었음을 확인한다 생성됨을 확인하고 mysql에서 테이블 확인!
+mysql> use metastore_db;
+mysql> select OWNER,TBL_NAME,TBL_TYPE from TBLS;
++--------+----------+---------------+
+| OWNER  | TBL_NAME | TBL_TYPE      |
++--------+----------+---------------+
+| hadoop | test     | MANAGED_TABLE |
++--------+----------+---------------+
+1 row in set (0.00 sec)
+
+mysql>  select OWNER_NAME, OWNER_TYPE, NAME from DBS;
++------------+------------+---------+
+| OWNER_NAME | OWNER_TYPE | NAME    |
++------------+------------+---------+
+| public     | ROLE       | default |
+| hadoop     | USER       | test_db |
++------------+------------+---------+
+2 rows in set (0.00 sec)
+
+#hive에서 테이블을 삭제하고
+[hadoop@master ~]$ hadoop fs -ls -R /user/hive/warehouse/
+hive> drop database test_db cascade;
+hive> use default;
+hive> show tables;
+#하둡에 파일을 확인하면 없어진 것을 확인할 수 있다! 연동 확인@
+[hadoop@master ~]$ hadoop fs -ls -R /user/
+drwxr-xr-x   - hadoop supergroup          0 2019-08-21 09:27 /user/hive
+drwxr-xr-x   - hadoop supergroup          0 2019-08-21 10:03 /user/hive/warehouse
+
+
+```
+
+
+
+### 4.3 hiveQL
+
+1. 운영체제 명령어를 ! 와 함께 사용 가능
+
+```cmd
+hive> !ls /home/hadoop/; #OS  명령어 사용 가능
+hive> !hadoop fs -ls /data; ##하둡 명령어 사용 가능
+```
+
+2. Hive 테이블에 데이터를 등록할 때는 입력 데이터가 파일 시스템 상에 있으면 LOAD,  Hive 테이블이면 INSERT를 이용
+3. Hive 테이블 데이터를 파일 시스템 상의 파일로 출력할 때도 INSERT문을 이용
+
+```sql
+LOAD  DATA  [LOCAL]  INPATH   ‘<파일 경로>’  [OVERWRITE]   INTO  TABLE   <테이블명>  [PARTITION  (partcol1 = val1, partcol2=col2,…)]
+
+INSERT  OVERWRITE  TABLE  <테이블명>  [PARTITION  (partcol1 = val1, partcol2=col2,…)]     [IF  NOT  EXISTS]]  <SELECT구>  FROM  <FROM 구> ;
+
+```
+
+4. HiveQL은  JOIN,  서브쿼리, UNION ALL을 지원한다.
+5. GROUP BY는  Reduce에서 처리하지만, Map에서 처리하도록 명시적으로 지정할 수 있다.  Map 태스크의  메모리 사용량이 늘어날 가능성이 있지만, Map에서 집계할 수 있으므로 Reduce로 보내는 전송량을 줄 일 수 있다.
+6. Map에서 GROUP BY를 실행하려면  hive.map.agg 속성을 true로 한다
+7. ORDER BY로 출력 결과 전체를 정렬할  때는 reducer 수가 하나로 제한한다.
+8. SORT BY를 지정하면  Reducer를 다수 동작시킬 수 있으며, 처리 결과를 Reducer내에 정렬한다.
+
+#### 4.3.1 sort by (p228)
+
+sort by 는 hadoop의 shuffle정렬 기능 이용, shuffle 은 reduce처리 단위로 실행되기 때문에 select문과 같이 모든 데이터를 정렬한 결과를 얻을 수 있따.
+
+```sql
+SELECT  col1  FROM  table1  SORT BY col1  ASC;
+
+```
+
+틀정 행을 어떤 Reducer로 보낼지 제어하고 싶을 때 cluster by
+
+
+
+#### 4.3.2 연습(외부데이터 이용하여 정렬)
+
+database 생성
+
+```cmd
+# external table은 구조는 db에 안에 내용은 외부 에서 불러오는 것!
+hive> create database airline_db;
+CREATE EXTERNAL TABLE airline (
+Year string,
+Month string,
+DayofMonth string,
+DayOfWeek string,
+DepTime string,
+CRSDepTime string,
+ArrTime string,
+CRSArrTime string,
+UniqueCarrier string,
+FlightNum string,
+TailNum string,
+ActualElapsedTime string,
+CRSElapsedTime string,
+AirTime string,
+ArrDelay string,
+DepDelay string,
+Origin string,
+Dest string,
+Distance string,
+TaxiIn string,
+TaxiOut string,
+Cancelled string,
+CancellationCode string,
+Diverted string,
+CarrierDelay string,
+WeatherDelay string,
+NASDelay string,
+SecurityDelay string,
+LateAircraftDelay  string
+)
+ROW FORMAT DELIMITED
+ FIELDS TERMINATED BY ',' 
+ LINES TERMINATED BY '\n'
+LOCATION '/data/airline/';
+hive> show tables; ##확인
+# 월별 도착지연횟수를 출력하는 select문
+hive> SELECT Year,Month, count(DepDelay)
+      FROM airline
+      GROUP BY Year,Month
+      SORT BY Year,Month;   #reducer 별 처리 데이터 정렬, 전체 결과 정렬되지 않음
+
+
+hive> SELECT Year,Month, count(DepDelay)
+      FROM airline
+      GROUP BY Year,Month
+      ORDER BY Year,Month;   #reducer개수 1개로 제한, 전체 정렬
+```
+
+#### 4.3.3 연습2(외부데이터 overwrite)
+
+```sql
+[hadoop@master ~]$ vi /home/hadoop/dept.txt 
+10,'ACCOUNTING','NEW YORK'
+20,'RESEARCH','DALLAS'
+30,'SALES','CHICAGO'
+40,'OPERATIONS','BOSTON'
+--위의 내용을 dept.txt에 써준다.
+
+hive> CREATE TABLE IF NOT EXISTS dept (
+deptno INT, dname STRING, loc STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+-- 테이블 생성
+hive> describe dept
+--확인
+
+hive> load data local inpath '/home/hadoop/dept.txt' 
+      overwrite into table dept;
+--내용 테이블에 넣고
+hive> select  * from dept;
+--넣어졋는지 확인해보자! 
+--외부에 있는 데이터를 db에 구조를 만들고 넣어주는 것
+hive> !hadoop fs -ls -R /user/hive/warehouse/;
+hive> !hadoop fs -cat /user/hive/warehouse/airline_db.db/dept/dept.txt;
+--확인 완료~
+
+```
+
+#### 4.3.4 연습3(3. airline테이블과 carriers테이블의 조인 결과를 airlineinfo 테이블에 로딩)
+
+```cmd
+hive> INSERT  OVERWRITE  TABLE  airlineinfo 
+ select  a.UniqueCarrier ,
+   b.CarrierFullName ,
+   a.FlightNum,
+   a.TailNum ,
+   a.Dest ,
+   a.Distance ,
+   a.Cancelled 
+ from  airline a , carriers b  
+where a.UniqueCarrier = substr(b.UniqueCarrier2, 2);
+#허나 이것은 3글자는 지워지므로 다른 명령어로 해보자
+```
+
+### 4.3 Hadoop R 연동
+
+1. R의 다양한 패키지는 CRAN(http://cran.r-project.org/web/views/)을 통해 한곳에서 살펴 볼 수 있다.
+
+2. R은 공개 소프트웨어로 http://www.r-project.org/에서 다운 가능!
+
+3. 또는 하둡에서 설치 가능
+
+   ```cmd
+   [root@master ~]# yum install epel-release
+   [root@master ~]# yum install npm
+   [root@master ~]# yum install R
+   
+   #R설치 디렉토리
+   [root@master ~]# ls -l /usr/lib64/
+   #R확인 가능 소유자가 R임으로 바꿔준다.
+   [root@master ~]# chown -R hadoop:hadoop /usr/lib64/R
+   [root@master ~]# chown -R hadoop:hadoop /usr/share/doc/R-3.6.0/html/
+   
+   [root@master ~]# ls -l /usr/lib64/
+   
+   
+   #hadoop의 .bash_profile에 추가
+   [hadoop@master ~]$ vi .bash_profile
+   
+   export HADOOP_CMD=/usr/local/hadoop-2.7.7/bin/hadoop
+   export HADOOP_STREAMING=/usr/local/hadoop-2.7.7/share/hadoop/tools/lib/hadoop-streaming-2.7.7.jar
+   #bash)_profile 소스 실행해야 한다.
+   [hadoop@master ~]$ source ./.bash_profile
+   [hadoop@master ~]$ R #해주면 들어가진다
+   
+   #R에서 패키지 설치해야한다.
+   >install.packages(c("rJava", "Rcpp", "RJSONIO", "bitops", "digest", "functional", "stringr", "plyr", "reshape2", "caTools"))
+   # 만약 중간 에러가 생기면 해결 후 
+   >update.packages() 
+   
+   
+   ```
+
+   
+
+https://github.com/RevolutionAnalytics/RHadoop/wiki/Downloads
+
+에서 for windows뺴고 다 받아주자 그 후 R 에서 설치!
+
+```R
+> install.packages("/home/hadoop/Downloads/rhdfs_1.0.8.tar.gz", repos=NULL, type="source")
+
+>install.packages("/home/hadoop/Downloads/rmr2_3.3.1.tar.gz", repos=NULL, type="source")
+>install.packages("/home/hadoop/Downloads/plyrmr_0.6.0.tar.gz", repos=NULL, type="source")
+>install.packages("/home/hadoop/Downloads/rhbase_1.2.1.tar.gz", repos=NULL, type="source")
+
+>install.packages("/home/hadoop/Downloads/ravro_1.0.4.tar.gz", repos=NULL, type="source")
+
+>install.packages(c("bit64", "rjson"))
+
+```
+
+
+
+#### 4.3.1 Hadoop R 연습
+
+```cmd
+[hadoop@master ~]$ vi test.R
+
+#작성해보자
+print("R running~ from source");
+a <- seq(1,100,by=2)
+print(class(a))
+print(a)
+
+[hadoop@master ~]$ cat test.R
+#확인
+#R에서 실행해보자
+>source ("/home/hadoop/test.R")
+
+#다른 실행방법!
+>getwd()
+#하면 현재 경로가 뜬다 (/home/hadoop/) 이므로
+>source("test.R")
+#라 쳐도 결과가 나온다!
+```
+
+#### 4.3.2 연습
+
+```R
+>setwd("디렉토리명")
+> sum(1,NA,2)
+[1] NA
+> sum (1, 2, NA, na.rm=T)
+[1] 3 #na.rm=T는 na를 삭제한다는 의믜 그러므로 3이 나온다.
+> sum (1, NULL, 2)
+[1] 3
+
+
+```
+
+#### 4.3.3 연습(1부터 1000까지의 숫자를 생성/각 숫자 모두를 제곱하는 연산 수행)
+
+home/hadoop 위치에서 test2.R로 작성
+
+```R
+library(rhdfs) # Rhadoop package for hdfs
+hdfs.init()    # Start to connect HDFS, 반드시 rmr2를 로드하기 전
+library(rmr2)  # RHadoop package for MapReduce
+
+hadoop fs -mkdir /tmp/ex1
+
+ dfs.rmr("/tmp/ex1")
+ small.ints <- to.dfs(1:1000, "/tmp/ex1")
+
+ result <- mapreduce(input = small.ints, 
+	map = function(k,v) cbind(v,v^2)
+)
+ out <- from.dfs(result)
+print( out)
+
+```
+
+`>`source ("test2.R")로 실행해보자
+
+#### 4.3.4 연습
+
+/home/hadoop 위치에 
+
+[hadoop@master ~]$ vi mapreduce_test.R 
+
+```R
+brary(rhdfs) # Rhadoop package for hdfs
+hdfs.init()    # Start to connect HDFS, 반드시 rmr2를 로드하기 전
+library(rmr2)  # RHadoop package for MapReduce 
+random <- to.dfs(rnorm(100))
+map <- function(k,v) {
+        key <- ifelse(v < 0, "less", "greater")
+        keyval(key, 1)
+}
+reduce <- function(k,v) {
+        keyval(k, length(v))
+}
+Freq <- mapreduce (
+        input= random, output="/tmp/ex3",
+        map = map, reduce = reduce
+)
+out <- from.dfs(Freq)
+print(out)
+
+```
+
+작성 후 
+
+`>`resource("mapreduce_test.R")
+
+#### 4.3.5 연습
+
+hadoop fs -put /usr/local/hadoop-2.7.7/README.txt /tmp/ex3
+
+```R
+library(rhdfs) # Rhadoop package for hdfs
+hdfs.init()    # Start to connect HDFS, 반드시 rmr2를 로드하기 전
+library(rmr2)  # RHadoop package for MapReduce
+ 
+inputfile <- "/tmp/README.txt"
+if(!hdfs.exists(inputfile)) stop("File is not found")
+outputfile <- "/tmp/ex4"
+if(hdfs.exists(outputfile)) hdfs.rm(outputfile)
+ 
+map <- function(key, val){
+	words.vec <- unlist(strsplit(val, split = " "))
+	#lapply(words.vec, function(word) 
+    keyval(words.vec, 1)
+}
+ 
+reduce <- function(word, counts ) {
+	keyval(word, sum(counts))
+}
+result <- mapreduce(input = inputfile,
+	output = outputfile, 
+	input.format = "text", 
+	map = map, 
+	reduce = reduce, 
+	combine = T
+)
+ 
+## wordcount output
+freq.dfs <- from.dfs(result)
+freq <- freq.dfs$val
+word <- freq.dfs$key
+oidx <- order(freq, decreasing=T)[1:10]
+ 
+# Words frequency plot
+barplot(freq[oidx], names.arg=word[oidx] )
+
+```
+
+## Swap 공간 늘리기
+
+```cmd
+[root@master ~]# mkdir swap
+[root@master ~]# dd if=/dev/zero of=swap/swapfile bs=1024 count=4194304
+[root@master ~]# ls
+#swap파일 확인
+[root@master ~]# cd swap
+#mkswap 명령어를 이용하여 swapfile이 스왑공간을 쓰도록 만든다. (스왑 영역 생성)
+[root@master ~]#  mkswap swapfile
+
+ 
+#스왑파일을 즉시 활성화 할 수 있다.
+[root@master ~]# swapon swapfile
+[root@master ~]# swapon -s  
+[root@master ~]# free
+```
+
+
+
+#### 4.3.6 연습
+
 
 
 
