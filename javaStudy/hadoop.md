@@ -2309,7 +2309,9 @@ export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HIVE_HOME/bin:
 
 ##### 4.2.4 hive 메타스토어 mysql 구성(로컬 모드)
 
-mysql-community-release-el6-5.noarch.rpm과 mysql-connector-java-5.1.36.tar.gz 다운로드
+http://repo.mysql.com/ 에sql-community-release-el6-5.noarch.rpm
+
+과 https://downloads.mysql.com/archives/c-j/ 에서 mysql-connector-java-5.1.36.tar.gz 다운로드
 
 ```cmd
 [hadoop@master Downloads]$ unzip mysql.zip
@@ -2346,7 +2348,7 @@ mysql> show databases;
 mysql> use mysql;
 mysql> show tables;
 mysql> select user from user;
-mysql> flush privileges;
+mysql> flush privileges; #보통은 insert,delete,update를 통해 사용자를 추가, 삭제, 권한 변경 등을 수행할 때 이를 반영하기 위해 사용 , grant테이블을  reload함으로 변경사항 즉시 반영
 
 ```
 
@@ -2402,7 +2404,7 @@ HADOOP_HOME=/usr/local/hadoop-2.7.7
   <description>password to use against metastore database</description>
 </property> 
   </configuration>
-
+퍄
 ```
 
 ##### 4.2.8 metastore로 사용할 database 생성 및 metastore에 스키마 생성
