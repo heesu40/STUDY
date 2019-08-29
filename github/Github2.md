@@ -235,19 +235,77 @@ $git config --global user.email 'edutak.ssafy@gamil.com'
 
    - 변경사항이 모두 삭제 되고,  해당 파일의 이전 커밋 상태로 변화
 
-## 깃헙 링크 정리
+## 깃헙 링크 
 
 1. [백준알고리즘][/Text.md] - 상대 경로로 지정한 경우
-
-#### 단계별 풀기
 
 - 1001 - 출력하기[링크][풀이][.boj/1001]
 
 2. 이미지 삽입시 환경설정의 이미지 삽입의 ./asserts 경로로 이미지 복사를 선택해 주자.
+3. http://ndpsoftware.com/git-cheatsheet.html
 
 
 
+### gitignore
 
+- [.gitignore][https://www.gitignore.io/]
+
+```bash
+.gitignore 
+#를 만들고
+.settings/
+data.csv
+*.txt
+#이리 작성후 저장하고 실제 저런 류의 파일을 만들며 git bash에서 commit시 무시된다. 즉 올라가 지지않는다.
+```
+
+- 사이트에서 관련을 검색해서 만들어서 하면 실제 코딩시 굉장히 도움이 된다. 협력프로젝트시 모든 코드를 공유하는것이 아니기 때문이다.
+
+### 좋은 github commit 약속
+
+- 제목과 본문을 한 줄 띄워 분리하기
+- 제목은 영문 기준 50자 이내로
+- 제목 첫글자를 대문자로
+- 제목 끝에 . 금지
+- 제목은 명령조 로
+- 본문은 영문 기준 72자마다 줄 바꾸기
+- 본문은 어떻게 보다 무엇을 , 왜 에 맞춰 작성하기
+
+### GraphQL?
+
+### 프로젝트 공개 페이지(Github site)
+
+- [github pages](https://pages.github.com/)
+
+- 프로젝트 공개 사이트, HTTP만 있으면 OK
+
+- start bootstrap 검색! resume탬플릿을 [다운](https://startbootstrap.com/themes/resume/) 
+
+- Visual Studio Code 에서 압출푼 파일 전체를 넣어 준다!
+
+  - studio를 열었을 때 템플릿의 모든 코드 파일이 보여야 하며 index.html이 주요 템플릿 파일이다.
+
+- ctrl+shift+p 를 누르고 >default  terminal 을 git bash로 해준다.
+
+- 이를 통해 차차 코드를 바꿔 자신만의 사이트를 만든다.
+
+- Skills 에서 [폰트](https://fontawesome.com/)에서 찾아 올려 주면 된다.
+
+  - 내가 할 수 있는 스킬 로고 바꾸기
+
+- ```bash
+  #블로그는 username.github.io 로 이름 지어 주며 주소를 복사하여 넣어준다.
+  git remote add http:~ 
+  git add .
+  git commit -m '블로그 올리기'
+  git push origin master # 혹 안된다면 git push -f origin master 해주자. f는 강제 업로드
+  ```
+
+- 
+
+
+
+### 블로그
 
 
 
