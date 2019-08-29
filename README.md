@@ -1,4 +1,6 @@
-1. [java][]
+1. java
+   - [java1](https://github.com/heesu40/STUDY/blob/master/Study/Day%201-8.md)
+   - [java2](https://github.com/heesu40/STUDY/blob/master/Study/DAY%209-10.md)
 2. Oracle
    - [JDBC](https://github.com/heesu40/STUDY/blob/master/Study/JDBC.md#jdbc)
    - [database](https://github.com/heesu40/STUDY/blob/master/Study/database.md)
@@ -19,7 +21,7 @@
 8. 알고리즘
    - [백준](https://github.com/heesu40/STUDY/blob/master/Study/%EB%B0%B1%EC%A4%80.md)
   
-9.빅데이터
+9. 빅데이터
    - [Linux](https://github.com/heesu40/STUDY/blob/master/Study/Linux.md)
    - [hadoop](https://github.com/heesu40/STUDY/blob/master/Study/hadoop.md)
    - [spark](https://github.com/heesu40/STUDY/blob/master/Study/%EC%8A%A4%ED%8C%8C%ED%81%AC.md)
