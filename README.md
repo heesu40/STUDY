@@ -33,27 +33,3 @@
 11. 그 외
    - [4차산업혁명](https://github.com/heesu40/STUDY/blob/master/Study/The%20Fourth%20Industrial%20Revolution.md)
    
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-3.
