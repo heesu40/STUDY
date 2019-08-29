@@ -1,6 +1,6 @@
 1. [java][]
 2. Oracle
-   - [JDBC][https://github.com/heesu40/STUDY/blob/master/Study/JDBC.md]
+   - [JDBC](#JDBC)
    - [database][]
 3. web programming
    - [javascript][]
