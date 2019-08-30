@@ -301,13 +301,692 @@ data.csv
   git push origin master # 혹 안된다면 git push -f origin master 해주자. f는 강제 업로드
   ```
 
-- 
+  
+  
 
 
 
-### 블로그
+# branch 나누기
+
+web이라는 폴더를 만들고 git bash 를 실행(폴더 안에서 오른쪽 클릭하여 git bash 실행 ), web 폴더 안에서 오른쪽 클릭하여 visual studio code 실행 하여 준비. 
+
+```bash
+$git branch{브랜치명}#브랜치 생성
+$git checkout{브랜치명}#브랜치 이동
+$git branch -d{브랜치명}#브랜치 삭제
+
+$git checkout -b{브랜치명}#브랜치 생성 및 이동
+
+$git merge{브랜치명} #브랜치명을 지금 브랜치로 변경
+(master) $git merge feature/index #feature/index 브랜치를 master로 병합
+```
+
+```bash
+git init 
+vi README.md 
+touch index.html
+git add .
+git commit -m 'Add index.html'
+```
+
+### 1. 마스터는 내용이 없고 브랜치에 내용이 있는 경우 병합(fast-foward)
+
+1. feature/index branch 생성 및 이동
+2. 작업을 한 이후 commit
+3. master 이동
+4. master에 병합
+5. fast_foward(단순히 HEAD를이동)
+6. 결과 확인 후 branch 삭제
+
+```bash
+#현재 가지 확인
+git branch
+* master # 로 결과가 나타난다
+git branch feature/index
+git branch
+  feature/index
+* master
+
+git checkout feature/index
+##student@M50322 MINGW64 ~/Desktop/web (feature/index)
+#위처럼 바뀐다~
+
+touch index.css
+touch index.js
+git add .
+git commit -m 'complete index page'
+
+git checkout master
+Switched to branch 'master'
+
+git merge feature/index
+Updating eec0398..9histor36001f
+Fast-forward #커밋후 branch를 나누었는데, 마스터가 일을 한 것이 없기 때문에 그저 branch가 앞으로 이동만 하면 된다.
+ index.css | 0
+ index.js  | 0
+ 2 files changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 index.css
+ create mode 100644 index.js
+
+git branch -d feature/index #이력을 마스터 branch로 옮겼기 떄문에 이제는 삭제해도 오케이!
+Deleted branch feature/index (was 936001f).
+
+```
+
+
+
+### 2. 마스터에 내용이 있고  branch 에 내용이 있어 이를 합친 경우(merge commit)
+
+1. feature/signout branch 생성 및 이동
+2. 작업을 한 이후 commit
+3. master 이동
+4. master에 추가 commit 이 발생되어 있고
+5. master에 병합
+6. merge commit 발생
+7. 그래프 확인
+8. branch 삭제
+
+```bash
+$ git checkout -b feature/singin
+Switched to a new branch 'feature/singin'
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git checkout feature/singin
+Switched to branch 'feature/singin'
+
+student@M50322 MINGW64 ~/Desktop/web (feature/singin)
+$ touch Test.html
+
+student@M50322 MINGW64 ~/Desktop/web (feature/singin)
+$ git add .
+
+student@M50322 MINGW64 ~/Desktop/web (feature/singin)
+$ git commit -m 'branch add'
+[feature/singin 65d20e0] branch add
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 Test.html
+
+student@M50322 MINGW64 ~/Desktop/web (feature/singin)
+$ git checkout master
+Switched to branch 'master'
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ touch MTest.md
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git add .
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git status
+On branch master
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        new file:   MTest.md
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git log --oneline
+bf1a820 (HEAD -> master) complete
+936001f complete index page
+eec0398 init index.html
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git commit -m 'master add'
+[master f79d847] master add
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 MTest.md
+
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git log --oneline
+f79d847 (HEAD -> master) master add
+bf1a820 complete
+936001f complete index page
+eec0398 init index.html
+
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git merge feature/singin
+Merge made by the 'recursive' strategy.
+ Test.html | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 Test.html
+
+
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git log --oneline
+bf4a7b1 (HEAD -> master) Merge branch 'feature/singin'
+f79d847 master add
+65d20e0 (feature/singin) branch add
+bf1a820 complete
+936001f complete index page
+eec0398 init index.html
+
+
+
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git log --oneline --graph
+*   bf4a7b1 (HEAD -> master) Merge branch 'feature/singin'
+|\
+| * 65d20e0 (feature/singin) branch add
+* | f79d847 master add
+|/
+* bf1a820 complete
+* 936001f complete index page
+* eec0398 init index.html
+#branch 된 것을 확인하는 것은 --graph로 하면 시각적으로 확인 가능
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git branch -d feature/singin
+Deleted branch feature/singin (was 65d20e0).
+# 마지막으로 삭제~ 필요없음으로
+```
+
+### 3. mergit commit 이 충돌되는 경우
+
+```bash
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git checkout -b test3
+Switched to branch 'test3'
+
+student@M50322 MINGW64 ~/Desktop/web (test3)
+$ touch test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (test3)
+$ vi test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (test3)
+$ git add .
+warning: LF will be replaced by CRLF in test.txt.
+The file will have its original line endings in your working directory
+
+student@M50322 MINGW64 ~/Desktop/web (test3)
+$ git commit -m 'test3에 파일 추가 및 내용 작성'
+[test3 6293268] test3에 파일 추가 및 내용 작성
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (test3)
+$ git checkout master
+Switched to branch 'master'
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git ststus
+git: 'ststus' is not a git command. See 'git --help'.
+
+The most similar command is
+        status
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ touch test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ vi test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git add .
+warning: LF will be replaced by CRLF in test.txt.
+The file will have its original line endings in your working directory
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git commit -m '마스터에 파일 추가 및 내용 작성'
+[master 690681d] 마스터에 파일 추가 및 내용 작성
+ 1 file changed, 1 insertion(+)
+ create mode 100644 test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git merge test3
+CONFLICT (add/add): Merge conflict in test.txt
+Auto-merging test.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+student@M50322 MINGW64 ~/Desktop/web (master|MERGING)
+$ vi test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (master|MERGING)
+$ git add .
+
+student@M50322 MINGW64 ~/Desktop/web (master|MERGING)
+$ git commit -m '그냥 합쳤다'
+[master 85c4689] 그냥 합쳤다
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ vi test.txt
+
+student@M50322 MINGW64 ~/Desktop/web (master)
+$ git log --oneline --graph
+*   85c4689 (HEAD -> master) 그냥 합쳤다
+|\
+| * 6293268 (test3) test3에 파일 추가 및 내용 작성
+* | 690681d 마스터에 파일 추가 및 내용 작성
+* | 38c15f3 clear;
+|/
+* c676c03 master add
+*   57d3926 Merge branch 'feature/signut'
+|\
+| * 42807e2 branch add
+* | 91ae6a1 master add
+|/
+* 254e5b4 branch add
+*   bf4a7b1 Merge branch 'feature/singin'
+|\
+| * 65d20e0 branch add
+* | f79d847 master add
+|/
+* bf1a820 complete
+* 936001f complete index page
+* eec0398 init index.html
+
+```
+
+
+
+### stash-임시 공간
+
+> 작업 중에 작업이 완료 되지 않아서 커밋을  허가 야먀헌 상황일 경우 임시적으로 현재의 변경사항을 저장할 수 있는 공간
+
+```bash
+git stash
+
+git pop
+git 
+```
+
+
+
+### 돌아가기
+
+1. `$ git reset (--hard) {커밋해시코드}`
+   - log다 사라지고 그 시점으로 돌아가는 것 정말 돌아가는것(기존의 이력을 삭제)
+2. `$ git revert {커밋해시코드}`
+   - 기존의 이력을 삭제하지 않고 돌아가는 것만 표현!!! 
+3. `$ git reflog `
+   - 돌아가서 과거 이력을 보는것으로 삭제한 branch로도 다시 갈 수 있다.
+
+# python 설치
+
+[링크](https://www.python.org/downloads/windows/)  에서 Windows x86-64 executable installer 다운!
+
+- 주의점은 설치시 path를 설정 체크를 해준 후에 설치 하자(자동 환경변수 설정)
+
+새 폴더를 만들고 오른쪽 버튼을 눌러 visual studio code 실행
+
+새 터미널에 
+
+```bash
+python -V
+#설치 확인
+```
+
+
+
+### Hello
+
+```python
+print('happy hacking!')
+
+name = '현선'
+print(name)
+name=123
+print(name)
+name =True
+print(name)
+#리스트
+my_list=['히야',123,True,'ㅎㅇㅎㅇ']
+type(my_list)
+#딕셔너리(해시)
+hihi = {'g': 10,'a': 20}
+print(hihi['g'])
+
+#조건
+a=5
+if a>3:
+    print('a')
+else:
+    print('b')
+
+#반복
+a=[1,3,5,6]
+for num in a:
+    print(num)
+
+name='홍길동'
+for char in name:
+    print(char)
+# 객체란? 객관적인 형태로 만드는 것 ,things
+a=[6,4,1]
+a.sort()
+print(a)
+```
+
+```bash
+student@M50322 MINGW64 ~/Desktop/phthon
+$ python hello.py
+현선
+123
+True
+10
+a
+1
+3
+5
+6
+홍
+길
+동
+[1, 4, 6]
+#참고로 중간에 에러가 뜨면 나머지 결과는 뜨지않는다.
+```
+
+```cmd
+student@M50322 MINGW64 ~/Desktop/phthon
+$ python -i
+Python 3.7.4 (tags/v3.7.4:e09359112e, Jul  8 2019, 20:34:20) [MSC v.1916 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> #다양하게 작성해 보장
+```
+
+
+
+- api.py 뉴파일 생성
+- api는? 프로그래밍 언어가 제공하는 기능을 제어할 수 있게 만든 *인터페이스*
+
+[빗썸 api](https://apidocs.bithumb.com/docs/ticker)
+
+```bash
+student@M50322 MINGW64 ~/Desktop/phthon
+$ pip install requests
+```
+
+```python
+# 1. requests 라이브러리 가져오기
+import requests
+# 2. rul 요청보내서
+url= 'https://api.bithumb.com/public/ticker/btc'
+#3. 값을 받아 온다.
+response= requests.get(url).json() #.json()  안하면 값으로 하면 json으로 나온다.
+print(response['data']['max_price'])
+```
+
+- 브라우저에 저 url를 넣으면 json()값이 나온다.
+
+### 개발 branch
+
+[git flow](http://woowabros.github.io/experience/2017/10/30/baemin-mobile-git-branch-strategy.html)
+
+[github flow](https://ujuc.github.io/2015/12/16/git-flow-github-flow-gitlab-flow/)
+
+- 두개의 차이점을 확인하자.
+- branch를 하나 만들고 거기에 파일 작성 후 push를 하자.
+- github에서 확인하면 branch로 엮여 있고  이를 확인후 merge를 하면 master에 합쳐진다.
+
+### forking
+
+오픈 소스에서 포크를 해서 나의 repository에 저장한 후 이래저래 소스 변경 가능(본 내용을 건들일 수 없기 때문에)
+
+### chrome 확장 프로그램
+
+1. Wappalyzer
+2. adblock
+3. json viewer
+
+### API 
+
+#### HTTP
+
+```bash
+# 1. requests 라이브러리 가져오기
+import requests
+# 2. rul 요청보내서
+url= 'https://api.bithumb.com/public/ticker/btc'
+#3. 값을 받아 온다.
+response= requests.get(url).json() #.json()  안하면 값으로 하면 json으로 나온다.
+print(response['data']['max_price'])
+```
+
+#### 번역하기
+
+- [참고,github decouple](https://github.com/henriquebastos/python-decouple)
+
+1. 텔레그램 설치
+2. 네이버 developer에 로그인 해놓자.
+3. 새로운 chtbot 만들고 visual studio code 실행
+
+```bash
+
+student@M50322 MINGW64 ~/Desktop/chtbot
+$ git init
+Initialized empty Git repository in C:/Users/student/Desktop/chtbot/.git/
+
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ pip install python-decouple
+Collecting python-decouple
+  Downloading https://files.pythonhosted.org/packages/9b/99//python-decouple-3.1.tar.gz
+Installing collected packages: python-decouple
+  Running setup.py install for python-decouple ... done
+Successfully installed python-decouple-3.1
+You are using pip version 19.0.3, however version 19.2.3 is available.
+You should consider upgrading via the 'python -m pip install --upgrade pip' command.
+
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ touch .env
+
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ touch .gitignore
+```
+
+
+
+.env
+
+```cmd
+naver_CLIENT_ID="키 아이디"
+naver_CLIENT_PWD="키 비밀번호"
+```
+
+papago.py
+
+```python
+import requests
+from decouple import config
+
+#1. 환경변수 설정
+naver_client_id=config('naver_CLIENT_ID')
+naver_client_secret=config('naver_CLIENT_PWD')
+print(naver_client_id)
+
+#. 2.url설정
+
+url='https://openapi.naver.com/v1/papago/n2mt'
+#3. 헤더 및 data설정
+headers={
+    'X-Naver-Client-Id':naver_client_id,
+    'X-Naver-client-Secret':naver_client_secret
+
+}
+data={
+    'source': 'ko',
+    'target': 'en',
+    'text':'댕댕이'
+}
+# 4. 요청
+#url에 헤더와 데이터를 포함해서 Post요청을 보내고
+#그 결과를 (json)을 파싱
+response=requests.post(url,headers=headers,data=data).json()
+import pprint
+pprint.pprint(response['message']['result']['translatedText'])
+```
+
+
+
+#### chtbot
+
+1. 텔레그램에서  @botfather 에서 나의 아이디를 만들자
+2. 만들게 되면 아이디와 나의 챗봇이 생성된다.
+
+```bash
+https://api.telegram.org/bot나의토큰?을입력/getMe
+https://api.telegram.org/bot나의토큰?을입력/getUpdate # 글을 쓰면 그 내용을 볼 수 있다.
+https://api.telegram.org/bot나의토큰?을입력/sendMessage?chat_id=getUpdate에 쓰여진 id&text=안녕 #이렇게되면 챗봇이 그 아이디로 답장을 하게 된다 안녕이라고
+
+```
+
+.env
+
+```bash
+naver_CLIENT_ID=""
+naver_CLIENT_PWD=""
+TELEGRAM=""
+```
+
+bot.py
+
+```python
+import requests
+from decouple import config
+
+# 1. 토큰 값 설정
+token=config('TELEGRAM')
+# 3. url 설정
+#  char_id, text 요청변수 설정!
+#string interpolation 문자열 내에 변수 값 삽입(f-string)
+base_url=f'https://api.telegram.org/bot{token}'
+chat_id=
+text='안녕'
+url=f'{base_url}/sendMessage?chat_id={chat_id}&text={text}'
+# 3. 메시지 보내기
+requests.get(url)
+
+
+```
+
+
+
+#### 주 금요일에 나에게 날아오는 로또!
+
+```python
+import random
+numbers=range(1,46) #1 이상 46미만
+# print(list(numbers))
+lotto=random.sample(numbers,6)
+print(lotto)
+
+# for i in range(5):
+#     print('hi')
+```
+
+아래에 추가후 text를 
+
+```python
+import requests
+import random
+
+from decouple import config
+# 0.로또 번호 추출
+numbers=range(1,46) #1 이상 46미만
+text=sorted(random.sample(numbers,6))
+# 1. 토큰 값 설정
+token=config('TELEGRAM')
+# 3. url 설정
+#  char_id, text 요청변수 설정!
+#string interpolation 문자열 내에 변수 값 삽입(f-string)
+base_url=f'https://api.telegram.org/bot{token}'
+chat_id=
+url=f'{base_url}/sendMessage?chat_id={chat_id}&text={text}'
+# 3. 메시지 보내기
+requests.get(url)
+
+
+
+```
 
 
 
 
 
+#### heroku
+
+heroku cli 을 구글에 검색하여 들어가서 다운로드 받자 windows-64로
+
+새파일 생성하고 이름을 Procfile(확장자 없이) 하면 보라색으로 생성
+
+runtime.txt 새파일 만들고
+
+```
+python-3.7.2
+```
+
+입력 후 저장
+
+```bash
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ pip freeze > requirements.txt
+
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ git add .
+
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ git commit m 'heroku setting'
+error: pathspec 'm' did not match any file(s) known to git
+error: pathspec 'heroku setting' did not match any file(s) known to git
+
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ git commit -m 'heroku setting'
+[master 7da6b60] heroku setting
+ 3 files changed, 16 insertions(+)
+ create mode 100644 Procfile
+ create mode 100644 requirements.txt
+ create mode 100644 runtime.txt
+```
+
+git bash를 켜서 (visual studio code 에서는 안되니)
+
+```bash
+student@M50322 MINGW64 ~
+$ herodu login
+bash: herodu: command not found
+
+student@M50322 MINGW64 ~
+$ heroku login
+heroku: Press any key to open up the browser to login or q to exit:
+Opening browser to https:
+heroku: Waiting for login...
+Logging in... done
+#나의 아이디 확인
+^C▒ϰ▒ ▒۾▒▒▒ ▒▒▒▒▒ðڽ▒▒ϱ▒ (Y/N)? y
+y
+
+```
+
+chtbot에서 오른쪽 버튼 누르고 git bash 실행 후
+
+```bash
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ heroku create chtbot-openapi
+Creating chtbot-openapi... done
+https://chtbot-openapi.herokuapp.com/ | https://git.heroku.com/chtbot-openapi.git
+
+student@M50322 MINGW64 ~/Desktop/chtbot (master)
+$ git push heroku master
+
+```
+
+- heroku 를 create하면 push가 된다!
+- [heroku app에 들어간다](https://dashboard.heroku.com/apps)
+- 연결해 놓은 이른 chtbot-openapo(이름을 위에 정해놓은 것) 을 클릭!
+- Configure Add-ons을 클릭 하고 Heroku Scheduler 를 무료로 사용!
+- 스켈쥴러를 클릭하여 시간을 지정!
+
+![1567153369713](Github2.assets/1567153369713.png)
