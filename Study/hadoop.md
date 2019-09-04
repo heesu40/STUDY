@@ -1730,7 +1730,7 @@ public class DelayCountwithDateKey extends Configured implements Tool{
 
   - 워커노트 (slave node)
 
-    > 마스터 노드의 지시를 받아 명령을 수행(실제 데이터를 저장, 데이터를 처리 프로세싱하는 노드)
+    > 마스터 노드의 지시를 받아 명령을 수행(실제 데이터를 저장, 데이터를 처리 프로세싱하는 노드), 워커 노드에서 실행되며 애플리케이션을 분산처리 태스크를 담당하는 에이전트로 실제 작업을 담당하는 것이 **executor**
 
 - HDFS 는 HDFS의 스토리지를 관리&구성
 
@@ -1756,7 +1756,7 @@ public class DelayCountwithDateKey extends Configured implements Tool{
 
     > **리소스 매니저 (resouce manager)**는 마스터 노드에서 실행, 클러스터의 리소르를 나눠주는 역할, TaskTracker들의 Task를 스케줄링
     >
-    > **노드 매니저(node manager) **는 워커 노드에서 실행, Task들을 실행시키고 관리, Task실행을 위해서  resource manager와 밀접하게 통신, Task 상태 관리, 노드 상태 관리
+    > **노드 매니저(node manager) **는 워커 노드에서 실행, Task들을 실행시키고 관리, Task실행을 위해서  resource manager와 밀접하게 통신, Task 상태 관리, 노드 상태 관리, map reduce job이 hadoop에 제출되어 수행 시작하고 수행 끝나면 종료되는 데몬이다.
     >
     > **어플리케이션 매니저(application manager)** 클러스터에서의 메인프로세스로 어플리케이션별로 하나씩 실행, 클러스터에서 실행되는 어플리케이션의 실행조율, 리소스 매니저와 밀접하게 통신하며 리소스 관리 
 

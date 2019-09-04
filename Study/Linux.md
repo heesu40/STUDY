@@ -374,11 +374,12 @@
 3. 새 아카이브 생성 ***tar cvf***
 4. 아카이브 파일 내용 확인  ***tar tvf***
 5. 아카이브 풀기 ***tar xvf***
-6. 아카이브 업데이트 ***tar uvf***
-7. 아카이브 파일 추가 ***tar rvf***
-8. 아파이브 생성, 동시에 압축 ***tar cvzf(gzip) , tar cvjf(bzip2)***
-9. 압축만 하기/풀기 ***gzip/gunzip(.gz), bzip2/bunzip2(.bz)***
-10. 압출 파일의 내용 보기 ***zcat/bzcat***
+6. gzip으로 압춘된 경우 ***tar xvfz***
+7. 아카이브 업데이트 ***tar uvf***
+8. 아카이브 파일 추가 ***tar rvf***
+9. 아파이브 생성, 동시에 압축 ***tar cvzf(gzip) , tar cvjf(bzip2)***
+10. 압축만 하기/풀기 ***gzip/gunzip(.gz), bzip2/bunzip2(.bz)***
+11. 압출 파일의 내용 보기 ***zcat/bzcat***
 
 ***
 
