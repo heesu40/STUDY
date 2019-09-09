@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="lab.mybatis.mapper.ParkingLot">
+ 
+ <select id="getAllList" resultType="lab.spring.parking.model.PrkplceVO">
+ 		select * from parkinglot_info where lnmadr like '%사상%'
+ </select>
+ 
+ <select id="getDSlot" resultType="lab.spring.parking.model.DslotVO">
+ 		select * from dslot
+ </select>
+ 
+  <select id="RPAllList" resultType="lab.spring.parking.model.RPplceVO">
+ 		select * from rppark_info
+ </select>
+ 
+<insert id="addMyplace" parameterType="lab.spring.parking.model.MyParkVO">
+ 	insert into mypark (usermail,parklat,parklng)
+ 	 values( #{usermail , jdbcType=VARCHAR}, #{parklat , jdbcType=VARCHAR}, #{parklng, jdbcType=VARCHAR} )
+
+</insert>
+
+<!--  나의 좋아하는 장소 -->
+<insert id="addMyfav" parameterType="lab.spring.parking.model.MyFavVO">
+	insert into myfav(usermail,favlat,favlng)
+	values(#{usermail},#{favlat},#{favlng})
+</insert>
+
+<select id="getAllMyplace" resultType="lab.spring.parking.model.MyFavVO">
+ 	select * from myfav 
+</select>
+<!--  나의 좋아하는 장소 삭제 -->
+<delete id="delMyfav" parameterType="lab.spring.parking.model.MyFavVO">
+	delete from myfav where favlat=${favlat}
+</delete>
+
+
+<!--나의 주차 위치 -->
+<select id="getMyPlace" resultType="lab.spring.parking.model.MyParkVO">
+	select * from mypark
+</select>
+
+<!--  나의 주차 위치 삭제 -->
+<delete id="delMypark" parameterType="lab.spring.parking.model.MyParkVO">
+	delete from mypark where parklat=${parklat}
+</delete>
+
+
+</mapper>
