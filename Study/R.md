@@ -1,4 +1,4 @@
-# R
+R
 
 - 데이터 분석을 위한 통계및 시각화를 지원하는 자유 소프트웨어 환경
 - R은 컴퓨터 언어이자 다양한 패키지 집합
@@ -439,6 +439,10 @@ Error in TRUE <- FALSE : invalid (do_set) left-hand side to assignment
 [1]  TRUE FALSE
 >  c(TRUE, TRUE) && c(TRUE, FALSE)
 [1] TRUE #앞에것만 비교하기때문에 TRUE)
+
+> x<-TRUE; y<-FALSE
+> xor(x,y)
+[1] TRUE
 ```
 
 ##### 날짜와 시간
@@ -831,11 +835,11 @@ In v1 + v2 :
 
 ```r
 ##집합연산함수(교집합, 합집합, 차집합, 부분집합, ..)
-#identical( 객체1, 객체2) 두객체의 데이터 갯수, 순서도 일치 하는지 FALSE,TRUE
+#identical( 객체1, 객체2) 두객체의 데이터 갯수, 순서도 일치 하는지  반환값 FALSE,TRUE
 #union( 객체1, 객체2) 중복을 뺀 모든 값
 #intersect(객체1, 객체2) 교집합
 #setdiff(객체1, 객체2) 객체 1와 2를 비교해 객체 1에만 있는 값을 반환
-#setequal(객체1, 객체2) 순서와 값이 일치한 것을 찾는다
+#setequal(객체1, 객체2) 값이 일치한 것을 찾는다 반환값은 False, TRUE
 
 > vec1 <- c(1, 2, 3, 4, 5)
 > vec2 <- c(10, 9, 8, 4, 5)
@@ -1635,6 +1639,8 @@ $c3[[3]]
 
 ##### as.numeric()함수는 numeric변환
 
+- matrix로 만드는 경우 모든 컬럼이 factor로 만들어 지므로 이를 방지하기 위해서 stringAsFactors라 한다.
+
 ```r
 > df1<-data.frame(sales1,stringsAsFactors = FALSE)
 > str(df1)
@@ -1827,6 +1833,9 @@ df2<-data.frame(x=c(1:5),
 ```
 
 ##### 두 데이터 프레인 객체의 요소를 병합
+
+- merge = 첫번째 열 기준으로 병합
+- join = ?
 
 ```r
 > print(df4)
@@ -2360,6 +2369,1408 @@ In read.table("./fruits.txt", header = T, stringsAsFactor = FALSE) :
 ```
 
 
+
+##### 저장 & 삭제
+
+- fruits.txt는 미리 아패의 표를 참고해 만들어 놓는다.
+
+```r
+> fruits <- read.table("./fruits.txt" ) 
+Warning message:
+In read.table("./fruits.txt") :
+  './fruits.txt'에서 readTableHeader에 의하여 발견된 완성되지 않은 마지막 라인입니다
+> print(fruits1)
+Error in print(fruits1) : object 'fruits1' not found
+> str(fruits)
+'data.frame':	5 obs. of  4 variables:
+ $ V1: Factor w/ 5 levels "1","2","3","4",..: 5 1 2 3 4
+ $ V2: Factor w/ 5 levels "apple","banana",..: 4 1 2 5 3
+ $ V3: Factor w/ 4 levels "200","50","500",..: 4 3 1 1 2
+ $ V4: Factor w/ 5 levels "2","5","7","9",..: 5 2 1 3 4
+> save(fruits,file="./output/fruits.RData")
+> rm(list=ls())
+```
+
+##### XML구조의 파일을 Read/Write
+
+- 먼저 emp.xml파일을 저장하고! xml 패키지를 설치해야한다.
+- **xmlParse()** 로 xml파일 저장!
+
+```r
+install.packages("XML")
+library(XML)
+> data2<-xmlParse(file="./emp.xml")
+> rootnode<-xmlRoot(data2)
+> print(rootnode)
+<RECORDS>
+  <EMPLOYEE>
+    <ID>1</ID>
+    <NAME>Rick</NAME>
+    <SALARY>623.3</SALARY>
+    <STARTDATE>1/1/2012</STARTDATE>
+    <DEPT>IT</DEPT>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <ID>2</ID>
+    <NAME>Dan</NAME>
+    <SALARY>515.2</SALARY>
+    <STARTDATE>9/23/2013</STARTDATE>
+    <DEPT>Operations</DEPT>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <ID>3</ID>
+    <NAME>Michelle</NAME>
+    <SALARY>611</SALARY>
+    <STARTDATE>11/15/2014</STARTDATE>
+    <DEPT>IT</DEPT>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <ID>4</ID>
+    <NAME>Ryan</NAME>
+    <SALARY>729</SALARY>
+    <STARTDATE>5/11/2014</STARTDATE>
+    <DEPT>HR</DEPT>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <ID>5</ID>
+    <NAME>Gary</NAME>
+    <SALARY>843.25</SALARY>
+    <STARTDATE>3/27/2015</STARTDATE>
+    <DEPT>Finance</DEPT>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <ID>6</ID>
+    <NAME>Nina</NAME>
+    <SALARY>578</SALARY>
+    <STARTDATE>5/21/2013</STARTDATE>
+    <DEPT>IT</DEPT>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <ID>7</ID>
+    <NAME>Simon</NAME>
+    <SALARY>632.8</SALARY>
+    <STARTDATE>7/30/2013</STARTDATE>
+    <DEPT>Operations</DEPT>
+  </EMPLOYEE>
+  <EMPLOYEE>
+    <ID>8</ID>
+    <NAME>Guru</NAME>
+    <SALARY>722.5</SALARY>
+    <STARTDATE>6/17/2014</STARTDATE>
+    <DEPT>Finance</DEPT>
+  </EMPLOYEE>
+</RECORDS> 
+> class(rootnode)
+[1] "XMLInternalElementNode" "XMLInternalNode"       
+[3] "XMLAbstractNode"       
+> str(rootnode)
+Classes 'XMLInternalElementNode', 'XMLInternalNode', 'XMLAbstractNode' <externalptr> 
+> 
+> rootsize<-xmlSize(rootnode)
+> print(rootsize)
+[1] 8
+> print(rootnode[1])
+$EMPLOYEE
+<EMPLOYEE>
+  <ID>1</ID>
+  <NAME>Rick</NAME>
+  <SALARY>623.3</SALARY>
+  <STARTDATE>1/1/2012</STARTDATE>
+  <DEPT>IT</DEPT>
+</EMPLOYEE> 
+
+attr(,"class")
+[1] "XMLInternalNodeList" "XMLNodeList"        
+> print(rootnode[[1]][[2]]);
+<NAME>Rick</NAME> 
+> print(rootnode[[1]][[3]]);
+<SALARY>623.3</SALARY> 
+> print(rootnode[[1]][[5]]);
+<DEPT>IT</DEPT> 
+> 
+> xmldataframe<-xmlToDataFrame("./emp.xml")
+> print(xmldataframe)
+  ID     NAME SALARY  STARTDATE       DEPT
+1  1     Rick  623.3   1/1/2012         IT
+2  2      Dan  515.2  9/23/2013 Operations
+3  3 Michelle    611 11/15/2014         IT
+4  4     Ryan    729  5/11/2014         HR
+5  5     Gary 843.25  3/27/2015    Finance
+6  6     Nina    578  5/21/2013         IT
+7  7    Simon  632.8  7/30/2013 Operations
+8  8     Guru  722.5  6/17/2014    Finance
+> str(xmldataframe)
+'data.frame':	8 obs. of  5 variables:
+ $ ID       : Factor w/ 8 levels "1","2","3","4",..: 1 2 3 4 5 6 7 8
+ $ NAME     : Factor w/ 8 levels "Dan","Gary","Guru",..: 6 1 4 7 2 5 8 3
+ $ SALARY   : Factor w/ 8 levels "515.2","578",..: 4 1 3 7 8 2 5 6
+ $ STARTDATE: Factor w/ 8 levels "1/1/2012","11/15/2014",..: 1 8 2 4 3 5 7 6
+ $ DEPT     : Factor w/ 4 levels "Finance","HR",..: 3 4 3 2 1 3 4 1
+> class(xmldataframe)
+[1] "data.frame"
+```
+
+
+
+##### JSON 데이터 Read/Write
+
+```json
+{ 
+   "ID": ["1","2","3","4","5","6","7","8" ],
+   "Name":["Rick","Dan","Michelle","Ryan","Gary","Nina","Simon","Guru" ],
+   "Salary":["623.3","515.2","611","729","843.25","578","632.8","722.5" ],
+   
+   "StartDate":[ "1/1/2012","9/23/2013","11/15/2014","5/11/2014","3/27/2015","5/21/2013",
+      "7/30/2013","6/17/2014"],
+   "Dept":[ "IT","Operations","IT","HR","Finance","IT","Operations","Finance"]
+}
+```
+
+- 를 emp.json으로 저장
+- rjoin패키지를 저장한다.
+
+```r
+install.packages("rjson")
+library()
+> rm(list=ls())
+> data1<-fromJSON(file="./emp.json")
+> print(data1)
+$ID
+[1] "1" "2" "3" "4" "5" "6" "7" "8"
+
+$Name
+[1] "Rick"     "Dan"      "Michelle" "Ryan"     "Gary"    
+[6] "Nina"     "Simon"    "Guru"    
+
+$Salary
+[1] "623.3"  "515.2"  "611"    "729"    "843.25" "578"    "632.8" 
+[8] "722.5" 
+
+$StartDate
+[1] "1/1/2012"   "9/23/2013"  "11/15/2014" "5/11/2014" 
+[5] "3/27/2015"  "5/21/2013"  "7/30/2013"  "6/17/2014" 
+
+$Dept
+[1] "IT"         "Operations" "IT"         "HR"        
+[5] "Finance"    "IT"         "Operations" "Finance"   
+
+> str(data1)
+List of 5
+ $ ID       : chr [1:8] "1" "2" "3" "4" ...
+ $ Name     : chr [1:8] "Rick" "Dan" "Michelle" "Ryan" ...
+ $ Salary   : chr [1:8] "623.3" "515.2" "611" "729" ...
+ $ StartDate: chr [1:8] "1/1/2012" "9/23/2013" "11/15/2014" "5/11/2014" ...
+ $ Dept     : chr [1:8] "IT" "Operations" "IT" "HR" ...
+> emp.dataframe<-as.data.frame(data1)
+> print(emp.dataframe)
+  ID     Name Salary  StartDate       Dept
+1  1     Rick  623.3   1/1/2012         IT
+2  2      Dan  515.2  9/23/2013 Operations
+3  3 Michelle    611 11/15/2014         IT
+4  4     Ryan    729  5/11/2014         HR
+5  5     Gary 843.25  3/27/2015    Finance
+6  6     Nina    578  5/21/2013         IT
+7  7    Simon  632.8  7/30/2013 Operations
+8  8     Guru  722.5  6/17/2014    Finance
+> str(emp.dataframe)
+'data.frame':	8 obs. of  5 variables:
+ $ ID       : Factor w/ 8 levels "1","2","3","4",..: 1 2 3 4 5 6 7 8
+ $ Name     : Factor w/ 8 levels "Dan","Gary","Guru",..: 6 1 4 7 2 5 8 3
+ $ Salary   : Factor w/ 8 levels "515.2","578",..: 4 1 3 7 8 2 5 6
+ $ StartDate: Factor w/ 8 levels "1/1/2012","11/15/2014",..: 1 8 2 4 3 5 7 6
+ $ Dept     : Factor w/ 4 levels "Finance","HR",..: 3 4 3 2 1 3 4 1
+
+#txt파일 json으로 저장하기~
+
+> fruits1<-read.table("./fruits.txt",header=T,stringsAsFactor=FALSE)
+Warning message:
+In read.table("./fruits.txt", header = T, stringsAsFactor = FALSE) :
+  './fruits.txt'에서 readTableHeader에 의하여 발견된 완성되지 않은 마지막 라인입니다
+> print(fruits1)
+  no   name price qty
+1  1  apple   500   5
+2  2 banana   200   2
+3  3  peach   200   7
+4  4  berry    50   9
+> str(fruits1)
+'data.frame':	4 obs. of  4 variables:
+ $ no   : int  1 2 3 4
+ $ name : chr  "apple" "banana" "peach" "berry"
+ $ price: int  500 200 200 50
+ $ qty  : int  5 2 7 9
+> class(fruits1)
+[1] "data.frame"
+> result<-toJSON(fruits1)
+> print(fruits1)
+  no   name price qty
+1  1  apple   500   5
+2  2 banana   200   2
+3  3  peach   200   7
+4  4  berry    50   9
+> str(fruits1)
+'data.frame':	4 obs. of  4 variables:
+ $ no   : int  1 2 3 4
+ $ name : chr  "apple" "banana" "peach" "berry"
+ $ price: int  500 200 200 50
+ $ qty  : int  5 2 7 9
+> write(result,"./output/fruits.json")
+> list.files("./output/")
+[1] "fruits.json"   "fruits.RData"  "itperson.csv" 
+[4] "itperson.xlsx"
+```
+
+##### HTML
+
+- httr패키지는 지정한 url의 HTMl의 소스를 가져오는 GET() 함수를 제공
+- < table>태그의 내용을 읽어올 수 있는 readHTMLTable()함수 제공
+- readHTMLTable()에 사용되는 속성 
+  - get_url$content  : GET(url)함수에 의해서 가져온 HTML소스의 내용
+  - rawToChar() : 바이너리(binary) 소스를 HTML 태그로 변환
+  - stringsAsFactors = F : 문자열을 요인으로 처리하지 않고 순수한 문자열로 가져오기
+
+```r
+install.packages("httr")
+library("httr")
+> url<-"https://ssti.org/blog/useful-stats-capita-personal-income-state-2010-2015"
+> get_url<-GET(url)
+> html_cont<-readHTMLTable(rawToChar(get_url$content),stringsAsFactor=F)
+> str(html_cont)
+List of 1
+ $ NULL:'data.frame':	52 obs. of  7 variables:
+  ..$ State: Factor w/ 52 levels "Alabama","Alaska",..: 45 1 2 3 4 5 6 7 8 9 ...
+  ..$ 2010 : Factor w/ 52 levels "$30,783","$31,991",..: 32 9 46 10 2 38 35 51 34 52 ...
+  ..$ 2011 : Factor w/ 52 levels "$31,976","$33,544",..: 29 9 46 10 3 40 38 51 32 52 ...
+  ..$ 2012 : Factor w/ 52 levels "$33,127","$34,846",..: 29 8 45 10 9 41 38 51 32 52 ...
+  ..$ 2013 : Factor w/ 52 levels "$33,629","$35,163",..: 30 7 44 10 8 41 38 51 32 52 ...
+  ..$ 2014 : Factor w/ 52 levels "$34,431","$36,132",..: 31 7 44 10 9 41 38 51 32 52 ...
+  ..$ 2015 : Factor w/ 52 levels "$35,444","$37,047",..: 31 6 46 9 10 42 38 51 30 52 ...
+> class(html_cont)
+[1] "list"
+
+
+> html_cont<-as.data.frame(html_cont)
+> head(html_cont)
+     NULL.State NULL.2010 NULL.2011 NULL.2012 NULL.2013 NULL.2014
+1 United States   $40,277   $42,453   $44,266   $44,438   $46,049
+2       Alabama   $34,073   $35,202   $36,036   $36,176   $37,512
+3        Alaska   $47,773   $50,552   $52,269   $51,259   $54,012
+4       Arizona   $34,185   $35,675   $36,788   $36,723   $37,895
+5      Arkansas   $31,991   $33,961   $36,291   $36,529   $37,782
+6    California   $42,411   $44,852   $47,614   $48,125   $49,985
+  NULL.2015
+1   $47,669
+2   $38,965
+3   $55,940
+4   $39,060
+5   $39,107
+6   $52,651
+> str(html_cont)
+'data.frame':	52 obs. of  7 variables:
+ $ NULL.State: Factor w/ 52 levels "Alabama","Alaska",..: 45 1 2 3 4 5 6 7 8 9 ...
+ $ NULL.2010 : Factor w/ 52 levels "$30,783","$31,991",..: 32 9 46 10 2 38 35 51 34 52 ...
+ $ NULL.2011 : Factor w/ 52 levels "$31,976","$33,544",..: 29 9 46 10 3 40 38 51 32 52 ...
+ $ NULL.2012 : Factor w/ 52 levels "$33,127","$34,846",..: 29 8 45 10 9 41 38 51 32 52 ...
+ $ NULL.2013 : Factor w/ 52 levels "$33,629","$35,163",..: 30 7 44 10 8 41 38 51 32 52 ...
+ $ NULL.2014 : Factor w/ 52 levels "$34,431","$36,132",..: 31 7 44 10 9 41 38 51 32 52 ...
+ $ NULL.2015 : Factor w/ 52 levels "$35,444","$37,047",..: 31 6 46 9 10 42 38 51 30 52 ...
+> class(html_cont)
+[1] "data.frame"
+
+> names(html_cont)<-c("State","y2010","y2011","y2012","y2013","y2014","y2015")
+> tail(html_cont)
+           State   y2010   y2011   y2012   y2013   y2014   y2015
+47       Vermont $40,066 $42,735 $44,287 $44,839 $46,428 $47,864
+48      Virginia $45,412 $47,689 $49,320 $48,956 $50,345 $52,136
+49    Washington $42,821 $44,800 $47,344 $47,468 $49,610 $51,146
+50 West Virginia $32,104 $34,211 $35,374 $35,163 $36,132 $37,047
+51     Wisconsin $38,815 $40,837 $42,463 $42,737 $44,186 $45,617
+52       Wyoming $44,846 $49,140 $52,154 $51,791 $54,584 $55,303
+
+
+```
+
+##### sink() 
+
+- 작업한 모든 내용 파일에 저장
+
+```r
+sink("./output/process1.txt")#시작! 파일 저장 위치 지정한다.!
+url<-"https://ssti.org/blog/useful-stats-capita-personal-income-state-2010-2015"
+get_url<-GET(url)
+html_cont<-readHTMLTable(rawToChar(get_url$content),stringsAsFactor=F)
+str(html_cont)
+class(html_cont)
+html_cont<-as.data.frame(html_cont)
+head(html_cont)
+str(html_cont)
+class(html_cont)
+sink()#close! 
+#결과값이 console에 뜨지않고 파일에 저장된다. 
+
+```
+
+#####  저장시 행번호 따옴표 제거!(row.names, quote)
+
+```r
+library(xlsx) #없으면 설치후 실행
+> studentx<-read.xlsx(file.choose(),sheetIndex = 1, encoding="UTF-8")
+> print(studentx)
+  학번   이름 성적 평가
+1  101 홍길동   80    B
+2  102 이순신   95   A+
+3  103 강감찬   78   C+
+4  104 유관순   85   B+
+5  105 김유신   65   D+
+> str(studentx)
+'data.frame':	5 obs. of  4 variables:
+ $ 학번: num  101 102 103 104 105
+ $ 이름: Factor w/ 5 levels "강감찬","김유신",..: 5 4 1 3 2
+ $ 성적: num  80 95 78 85 65
+ $ 평가: Factor w/ 5 levels "A+","B","B+",..: 2 1 4 3 5
+> class(studentx)
+[1] "data.frame"
+> write.table(studentx,'./output/std.txt') # 행번호, 따옴표 출력?
+> write.table(studentx,"./output/st2.txt",row.names = FALSE,quote=FALSE)
+```
+
+
+
+std
+
+```
+"?й?" "?̸?" "????" "????"
+"1" 101 "ȫ?浿" 80 "B"
+"2" 102 "?̼???" 95 "A+"
+"3" 103 "??????" 78 "C+"
+"4" 104 "��????" 85 "B+"
+"5" 105 "??��??" 65 "D+"
+
+```
+
+st2.txt
+
+- 위의 파일과는 다르게 아래의 결과는 따옴표와 행번호가 사라진 것을 알 수 있다.
+
+```
+?й? ?̸? ???? ????
+101 ȫ?浿 80 B
+102 ?̼??? 95 A+
+103 ?????? 78 C+
+104 ��???? 85 B+
+105 ??��?? 65 D+
+
+```
+
+## 조건문
+
+##### if(조건식){참인경우 처리문} else{거짓인 경우 처리문}
+
+```r
+> x<-3
+> y<-5
+> if(x*y>=30){
++   cat("x*y의 결과는 30이상입니다.\n")
++ }else{
++   cat("x*y의 결과는 30미만입니다.\n")
++ }
+x*y의 결과는 30미만입니다.
+
+#사용자로부터 표준입력으로 점수를 입력받아서 학점을 출력
+#if(조건){실행문} else if(조건){실행문장}...else{실행문장}
+> score<-scan()
+1: 60
+2: 
+Read 1 item
+> if(score>=90){
++   cat("A")
++ }else if(score>=80){
++   cat("B")
++ }else if(score>=70){
++   cat("C")
++ }else if(score>=60){
++   cat("D")
++ }else {
++   cat("F")
++ }
+D
+```
+
+
+
+##### ifelse(조건식, 참인 경우 처리문, 거짓인 경우 처리문)
+
+```r
+#사용자로부터 표준입력으로 점수를 입력 받아 짝수 인지, 홀수인지!
+> score1<-scan()
+1: 3
+2: 
+Read 1 item
+> ifelse(score1%%2==0,"짝수","홀수")
+[1] "홀수"
+```
+
+
+
+##### switch (비교문, 실행문1, 실행문2, 실행문3) : 비교 문장의 내용에 따라서 여러 개의 실행 문장 중 하나를 선택
+
+```r
+#switch(비교문, 실행문1, 실행문 2, 실행문 3....)
+# 비교문의 변수의 값이 실행문에 있는 변수와 일치할때, 해당 변수에 할당된 값이 출력
+
+> ename<-scan(what="")
+1: park
+2: 
+Read 1 item
+> switch(ename,hong=250,lee=300,park=350,kim=200)
+[1] 350
+
+```
+
+
+
+##### which(조건)  : 벡터 객체를 대상으로 특정 데이터를 검색하는데 사용되는 함수
+
+- which() 함수의 인수로 사용되는 조건식에 만족하는 경우 벡터 원소의 위치(인덱스)가 출력되며, 조건식이 거짓이면 0이 출력된다.
+
+```r
+> names<-c("kim","lee","choi","park")
+> which(names=="choi")
+[1] 3
+> no<-c(1:5)
+> name<-c("홍길동","이순신","강감찬","유관순","김유신")
+> score<-c(85,90,78,74,80)
+> exam<-data.frame(학번=no,이름=name,성적=score)
+> ?which
+> print(exam[which(exam$이름=="유관순"),])
+  학번   이름 성적
+4    4 유관순   74
+```
+
+
+
+##### for(변수 in 변수) {실행문} : 지정한 횟수만큼 실행문을 반복 수행
+
+```r
+> i<-c(1:10)
+> for(n in i){
++   if(n%%2==0) print(n)
++ }
+[1] 2
+[1] 4
+[1] 6
+[1] 8
+[1] 10
+
+
+> for( n in i) {
++   if(n%%2==1) {
++     next
++   }else{
++     print(n) 
++   }
++ }
+[1] 2
+[1] 4
+[1] 6
+[1] 8
+[1] 10
+#데이터 프레임에서 컬럼명 추출, 출력
+> name<-c(names(exam))
+> for(n in name)
++   print(n)
+[1] "학번"
+[1] "이름"
+[1] "성적"
+```
+
+
+
+##### while(조건) { 실행문 }
+
+```r
+#while문으로 짝수 출력
+> l<-0
+> while(l<10){
++   l<-l+1
++   if(l%%2==0) print(l)
++ }
+[1] 2
+[1] 4
+[1] 6
+[1] 8
+[1] 10
+```
+
+## 함수: 코드의 집합
+
+- `함수명 <- function(매개변수){실행문}`
+
+##### 매개변수 없는 함수
+
+```r
+> f1<-function(){
++   cat("매개변수 없는 합수")
++ }
+> f1()
+매개변수 없는 합수
+```
+
+##### 매개변수가 있는 함수
+
+```r
+> f2<- function(x){
++   if(x%%2==0){
++     print(x)
++ }}
+> f2(4)
+[1] 4
+
+> f3<-function(a,b){
++   add<-a+b
++   return(add)
++ }
+> result<-f3(11,4)
+> print(result)
+[1] 15
+```
+
+##### repeat{반복 수행문장:반복문 탈출할 조건문 ;증감식}
+
+```r
+i<-0
+> repeat{
++   
++   if(i==10){
++     break
++   } 
++   i<-i+1
++   if(i%%2==0){
++     print(i)
++   } 
++ }
+[1] 2
+[1] 4
+[1] 6
+[1] 8
+[1] 10
+```
+
+##### 결과 반환 함수
+
+- return
+
+```r
+#함수 정의하시오 (매개변수는 정수1개, 매개변수가 0이면 0을 반환
+0이 아니면 매개변수의 2배의 값 반환)
+> f4<-function(x){
++   if(x==0){
++     return(0)
++   }else{
++     return(2%*%x)
++   }
++ }
+> print(f4(0))
+[1] 0
+> print(f4(3))
+     [,1]
+[1,]    6
+> print(f4(-3))      
+     [,1]
+[1,]   -6
+
+
+#함수를 정의하시오!(첫번째 매개변수는 벡터객체, 두번째 매개변수는 함수 타입-mean,sum,median을 문자열로 입력 받아 mean인경우 벡터의 평균 반환, sum은 벡터 요소의 합계 반환)
+> f5<-function(x,y){
++   if(y=="sum"){
++     return(sum(x))
++   }else if(y=="mean"){
++     return(mean(x))
++   }else if(y=="median"){
++     return(median(x))
++   }
++ }
+> nums<-(1:5)
+> f5(nums,"sum")
+[1] 15
+> f5(nums,"mean")
+[1] 3
+> f5(nums,"median")
+[1] 3
+#또다른 방법!
+> f5<-function(v,type){
++   switch(type,mean=mean(v),sum=sum(v),median=median(v))
++ }
+> print(f5(nums,"mean"))
+[1] 5.5
+> print(f5(nums,"sum"))
+[1] 55
+> print(f5(nums,"median"))
+[1] 5.5
+```
+
+##### 함수 내부에 함수 정의(내부 함수는 외부에서 호출 불가!)
+
+```r
+> outer<-function(x,y){
++   print(x)
++   inner<-function(y){
++     print(y*2)
++   }
++   inner(y)
++ }
+> print(outer(3,7))
+[1] 3
+[1] 14
+[1] 14
+> print(inner(7))
+Error in inner(7) : could not find function "inner"
+> str(outer)
+function (x, y)  
+ - attr(*, "srcref")= 'srcref' int [1:8] 1 8 7 1 8 1 1 7
+  ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x000000001a417ae0> 
+
+#내부함수는 외부에서 호출시 오류 뜨는 것을 확인한다!
+
+
+> callee<-function(x){
++   print(x*2)
++ }
+> caller<-function(v,call){
++   for(i in v){
++     call(i)
++   }
++ }
+> print(caller(1:5,callee))
+[1] 2
+[1] 4
+[1] 6
+[1] 8
+[1] 10
+NULL
+```
+
+#####  전역변수, 글로벌 변수, 로컬 변수
+
+```r
+> g<-"global" # 전역 변수, 글로벌 변수
+> f6<-function(){
++   loc<-"local" # 로컬 변수
++   print(loc)
++   print(g)
++ }
+> f6()
+[1] "local"
+[1] "global"
+> print(g)
+[1] "global"
+> print(loc)
+Error in print(loc) : object 'loc' not found
+# 즉 로컬 변수는 부르는 것 에러! 왜냐 로컬 변수이기 때문!
+```
+
+##### R에서 변수 검색 Scope 순서
+
+- 함수 내부에서 검색=> 전역 메모리에서 검색 => 에러 발생
+
+```r
+> g1<-1000 # 전역 변수
+> f7<-function(){
++   g1<-100  # 로컬 변수 (로컬 변수 새로 만드는 것)
++   print(g1)
++ }
+> f7()
+[1] 100  # 로컬 변수!
+> print(g1)
+[1] 1000 # 전역 변수가 결과로!
+
+
+> f7<-function(){
++   g1<<-200 # <<- 하면 전역 변수 참조 ! 그렇기에 외부 호출 가능!
++   print(g1)
++ }
+> f7()
+[1] 200
+> print(g1)
+[1] 200
+
+
+
+
+
+```
+
+##### 클로저!
+
+```r
+
+> f8<-function(num1){
++   loc<-num1
++   return(function(num2){
++     return (loc+num2)# 클로저
++   })
++ }
+> result.function<-f8(100)  #함수 리턴
+> str(result.function)
+function (num2)  # 원래는 가비지 컬렉터에 삭제되어야 하는데 return으로 인하여 삭제가 안된다 이것이 바로 클로저!
+ - attr(*, "srcref")= 'srcref' int [1:8] 3 10 5 3 10 3 3 5
+  ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x0000000011721ec8> 
+> result.function(200)
+[1] 300
+
+
+```
+
+##### 위치기반, 이름 기반 파라미터 전달 방식
+
+```r
+
+> f9<-function(a,b,c){
++   result<-max(c(a,b,c))
++   print(result)
++ }
+> 
+> f9(5,3,11) #위치기반 파라미터 전달
+[1] 11
+> f9(c=5,a=3,b=11)
+[1] 11 #이름기반으로 파라미터 전달
+
+> f10<-function(a=3,b=6){
++   result<-a*b
++   print(result)
++ }
+> f10()
+[1] 18
+> f10(9,5)
+[1] 45
+> f10(5) #a값이 바뀐다!
+[1] 30
+```
+
+## 결측치가 포함된 데이터를 대상으로 평균 구하기
+
+##### 결측치를 무조건 제거한 후 평균 구하기=>데이터 손실 발생
+
+```r
+> data<-c(10,20,5,4,40,7,NA,6,3,NA,2,NA)
+> print(data)
+ [1] 10 20  5  4 40  7 NA  6  3 NA  2 NA
+> mean(data,na.rm=T)
+[1] 10.77778
+
+```
+
+##### 결측치 0으로 대체후 평균 구하기
+
+```r
+> data1=ifelse(is.na(data),0,data)
+> print(data1)
+ [1] 10 20  5  4 40  7  0  6  3  0  2  0
+> print(mean(data1))
+[1] 8.083333
+```
+
+##### 결측치를 전체 변량의 평균으로 대체하여 구하기
+
+```r
+> data2=ifelse(is.na(data),round(mean(data,na.rm=T),2),data)
+> print(data2)
+ [1] 10.00 20.00  5.00  4.00 40.00  7.00 10.78  6.00  3.00 10.78
+[11]  2.00 10.78
+> print(mean(data2))
+[1] 10.77833
+```
+
+## 몬테카를로 시뮬레이션
+
+- 몬테 카를로 시뮬레이션은 현실적으로 불가능한 문제의 해답을 얻기 위해서 난수의 확률 분포를 이용하여  모의시험으로 근사적 해를 구하는 기법
+
+* 동전 앞면과 뒷면의 난수 확률분포의 기대확률 모의시험 - 일정한 시행 횟수 이하이면 기대확률이 나타나지 않지만, 시행 횟수를 무수히 반복하면 동전 앞면과 뒷면의 기대확률은 0.5에 가까워진다.
+
+```r
+> coin<-function(n){
++   r<-runif(n,min=0,max=1)
++   result<-numeric()
++   for(i in 1:n){
++     if(r[i]<=0.5 )
++       result[i]<-0 #앞면이라 하든 뒤면이라 하든?
++     else
++       result[i]<-1# 뒷면
++   }
++   return(result)
++ }
+> coin(10)
+ [1] 1 0 1 0 1 0 1 0 1 0
+> coin(10)
+ [1] 1 1 1 1 0 0 0 1 0 0
+> coin(10)
+ [1] 0 1 1 1 1 0 0 1 1 0
+
+
+
+# 몬테카를로 시뮬레이션
+> monteCoin<-function(n){
++   cnt<-0
++   for(i in 1:n){
++     cnt<-cnt+coin(1)
++     
++   }
++   result<-cnt /n #동전 앞면과 뒷변의 누적 결과를 시행횟수(n)으로
++   return (result)
++ }
+> monteCoin(10)
+[1] 0.5
+> monteCoin(30)
+[1] 0.4
+> monteCoin(100)
+[1] 0.47
+> monteCoin(1000)
+[1] 0.521
+> monteCoin(100000)
+[1] 0.5009
+```
+
+
+
+## 기술 통계량 처리 관련 내장함수
+
+- min(vec) 
+- max(vec)
+- range(vec) : 대상 벡터 범위값 반환(최소값~최대값)
+- mean(vec) :평균
+- median(vec) : 중앙값
+- sum(vec)
+- sort(x)
+- order(x) : 벡터의 정렬된 값의 색인(index)을 보여주는 함수
+- rank(x): 순위
+- sd(x): 표준편차
+- summary(x) : 기초 통계량(최소값, 등등 다양한것을 한방에)
+- table(x): 빈도수
+- sample(x, y) : x 범위에서 y만큼 sample 데이터를 생성하는 함수
+
+```r
+> t1<-rep(1:5,3)
+> min(t1)
+[1] 1
+> max(t1)
+[1] 5
+> range(t1)
+[1] 1 5
+> mean(t1)
+[1] 3
+> median(t1)
+[1] 3
+> sum(t1)
+[1] 45
+> sort(t1, decreasing=T) # 내림차순 정렬
+ [1] 5 5 5 4 4 4 3 3 3 2 2 2 1 1 1
+> order(t1) # 벡터의 정렬된 값의 색인(index)를 보여주는 함수
+#order는 첫 번째 인수를 오름차순 또는 내림차순으로 재정렬하여 추가 인수로 연결을 끊는 순열을 반환합니다. sort.list는 하나의 인수 만 사용하여 동일합니다. 가 번역 결과.....???? 1의 위치는 1, 6, 11에 있따는 뜻! 2의 위치는 2, 7, 12에 있다.
+ [1]  1  6 11  2  7 12  3  8 13  4  9 14  5 10 15
+> rank(t1) # 랭킹으로 동률의 경우 111 이므로 1,3 사이 2 등으로
+ [1]  2  5  8 11 14  2  5  8 11 14  2  5  8 11 14
+> t2<-rep(1:5,4)
+> rank(t2) # 랭킹으로 1111 임으로 2,3등 사이의 값 2.5등으로 순위 매김
+ [1]  2.5  6.5 10.5 14.5 18.5  2.5  6.5 10.5 14.5 18.5  2.5  6.5
+[13] 10.5 14.5 18.5  2.5  6.5 10.5 14.5 18.5
+> sd(t1)
+[1] 1.46385
+> summary(t1)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      1       2       3       3       4       5 
+> table(t1) # 빈도수
+t1
+1 2 3 4 5 
+3 3 3 3 3 
+> sample(t1) # 조건 범위 없으면 길이만큼 생성
+ [1] 4 5 4 2 4 5 2 5 1 1 3 3 1 3 2
+> sample(t1,3) # 조건 있을때 조건까지!
+[1] 2 5 2
+> sample(t1,6)
+[1] 5 4 3 4 1 1
+```
+
+## 정규분포 난수 생성
+
+##### 정규분포(연속형)의 난수 형성 rnorm()
+
+- rnorm(생성할 난수 개수, mean, sd)
+
+```r
+> n<-1000
+> result<-rnorm(n,mean=0,sd=1)
+> head(result,20)
+ [1] -0.518659626  0.938813507  0.007800052  1.808197167
+ [5] -2.649674144 -2.019918350 -0.835722937 -0.228234248
+ [9]  0.608099010 -0.316254947  1.609989420 -0.963842402
+[13]  0.341010981 -0.449625764  0.356989934  0.177982723
+[17] -0.087677888  0.481810570 -0.248678607  0.951131529
+> hist(result) # 정규분포 모양이 나와야 한다.
+```
+
+![1568009199249](R.assets/1568009199249.png)
+
+```r
+> rnorm(5,mean=0,sd=1)
+[1]  1.7150650  0.4609162 -1.2650612 -0.6868529 -0.4456620
+> rnorm(5,mean=0,sd=1)
+[1]  1.2240818  0.3598138  0.4007715  0.1106827 -0.5558411
+> set.seed(123)
+> rnorm(5,mean=0,sd=1)
+[1] -0.56047565 -0.23017749  1.55870831  0.07050839  0.12928774
+> set.seed(123)
+> rnorm(5,mean=0,sd=1)
+[1] -0.56047565 -0.23017749  1.55870831  0.07050839  0.12928774
+
+# 종자값(seed값이 같으면 난수 값도 같다!)
+```
+
+
+
+##### runif() 균등분포(연속형)의 난수 생성
+
+- runif(생성할 난수 개수, min, max)
+- seed값을 지정하면 동일한 난수 생성 가능
+
+```r
+> n<-1000
+> result<-runif(n)
+> head(result,20)
+ [1] 0.04453188 0.34214735 0.92420083 0.33026058 0.01750387
+ [6] 0.19461313 0.21369865 0.91756156 0.22675083 0.74739860
+[11] 0.89994065 0.57883024 0.27558441 0.50661237 0.88952514
+[16] 0.75827029 0.34839508 0.55427779 0.86370888 0.29365959
+> hist(result)
+```
+
+![1568009431857](R.assets/1568009431857.png)
+
+#####  rbinom() 이산변량(정수형)을 갖는 정규분포의 난수 생성
+
+- seed값을 지정하면 동일한 난수 생성 가능
+- rbinom()은 독립적인 반복 횟수와 변량의 크기, 확률을 적용
+
+```r
+> n<-20
+> rbinom(n,1,prob=1/2) #0,1의 이산변량을 0.5확률로 20개 난수 생성
+ [1] 0 1 1 1 1 0 0 1 0 1 0 1 0 1 1 1 0 1 1 1 #난수 20 개 생성 확인
+> rbinom(n,2,prob=1/2) #0,1,2의 이산변량을 0.5확률로 20개 난수 생성
+ [1] 1 2 0 2 2 2 0 1 1 1 0 0 1 1 1 1 1 1 2 1
+> rbinom(n,10,prob=1/2)#1~10의 이산변량을 0.5확률로 20개 난수 생성
+ [1] 4 7 3 5 2 4 3 5 7 2 6 5 5 4 6 2 4 4 7 5
+> n<-1000
+> result<-rbinom(n,5,prob=1/6)
+> head(result,20)
+ [1] 2 1 1 0 0 0 0 3 1 0 2 0 1 1 0 0 1 0 1 2
+> hist(result)
+```
+
+![1568010170067](R.assets/1568010170067.png)
+
+## 수학관련 내장 함수
+
+- abs(x)
+- sqrt(x)
+- ceiling(x), floor(x), round()
+- factorial(x)
+- which.min(x) / which.max(x) : 벡터 내 최소값과 최대값의 인덱스를 구하는 함수
+- pmin(x) /pmax(x) : 여러 벡터에서의 원소 단위 최소값과 최대값
+- prod() : 벡터의 원소들의 곱을 구하는 함수
+- cumsum() / cumprod() : 벡터의 원소들의 누적합과 누적곱을 구하는 함수
+- cos(x), sin(x), tan(x)  : 삼각함수
+- log(x) : 자연로그
+- log10(x) : 10을 밑으로 하는 일반로그 함수
+- exp(x) : 지수함수
+
+```r
+> x<-rep(1:5,3)
+> abs(x)
+ [1] 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5
+> sqrt(x)
+ [1] 1.000000 1.414214 1.732051 2.000000 2.236068 1.000000
+ [7] 1.414214 1.732051 2.000000 2.236068 1.000000 1.414214
+[13] 1.732051 2.000000 2.236068
+> ceiling(x)
+ [1] 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5
+> floor(x)
+ [1] 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5
+> round(x)
+ [1] 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5
+> factorial(x)
+ [1]   1   2   6  24 120   1   2   6  24 120   1   2   6  24 120
+> which.min(x) 
+[1] 1
+> which.max(x) 
+[1] 5
+> pmin(x) /pmax(x) 
+ [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+> prod(x) 
+[1] 1728000
+> cumsum(x) 
+ [1]  1  3  6 10 15 16 18 21 25 30 31 33 36 40 45
+>  cumprod(x) 
+ [1]       1       2       6      24     120     120     240
+ [8]     720    2880   14400   14400   28800   86400  345600
+[15] 1728000
+> cos(x)
+ [1]  0.5403023 -0.4161468 -0.9899925 -0.6536436  0.2836622
+ [6]  0.5403023 -0.4161468 -0.9899925 -0.6536436  0.2836622
+[11]  0.5403023 -0.4161468 -0.9899925 -0.6536436  0.2836622
+> sin(x)
+ [1]  0.8414710  0.9092974  0.1411200 -0.7568025 -0.9589243
+ [6]  0.8414710  0.9092974  0.1411200 -0.7568025 -0.9589243
+[11]  0.8414710  0.9092974  0.1411200 -0.7568025 -0.9589243
+> tan(x)  
+ [1]  1.5574077 -2.1850399 -0.1425465  1.1578213 -3.3805150
+ [6]  1.5574077 -2.1850399 -0.1425465  1.1578213 -3.3805150
+[11]  1.5574077 -2.1850399 -0.1425465  1.1578213 -3.3805150
+> log(x) 
+ [1] 0.0000000 0.6931472 1.0986123 1.3862944 1.6094379 0.0000000
+ [7] 0.6931472 1.0986123 1.3862944 1.6094379 0.0000000 0.6931472
+[13] 1.0986123 1.3862944 1.6094379
+> log10(x) 
+ [1] 0.0000000 0.3010300 0.4771213 0.6020600 0.6989700 0.0000000
+ [7] 0.3010300 0.4771213 0.6020600 0.6989700 0.0000000 0.3010300
+[13] 0.4771213 0.6020600 0.6989700
+> exp(x) 
+ [1]   2.718282   7.389056  20.085537  54.598150 148.413159
+ [6]   2.718282   7.389056  20.085537  54.598150 148.413159
+[11]   2.718282   7.389056  20.085537  54.598150 148.413159
+```
+
+## 행렬 연산 관련 내장 함수
+
+- ncol(x) : x의 열(컬럼) 수를 구하는 함수
+- nrow(x) : x의 행 수를 구하는 함수
+- t(x) : x 대상의 전치행렬을 구하는 함수
+- cbind(...) : 열을 추가할 때 이용되는 함수
+- rbind(...) : 행을 추가할 때 이용되는 함수
+- diag(x) : x의 대각행렬을 구하는 함수
+- det(x) : x의 행렬식을 구하는 함수
+- apply(x, m, fun) :  행 또는 열에 지정된 함수를 적용하는 함수
+- solve(x) : x의 역행렬을 구하는 함수
+- eigen(x) : 정방행렬을 대상으로 고유값을 분해하는 함수
+- svd(x) : m x n 행렬을 대상으로 특이값을 분해하는 함수
+- x %*% y : 두 행렬의 곱을 구하는 수식
+
+## 데이터구조 분석 (그래프)
+
+- 데이터 분석의 도입부 : 전체적인 데이터의 구조를 분석하거나 분석 방향을 제시
+
+- 데이터 분석의 중반부 : 잘못된 처리 결과를 확인
+
+- 데이터 분석의 후반부 : 분석결과를 도식화하여 의사결정에 반영하기 위해서 데이터를 시각화
+
+- 이산변수로 구성된 데이터 셋을 이용하여 막대, 점, 원형 차트를 그릴 수 있다.
+
+- 연속변수로 구성된 데이터프레임을 대상으로 히스토그램과 산점도를 그릴 수 있다.
+
+- 데이터 분석의 도입부에서 전체적인 데이터의 구조를 살펴보기 위해서 시각화 도구를 사용한다.
+
+  > 숫자형 컬럼 1개 시각화 도구 - hist, plot, barplot
+  >
+  > 범주형 컬럼 1개 시각화 도구 - pie, barplot (여자, 남자, 대중소 등)
+  >
+  > 숫자형 컬럼 2개 시각화 도구 - plot, abline, boxplot(x,y축을 나뉘는 것)
+  >
+  > 숫자형 컬럼 3개 시각화 도구 - scatterplot3d(3차원 산점도)
+  >
+  > n개의 컬럼 시각화 도구 - pairs(산점도 매트릭스)
+
+- 이산변수(discrete  quantitative data)- 정수 단위로 나뉘어 측정할 수 있다.
+  - barplot()-기본적으로 세로 막대 차트 제공
+  - ylim(y축 범위), col(막대 색상) , main(제목)
+
+## 그래프 그리기 barplot()
+
+```r
+> chart_data<-c(305,450,320,400,330,480,380,520)
+> names(chart_data)<-c("2014 1분기",  "2015 1분기"
++                     , "2014 2분기","2015 2분기"
++                     , "2014 3분기","2015 3분기"
++                     , "2014 4분기","2015 4분기")
+> str(chart_data)
+ Named num [1:8] 305 450 320 400 330 480 380 520
+ - attr(*, "names")= chr [1:8] "2014 1분기" "2015 1분기" "2014 2분기" "2015 2분기" ...
+> print(chart_data)
+2014 1분기 2015 1분기 2014 2분기 2015 2분기 2014 3분기 2015 3분기 
+       305        450        320        400        330        480 
+2014 4분기 2015 4분기 
+       380        520 
+> barplot(chart_data,ylim=c(0,600),col=rainbow(8),
++         main="2014년도 VS 2015년도 분기별 매출현황 비교",
++         ylab="매출액(단위:만원)",xlab="년도별 분기현환")
+```
+
+![1568011864902](R.assets/1568011864902.png)
+
+##### 가로막대 차트( horiz=TRUE)
+
+
+
+```r
+barplot(chart_data, ylim=c(0, 10), horiz=TRUE,  col=rainbow(8), ## 혹은 ylim삭제
+        main="2014년도 VS 2015년도 분기별 매출현황 비교",
+        ylab="매출액(단위:만원)", xlab="년도별 분기현황")
+```
+
+![1568012938079](R.assets/1568012938079.png)
+
+##### 막대의 굵기와 간격 설정 : space
+
+- space(값이 클수록 막대의 굵기는 작아진다.)
+- 축 이름 크기 설정 : cex.names
+
+```r
+barplot(chart_data, ylim=c(0, 600), horiz=TRUE, ## 혹은 ylim삭제
+       main="2014년도 VS 2015년도 분기별 매출현황 비교",
+        ylab="매출액(단위:만원)", xlab="년도별 분기현황"
+        , space=2, cex.names=0.8, col=rep(c(2, 4), 4))
+```
+
+![1568013046832](R.assets/1568013046832.png)
+
+##### 색상 index값 : 검은색(1), 빨간색(2), 초록색(3), 파란색(4), 하늘색(5), 자주색(6), 노란색(7)
+
+```r
+barplot(chart_data, ylim=c(0, 600), horiz=TRUE,  ## 혹은 ylim삭제
+       main="2014년도 VS 2015년도 분기별 매출현황 비교",
+        ylab="매출액(단위:만원)", xlab="년도별 분기현황"
+        , space=5, cex.names=0.5, col=rep(c(1, 7), 4))
+
+```
+
+![1568013113856](R.assets/1568013113856.png)
+
+##### VAdeaths 데이터셋
+
+- VADeaths 데이터셋은 1940년 미국 버지니아주의 하위계층 사망비율을 기록한 데이터셋
+
+```r
+> data(VADeaths) 
+> str(VADeaths) # 5행4열인지 확인
+ num [1:5, 1:4] 11.7 18.1 26.9 41 66 8.7 11.7 20.3 30.9 54.3 ...
+ - attr(*, "dimnames")=List of 2
+  ..$ : chr [1:5] "50-54" "55-59" "60-64" "65-69" ...
+  ..$ : chr [1:4] "Rural Male" "Rural Female" "Urban Male" "Urban Female"
+> class(VADeaths) 
+[1] "matrix"
+> mode(VADeaths)
+[1] "numeric"
+> head(VADeaths, 10)
+      Rural Male Rural Female Urban Male Urban Female
+50-54       11.7          8.7       15.4          8.4
+55-59       18.1         11.7       24.3         13.6
+60-64       26.9         20.3       37.0         19.3
+65-69       41.0         30.9       54.6         35.1
+70-74       66.0         54.3       71.1         50.0
+```
+
+##### 범례 출력
+
+- `legend(좌표 위치, 범위, cex=크기, fil=색 채우기)`
+
+```r
+par(mfrow=c(1,2))
+barplot(VADeaths,beside=T,col=rainbow(5),
+        main="미국 버지니아주의 사망비율")
+legend(19,71, c("50-54","55-59","60-64","65-69","70-74"),
+       cex=0.5,fil=rainbow(5))
+```
+
+![1568013851067](R.assets/1568013851067.png)
+
+##### 누적막대 차트 
+
+- `beside=F`
+
+```r
+barplot(VADeaths,beside=F,col=rainbow(5))
+title(main="미국 버지니아주의 사망비율",font.main=4)
+legend(3.8,180, c("50-54","55-59","60-64","65-69","70-74"),
+       cex=0.5,fil=rainbow(5))
+
+```
+
+![1568014042171](R.assets/1568014042171.png)
+
+##### 그래프 관련  다양한 요소 지정 
+
+```r
+#beside=T/F : X축 값이 측면으로 배열, F이면 하나의 막대에 누적
+#font.main : 제목 글꼴 지정
+#legend() : 범례 위치, 이름, 글자 크기, 색상 지정
+#title() : 차트 제목, 차트 글꼴 지정
+```
+
+##### 점의 모양, 색상 설정, 선 색상등
+
+```r
+?plot # 점의 모양, 색상 설정 가능
+"p" for points,
+"l" for lines,
+"b" for both,
+"c" for the lines part alone of "b",
+"o" for both ‘overplotted’,
+"h" for ‘histogram’ like (or ‘high-density’) vertical lines,
+"s" for stair steps,
+"S" for other steps, see ‘Details’ below,
+"n" for no plotting.
+```
+
+```r
+#rables 점에 대한 설명문
+#cex : 점의 확대
+#pch: 점 모양 원(1), 삼각형(2),...
+#color: 점 색상
+# lcolor: 선 색상
+```
+
+![1568014698597](R.assets/1568014698597.png)
+
+```r
+par(mfrow=c(1,1))
+dotchart(chart_data,color=c("blue","red"),lcolor="black",
+         pch=1:2,labels=names(chart_data),xlab = "매출액",
+         main="2014년도 VS 2015년도 분기별 매출현황 비교",
+         cex=1.2)
+```
+
+![1568014643134](R.assets/1568014643134.png)
+
+## pie 차트(분포도 확인시 good)
+
+```r
+pie(x, labels = names(x), edges = 200, radius = 0.8,
+    clockwise = FALSE, init.angle = if(clockwise) 90 else 0,
+    density = NULL, angle = 45, col = NULL, border = NULL,
+    lty = NULL, main = NULL, ...)
+```
+
+```r
+par(mfrow=c(1,1))
+pie(chart_data,col=rainbow(8),
+         pch=1:2,labels=names(chart_data),
+         main="2014년도 VS 2015년도 분기별 매출현황 비교",
+         cex=1.2)
+```
+
+![1568014959942](R.assets/1568014959942.png)
+
+## 연속변수(boxplot)
+
+- 연속변수(Continuous quantitative data)는 시간, 길이 등과 같이 연속성을 가진 변수
+- boxplot은 요약 정보를 시각화하는데 효과적
+- 데이터의 분포 정도와 이상치 발견을 목적으로 하는 경우 유용하게 사용
+- boxplot(VADeaths, range=0) #컬럼의 최대값과 최속밧을 점선으로 연결
+
+```r
+boxplot(VADeaths,range=0)
+```
+
+![1568015132049](R.assets/1568015132049.png)
+
+##### notch=T (허리선 비교)
+
+- 중위수(허리선 비교)
+
+```r
+boxplot(VADeaths, range=0, notch=T )
+```
+
+![1568015310103](R.assets/1568015310103.png)
+
+##### abline() : 기준선 추가(선 스타일, 선 색상)
+
+```r
+abline(h=37, lty=3, col="red")
+```
+
+![1568015361306](R.assets/1568015361306.png)
+
+## 히스토그램
+
+- 측정값의 범위(구간)를 그래프의 x축으로 놓고, 범위에 속하는 측정값의 출현 빈도수를 y축으로 나타낸 그래프 형태
+- 도수의 값을 선으로 연결, 분포곡선을 얻는다.
+
+```r
+> data(iris)
+> names(iris)
+[1] "Sepal.Length" "Sepal.Width"  "Petal.Length" "Petal.Width" 
+[5] "Species"     
+> str(iris)     #
+'data.frame':	150 obs. of  5 variables:
+ $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+ $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+ $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+ $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+ $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...
+> head(iris)
+  Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+1          5.1         3.5          1.4         0.2  setosa
+2          4.9         3.0          1.4         0.2  setosa
+3          4.7         3.2          1.3         0.2  setosa
+4          4.6         3.1          1.5         0.2  setosa
+5          5.0         3.6          1.4         0.2  setosa
+6          5.4         3.9          1.7         0.4  setosa
+```
+
+##### 붓꽃 3종류의 관측 데이터 
+
+- Sepal.length, Sepal.Width(꽃받침)
+- Petal.length,Petal.Width(꽃잎)
+
+```r
+> summary(iris$Sepal.Length)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  4.300   5.100   5.800   5.843   6.400   7.900 
+> summary(iris$Sepal.Width)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  2.000   2.800   3.000   3.057   3.300   4.400 
+> hist(iris$Sepal.Length,xlab="iris$Sepal.Length",
++      col="magenta",main="꽃받침 길이histogram",xlim=c(4.3,7.9))
+```
+
+![1568016487177](R.assets/1568016487177.png)
+
+##### 빈도수로 히스토그램 그리기
+
+```r
+par(mfrow=c(1,2))
+hist(iris$Sepal.Width,xlab = "iris$Sepal.Width",
+     col="green",main="꽃받침 넓이 histogram",xlim=c(2.0,4.5))
+```
+
+![1568016617699](R.assets/1568016617699.png)
+
+##### 확률 밀도로 히스토그램 그리기
+
+```r
+hist(iris$Sepal.Width,xlab = "iris$Sepal.Width",
+     col="mistyrose",freq=F,
+     main="꽃받침 넓이 histogram", xlim=c(2.0,4.5))
+```
+
+![1568016760506](R.assets/1568016760506.png)
+
+##### 밀도를 기준으로 분포 곡선 추가
+
+```r
+lines(density(iris$Sepal.Width), col="red") # col="red"를 추가하면 색이 바뀐다.
+```
+
+![1568016977201](R.assets/1568016977201.png)
+
+##### 정규분포 곡선 추가
+
+```r
+x<-seq(20,4.5,0.1) #by 값이 잘못 됐다 뜨므로 0.1제거하면 오류는 생기지 않는다.
+curve(dnorm(x,mean=mean(iris$Sepal.Width),sd=sd(iris$Sepal.Width)),
+      col="blue",add=T)
+```
+
+![1568017011382](R.assets/1568017011382.png)
+
+## 산점도(scatter plot)
 
 
 
