@@ -2909,10 +2909,10 @@ Read 1 item
 
 ```r
 > f1<-function(){
-+   cat("매개변수 없는 합수")
++   cat("매개변수 없는 함수")
 + }
 > f1()
-매개변수 없는 합수
+매개변수 없는 함수
 ```
 
 ##### 매개변수가 있는 함수
@@ -2961,7 +2961,7 @@ i<-0
 
 ```r
 #함수 정의하시오 (매개변수는 정수1개, 매개변수가 0이면 0을 반환
-0이 아니면 매개변수의 2배의 값 반환)
+#0이 아니면 매개변수의 2배의 값 반환)
 > f4<-function(x){
 +   if(x==0){
 +     return(0)
@@ -3771,6 +3771,1594 @@ curve(dnorm(x,mean=mean(iris$Sepal.Width),sd=sd(iris$Sepal.Width)),
 ![1568017011382](R.assets/1568017011382.png)
 
 ## 산점도(scatter plot)
+
+- 두 개 이상의 변수들 사이의 분포를 점으로 표시
+- 두 변수의  관계를 시각적으로 분석할 때 유용
+
+```R
+price<- runif(10,min=1,max=100)
+print(price)
+ [1] 89.06439 69.58754 64.41017 99.43271 65.91487 71.14452 54.86254
+ [8] 59.82006 29.62681 15.56425
+
+plot(price,col="red")
+par(new=T)#  차트 추가
+line_chart=1:100 #대각선은 1~100까지 그리기 위해서 범위 지정
+# x축은 생성된 난수의 순서, y 축은
+plot(line_chart,type="l",col="red",axes=F, ann=F)#axes 축은 F홀수 란 의미 # 대각선 그리기
+```
+
+![1568074691708](R.assets/1568074691708.png)
+
+##### 좌표평면상의 점 등을 선으로 연결
+
+```r
+par(mfrow=c(2,2))
+plot(price,type="l")
+plot(price,type="o")
+plot(price,type="h")
+plot(price,type="s")
+#"p" for points,
+#"l" for lines, 실선
+#"b" for both,
+#"c" for the lines part alone of "b",
+#"o" for both ‘overplotted’, 원형과 실선
+#"h" for ‘histogram’ like (or ‘high-density’) vertical lines, 직선!
+#"s" for stair steps,
+#"S" for other steps, see ‘Details’ below, 꺽은선!
+#"n" for no plotting.
+```
+
+![1568074911544](R.assets/1568074911544.png)
+
+##### 중복된 데이터의 수만큼 plot점 크기 다르게
+
+```r
+> x<-c(1,2,3,4,2,4)
+> y<-rep(2,6)
+> table(x,y)#빈도수 리턴
+   y
+x   2
+  1 1
+  2 2
+  3 1
+  4 2
+
+
+
+> par(mfrow=c(1,1))
+> plot(x,y)
+```
+
+![1568075199507](R.assets/1568075199507.png)
+
+```r
+> xy.df<-as.data.frame(table(x,y))
+> xy.df
+  x y Freq
+1 1 2    1
+2 2 2    2
+3 3 2    1
+4 4 2    2
+> plot(x,y,pch='@',col="blue",cex=0.5*xy.df$Freq ,xlab="x벡터 원소 ",ylab="y 벡터 원소소")# 두개이면 1, 하나면 0.5로
+```
+
+![1568075386963](R.assets/1568075386963.png)
+
+##### child컬럼, parent컬럼을 대상으로 교차테이블을 생성 결과를 데이터프레임으로 생성
+
+```r
+> galtondf<-as.data.frame(table(galton$parent,galton$child))
+> head(galtondf)
+  Var1 Var2 Freq
+1   64 61.7    1
+2 64.5 61.7    1
+3 65.5 61.7    1
+4 66.5 61.7    0
+5 67.5 61.7    0
+6 68.5 61.7    1
+
+> str(galtondf)
+'data.frame':	154 obs. of  3 variables:
+ $ Var1: Factor w/ 11 levels "64","64.5","65.5",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ Var2: Factor w/ 14 levels "61.7","62.2",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ Freq: int  1 1 1 0 0 1 0 1 0 0 ...
+> names(galtondf)<-c("child","parent","freq")
+> head(galtondf)
+  child parent freq
+1    64   61.7    1
+2  64.5   61.7    1
+3  65.5   61.7    1
+4  66.5   61.7    0
+5  67.5   61.7    0
+6  68.5   61.7    1
+> parent<-as.numeric(galtondf$parent)
+> child<-as.numeric(galtondf$child)
+
+> #축을 parent y축을 child
+> #bg= 배경색
+> plot(parent,child,pch=21,col="cyan",bg="orange",
++      cex=0.2*galtondf$freq,xlab="parent",ylab="child")
+
+```
+
+![1568076220989](R.assets/1568076220989.png)
+
+#####  pairs() : 변수 간의 관계를 차트로 그릴 수 있다
+
+- graphics 패키지에서 제공하는 paris()는 matrix또는 data.frame의 numeric칼럼을 대상으로 변수들 사이의 비교 결과를 행렬구조의 분산된 그래프로 제공
+
+```r
+> attributes(iris) 
+$names
+[1] "Sepal.Length" "Sepal.Width"  "Petal.Length" "Petal.Width" 
+[5] "Species"     
+
+$class
+[1] "data.frame"
+
+$row.names
+  [1]   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17
+ [18]  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34
+ [35]  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
+ [52]  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68
+ [69]  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85
+ [86]  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 101 102
+[103] 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119
+[120] 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136
+[137] 137 138 139 140 141 142 143 144 145 146 147 148 149 150
+
+> #모든 데이터에 대해서 마지막?
+> pairs(iris[,1:4])
+```
+
+![1568076339888](R.assets/1568076339888.png)
+
+```r
+> pairs(iris[iris$Species=="setosa", 1:4])
+#일부 종의 값만 나타낸것
+```
+
+![1568076482423](R.assets/1568076482423.png)
+
+## 3차원 산점도
+
+```r
+install.packages("scatterplot3d")
+library(scatterplot3d)
+levels(iris$Species)
+iris_setosa=iris[iris$Species=='setosa',]
+iris_versicolor=iris[iris$Species=='versicolor',]
+iris_virginica=iris[iris$Species=='virginica',]
+d3<-scatterplot3d(iris$Petal.Length,iris$Sepal.Length,iris$Sepal.Width,type='n')
+#type=n은 기본 산점도를 표시시
+
+
+d3$points3d(iris_setosa$Petal.Length, iris_setosa$Sepal.Length ,
+            iris_setosa$Sepal.Width, bg="orange", pch=21)
+
+d3$points3d(iris_versicolor$Petal.Length, iris_versicolor$Sepal.Length ,
+            iris_versicolor$Sepal.Width, bg="blue", pch=23)
+
+d3$points3d(iris_virginica$Petal.Length, iris_virginica$Sepal.Length ,
+            iris_virginica$Sepal.Width, bg="green", pch=25)
+
+```
+
+![1568078329736](R.assets/1568078329736.png)
+
+## 데이터 전처리에 사용되는 패키지
+
+- plyr,dplyr,reshape,reshape2 패키지 
+- 데이터 분석 프로젝트에서는 70%이상을 데이터 변환과 조작, 필터링 등 전처리 작업에 소요
+
+##### plyr
+
+- 두개  이상의 데이터프레임을 대상으로 key값을 이용하여 merge,함수 적용, merge,요약 집계등의 기능 제공
+- **join()**두 데이터프레임을 merge 하는 것과 차이점을 확인해보자!
+
+##### left join
+
+```r
+install.packages("plyr")
+library(plyr)
+> x<-data.frame(id=c(1,2,3,4,5),height=c(160,171,173,162,165))
+> y<-data.frame(id=c(5,1,4,2,3),wight=c(55,73,60,57,65))
+> leftjoin<-join(x,y,by="id")
+> leftjoin # id 값이 같은 애들을 조인! 왼쪽 데이터 프레임의 키값을 기준으로 merge
+#키에 조인할 데이터가 없으면 NA로 출력
+  id height wight
+1  1    160    73
+2  2    171    57
+3  3    173    65
+4  4    162    60
+5  5    165    55
+```
+
+##### inner join
+
+```r
+  #innerjoin은 두 데이터프레임에서 키값이 있는 경우에만 조인을 수행
+> innerjoin<-join(x,y,by="id",type="inner")
+> innerjoin
+  id height wight
+1  1    160    73
+2  2    171    57
+3  3    173    65
+4  4    162    60
+5  5    165    55
+```
+
+##### full join
+
+```r
+#키 값이 존재하는 전체 관측치를 대상으로 조인 수행, 키에 join할 데이터가 없으면 NA로 출력
+> fulljoin<-join(x,y,by="id",type="full")
+> fulljoin
+  id height wight
+1  1    160    73
+2  2    171    57
+3  3    173    65
+4  4    162    60
+5  5    165    55
+```
+
+##### ?
+
+```r
+> x<-data.frame(key1=c(1,1,2,2,3),
++              key2=c('a','b','c','d','e'),
++              val1=c(10,20,30,40,50))
+> y<-data.frame(key1=c(3,2,2,1,1),
++              key2=c('e','d','c','b','a'),
++              val1=c(1500,300,400,100,200))
+> xyjoin<-join(x,y,by=c("key1","key2"))
+> xyjoin
+  key1 key2 val1 val1
+1    1    a   10  200
+2    1    b   20  100
+3    2    c   30  400
+4    2    d   40  300
+5    3    e   50 1500
+```
+
+##### apply(vec,func)- 결과는 벡터, 배열, 리스트 로 리턴
+
+```r
+
+```
+
+##### lapply(vec|list,func)- 결과는 리스트로 리턴
+
+```r
+
+```
+
+##### sapply(vec, func) - 결과는 벡터, 배열, 행렬 반환
+
+```r
+
+```
+
+##### tapply()- 데이터 셋에 집단 변수
+
+- 이산형 범주를 대상으로 그룹별 함수
+- tapply(dataset,집단변수, 함수)
+
+```r
+> names(iris)
+[1] "Sepal.Length" "Sepal.Width"  "Petal.Length" "Petal.Width"  "Species"     
+> unique(iris$Species)
+[1] setosa     versicolor virginica 
+Levels: setosa versicolor virginica
+> tapply(iris$Sepal.Length,iris$Species,mean)
+    setosa versicolor  virginica 
+     5.006      5.936      6.588 
+> tapply(iris$Sepal.Width,iris$Species,sd)
+    setosa versicolor  virginica 
+ 0.3790644  0.3137983  0.3224966 
+> tapply(iris$Petal.Length,iris$Species,max)
+    setosa versicolor  virginica 
+       1.9        5.1        6.9 
+```
+
+##### ddply()
+
+- 데이터 셋에 집단 변수(이산형 번수)를 대상으로 그룹별 함수
+- ddply(데이터 셋, 집단변수, 요약집계,컬럼명=함수(변수))
+
+```r
+> avg_df<-ddply(iris,.(Species),summarise,avg=mean(Sepal.Length))
+> avg_df
+     Species   avg
+1     setosa 5.006
+2 versicolor 5.936
+3  virginica 6.588
+> str(avg_df)
+'data.frame':	3 obs. of  2 variables:
+ $ Species: Factor w/ 3 levels "setosa","versicolor",..: 1 2 3
+ $ avg    : num  5.01 5.94 6.59
+#여러가지 그룹도 가능!
+> result<-ddply(iris,.(Species),summarise,avg=mean(Sepal.Length)
++               ,std=sd(Sepal.Length),max=max(Sepal.Length),
++               min=min(Sepal.Length))
+> result
+     Species   avg       std max min
+1     setosa 5.006 0.3524897 5.8 4.3
+2 versicolor 5.936 0.5161711 7.0 4.9
+3  virginica 6.588 0.6358796 7.9 4.9
+```
+
+## dplyr 패키지
+
+- 데이터 전처리(조건 필터, 그룹핑, 함수 적용, 변환, 집계연산, 정렬,.....)
+- 먼저 exam.csv 로 저장
+
+```csv
+id,class,math,english,science
+1,1,50,98,50
+2,1,60,97,60
+3,1,45,86,78
+4,1,30,98,58
+5,2,25,80,65
+6,2,50,89,98
+7,2,80,90,45
+8,2,90,78,25
+9,3,20,98,15
+10,3,50,98,45
+11,3,65,65,65
+12,3,45,85,32
+13,4,46,98,65
+14,4,48,87,12
+15,4,75,56,78
+16,4,58,98,65
+17,5,65,68,98
+18,5,80,78,90
+19,5,89,68,87
+20,5,78,83,58
+```
+
+
+
+```r
+install.packages("dplyr")
+library(dplyr)
+
+>    exam<-read.csv("./exam.csv")
+> print(exam)   
+   id class math english science
+1   1     1   50      98      50
+2   2     1   60      97      60
+3   3     1   45      86      78
+4   4     1   30      98      58
+5   5     2   25      80      65
+6   6     2   50      89      98
+7   7     2   80      90      45
+8   8     2   90      78      25
+9   9     3   20      98      15
+10 10     3   50      98      45
+11 11     3   65      65      65
+12 12     3   45      85      32
+13 13     4   46      98      65
+14 14     4   48      87      12
+15 15     4   75      56      78
+16 16     4   58      98      65
+17 17     5   65      68      98
+18 18     5   80      78      90
+19 19     5   89      68      87
+20 20     5   78      83      58
+> str(exam)
+'data.frame':	20 obs. of  5 variables:
+ $ id     : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ class  : int  1 1 1 1 2 2 2 2 3 3 ...
+ $ math   : int  50 60 45 30 25 50 80 90 20 50 ...
+ $ english: int  98 97 86 98 80 89 90 78 98 98 ...
+ $ science: int  50 60 78 58 65 98 45 25 15 45 ...
+```
+
+
+
+##### filter() 조건에 맞는 데이터셋 추출, 행추출
+
+```r
+#%>%파이프 연산자(다음 함수의 입력값으로 전달)
+#class가 1인 record(행) 추출
+> class1<-exam %>% filter(class==1)
+> print(class1)
+  id class math english science
+1  1     1   50      98      50
+2  2     1   60      97      60
+3  3     1   45      86      78
+4  4     1   30      98      58
+
+#class가 1을 제외한 record(행 )추출
+> other_class<-exam %>% filter(class!=1)
+> print(other_class)
+   id class math english science
+1   5     2   25      80      65
+2   6     2   50      89      98
+3   7     2   80      90      45
+4   8     2   90      78      25
+5   9     3   20      98      15
+6  10     3   50      98      45
+7  11     3   65      65      65
+8  12     3   45      85      32
+9  13     4   46      98      65
+10 14     4   48      87      12
+11 15     4   75      56      78
+12 16     4   58      98      65
+13 17     5   65      68      98
+14 18     5   80      78      90
+15 19     5   89      68      87
+16 20     5   78      83      58
+
+#class가 1이면서 수학점수는 50이상인 행을 추출
+> class1_math50<-exam %>% filter(class==1 & math>50)
+> print(class1_math50)
+  id class math english science
+1  2     1   60      97      60
+
+#class가 1,3,5 인 행만 추출
+ class1_3_5<-exam %>% filter(class== 1 | class==3 | class==5)
+#혹은 exam %>% filter(class %in% c(1,3,5))
+> print(class1_3_5)
+   id class math english science
+1   1     1   50      98      50
+2   2     1   60      97      60
+3   3     1   45      86      78
+4   4     1   30      98      58
+5   9     3   20      98      15
+6  10     3   50      98      45
+7  11     3   65      65      65
+8  12     3   45      85      32
+9  17     5   65      68      98
+10 18     5   80      78      90
+11 19     5   89      68      87
+12 20     5   78      83      58
+
+```
+
+
+
+##### select() 데이터 셋을 대상으로 컬럼을 선택하는 기능
+
+```r
+> #영어 점수 컬럼값만 추출
+> e_jumsu<-exam %>% select(english)
+> print(e_jumsu)
+   english
+1       98
+2       97
+3       86
+4       98
+5       80
+6       89
+7       90
+8       78
+9       98
+10      98
+11      65
+12      85
+13      98
+14      87
+15      56
+16      98
+17      68
+18      78
+19      68
+20      83
+
+> #수학점수 제외하고 모든 컬럼 추출
+> all_column<-exam %>% select(-math)
+> print(all_column)
+   id class english science
+1   1     1      98      50
+2   2     1      97      60
+3   3     1      86      78
+4   4     1      98      58
+5   5     2      80      65
+6   6     2      89      98
+7   7     2      90      45
+8   8     2      78      25
+9   9     3      98      15
+10 10     3      98      45
+11 11     3      65      65
+12 12     3      85      32
+13 13     4      98      65
+14 14     4      87      12
+15 15     4      56      78
+16 16     4      98      65
+17 17     5      68      98
+18 18     5      78      90
+19 19     5      68      87
+20 20     5      83      58
+
+> #class 가 1이면서 영어점수 컬럼값만 1행에서 ~3행까지 출력
+> print(exam %>% filter(class==1) %>% select(english) %>% head(3))
+  english
+1      98
+2      97
+3      86
+
+> # pass 이름의 컬럼을 추가(평균이 60점 이상이면 "pass", 아니면 " false)
+> new_pass<-new_avg %>% mutate(pass=(ifelse(avg>=60,"pass","fail")))
+> print(new_pass)                             
+   id class math english science      avg pass
+1   1     1   50      98      50 66.00000 pass
+2   2     1   60      97      60 72.33333 pass
+3   3     1   45      86      78 69.66667 pass
+4   4     1   30      98      58 62.00000 pass
+5   5     2   25      80      65 56.66667 fail
+6   6     2   50      89      98 79.00000 pass
+7   7     2   80      90      45 71.66667 pass
+8   8     2   90      78      25 64.33333 pass
+9   9     3   20      98      15 44.33333 fail
+10 10     3   50      98      45 64.33333 pass
+11 11     3   65      65      65 65.00000 pass
+12 12     3   45      85      32 54.00000 fail
+13 13     4   46      98      65 69.66667 pass
+14 14     4   48      87      12 49.00000 fail
+15 15     4   75      56      78 69.66667 pass
+16 16     4   58      98      65 73.66667 pass
+17 17     5   65      68      98 77.00000 pass
+18 18     5   80      78      90 82.66667 pass
+19 19     5   89      68      87 81.33333 pass
+20 20     5   78      83      58 73.00000 pass
+
+```
+
+
+
+##### mutate() 데이터 넷의 새로운 컬럼을 추가하는 기능
+
+```r
+> # 총점(수학+영어+과학)열을 추가
+> new_exam <-exam %>% mutate(total=math+english+science)
+> print(new_exam)
+   id class math english science total
+1   1     1   50      98      50   198
+2   2     1   60      97      60   217
+3   3     1   45      86      78   209
+4   4     1   30      98      58   186
+5   5     2   25      80      65   170
+6   6     2   50      89      98   237
+7   7     2   80      90      45   215
+8   8     2   90      78      25   193
+9   9     3   20      98      15   133
+10 10     3   50      98      45   193
+11 11     3   65      65      65   195
+12 12     3   45      85      32   162
+13 13     4   46      98      65   209
+14 14     4   48      87      12   147
+15 15     4   75      56      78   209
+16 16     4   58      98      65   221
+17 17     5   65      68      98   231
+18 18     5   80      78      90   248
+19 19     5   89      68      87   244
+20 20     5   78      83      58   219
+
+> #평균 열 추가
+> new_avg<-exam %>% mutate(avg=((math+english+science)/3))
+> print(new_avg)
+   id class math english science      avg
+1   1     1   50      98      50 66.00000
+2   2     1   60      97      60 72.33333
+3   3     1   45      86      78 69.66667
+4   4     1   30      98      58 62.00000
+5   5     2   25      80      65 56.66667
+6   6     2   50      89      98 79.00000
+7   7     2   80      90      45 71.66667
+8   8     2   90      78      25 64.33333
+9   9     3   20      98      15 44.33333
+10 10     3   50      98      45 64.33333
+11 11     3   65      65      65 65.00000
+12 12     3   45      85      32 54.00000
+13 13     4   46      98      65 69.66667
+14 14     4   48      87      12 49.00000
+15 15     4   75      56      78 69.66667
+16 16     4   58      98      65 73.66667
+17 17     5   65      68      98 77.00000
+18 18     5   80      78      90 82.66667
+19 19     5   89      68      87 81.33333
+20 20     5   78      83      58 73.00000
+```
+
+
+
+##### arrange() 데이터 셋의 특정 컬럼으로 정렬하는 기능
+
+```r
+> #수학점수를 기준으로 오름차순 정렬된 결과를 변수에 저장&출력
+> asc_math<-exam %>% arrange(math)
+> print(asc_math)   
+   id class math english science
+1   9     3   20      98      15
+2   5     2   25      80      65
+3   4     1   30      98      58
+4   3     1   45      86      78
+5  12     3   45      85      32
+6  13     4   46      98      65
+7  14     4   48      87      12
+8   1     1   50      98      50
+9   6     2   50      89      98
+10 10     3   50      98      45
+11 16     4   58      98      65
+12  2     1   60      97      60
+13 11     3   65      65      65
+14 17     5   65      68      98
+15 15     4   75      56      78
+16 20     5   78      83      58
+17  7     2   80      90      45
+18 18     5   80      78      90
+19 19     5   89      68      87
+20  8     2   90      78      25
+> #수학점수를 기준으로 내림차순 정렬된 결과를 변수에 저장하고 출력
+> desc_math<-exam %>% arrange(desc(math))
+> print(desc_math)
+   id class math english science
+1   8     2   90      78      25
+2  19     5   89      68      87
+3   7     2   80      90      45
+4  18     5   80      78      90
+5  20     5   78      83      58
+6  15     4   75      56      78
+7  11     3   65      65      65
+8  17     5   65      68      98
+9   2     1   60      97      60
+10 16     4   58      98      65
+11  1     1   50      98      50
+12  6     2   50      89      98
+13 10     3   50      98      45
+14 14     4   48      87      12
+15 13     4   46      98      65
+16  3     1   45      86      78
+17 12     3   45      85      32
+18  4     1   30      98      58
+19  5     2   25      80      65
+20  9     3   20      98      15
+
+> #1차 정렬은 class의 오름차순, 2차 정렬은 수학점수의 내림차순으로
+> order_math<-exam %>% arrange(class,desc(math))
+> print(order_math)
+   id class math english science
+1   2     1   60      97      60
+2   1     1   50      98      50
+3   3     1   45      86      78
+4   4     1   30      98      58
+5   8     2   90      78      25
+6   7     2   80      90      45
+7   6     2   50      89      98
+8   5     2   25      80      65
+9  11     3   65      65      65
+10 10     3   50      98      45
+11 12     3   45      85      32
+12  9     3   20      98      15
+13 15     4   75      56      78
+14 16     4   58      98      65
+15 14     4   48      87      12
+16 13     4   46      98      65
+17 19     5   89      68      87
+18 18     5   80      78      90
+19 20     5   78      83      58
+20 17     5   65      68      98
+
+> #추가된 평균 컬럼으로 내림차순 정렬
+> new_desc<-new_pass %>% arrange(desc(avg))
+> print(new_desc)
+   id class math english science      avg pass
+1  18     5   80      78      90 82.66667 pass
+2  19     5   89      68      87 81.33333 pass
+3   6     2   50      89      98 79.00000 pass
+4  17     5   65      68      98 77.00000 pass
+5  16     4   58      98      65 73.66667 pass
+6  20     5   78      83      58 73.00000 pass
+7   2     1   60      97      60 72.33333 pass
+8   7     2   80      90      45 71.66667 pass
+9   3     1   45      86      78 69.66667 pass
+10 13     4   46      98      65 69.66667 pass
+11 15     4   75      56      78 69.66667 pass
+12  1     1   50      98      50 66.00000 pass
+13 11     3   65      65      65 65.00000 pass
+14  8     2   90      78      25 64.33333 pass
+15 10     3   50      98      45 64.33333 pass
+16  4     1   30      98      58 62.00000 pass
+17  5     2   25      80      65 56.66667 fail
+18 12     3   45      85      32 54.00000 fail
+19 14     4   48      87      12 49.00000 fail
+20  9     3   20      98      15 44.33333 fail
+```
+
+
+
+##### summarise() 데이터 셋의 특정 컬럼으로 요약집계 기능 (아래 hflights 패키지 이용)
+
+```r
+> exam <-read.csv("./exam.csv")
+> print(exam)
+   id class math english science
+1   1     1   50      98      50
+2   2     1   60      97      60
+3   3     1   45      86      78
+4   4     1   30      98      58
+5   5     2   25      80      65
+6   6     2   50      89      98
+7   7     2   80      90      45
+8   8     2   90      78      25
+9   9     3   20      98      15
+10 10     3   50      98      45
+11 11     3   65      65      65
+12 12     3   45      85      32
+13 13     4   46      98      65
+14 14     4   48      87      12
+15 15     4   75      56      78
+16 16     4   58      98      65
+17 17     5   65      68      98
+18 18     5   80      78      90
+19 19     5   89      68      87
+20 20     5   78      83      58
+> summary_exam <- exam %>% summarise(mean_math=mean(math), 
++                                    sum_math=sum(math),
++                                    median_math =median(math),
++                                    sd_math=sd(math),
++                                    min_math=min(math),
++                                    max_math=max(math),
++                                    n=n()) 
+> print(summary_exam)
+  mean_math sum_math median_math  sd_math min_math max_math  n
+1     57.45     1149          54 20.29901       20       90 20
+```
+
+##### tbl_df() 데이터셋에서 콘솔 창의 크기만큼 데이터 셋 추출 기능
+
+```r
+# 아래에서 이용! 참고하자
+```
+
+##### group_by(dataframe, 집단변수), 아래 hflights 패키지 이용
+
+```r
+> group_summary  <- exam %>% group_by(class) %>% summarise(mean_math=mean(math), 
++                                                          sum_math=sum(math),
++                                                          median_math =median(math),
++                                                          sd_math=sd(math),
++                                                          min_math=min(math),
++                                                          max_math=max(math),
++                                                          n=n())
+> print(group_summary)
+# A tibble: 5 x 8
+  class mean_math sum_math median_math sd_math min_math max_math
+  <int>     <dbl>    <int>       <dbl>   <dbl>    <int>    <int>
+1     1      46.2      185        47.5   12.5        30       60
+2     2      61.2      245        65     29.5        25       90
+3     3      45        180        47.5   18.7        20       65
+4     4      56.8      227        53     13.3        46       75
+5     5      78        312        79      9.90       65       89
+# ... with 1 more variable: n <int>
+```
+
+
+
+## hflights 패키지
+
+- 2011년도 미국 휴스턴 출발 모든 비행기의 이착륙 정보
+
+```r
+install.packages("hflights")
+library(hflights)
+
+> flights_df <-tbl_df(hflights) # 현재 콘솔창의 크기만큼 데이터셋 추출
+> flights_df
+# A tibble: 227,496 x 21
+    Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+   <int> <int>      <int>     <int>   <int>   <int> <chr>             <int>
+ 1  2011     1          1         6    1400    1500 AA                  428
+ 2  2011     1          2         7    1401    1501 AA                  428
+ 3  2011     1          3         1    1352    1502 AA                  428
+ 4  2011     1          4         2    1403    1513 AA                  428
+ 5  2011     1          5         3    1405    1507 AA                  428
+ 6  2011     1          6         4    1359    1503 AA                  428
+ 7  2011     1          7         5    1359    1509 AA                  428
+ 8  2011     1          8         6    1355    1454 AA                  428
+ 9  2011     1          9         7    1443    1554 AA                  428
+10  2011     1         10         1    1443    1553 AA                  428
+# ... with 227,486 more rows, and 13 more variables: TailNum <chr>,
+#   ActualElapsedTime <int>, AirTime <int>, ArrDelay <int>, DepDelay <int>,
+#   Origin <chr>, Dest <chr>, Distance <int>, TaxiIn <int>, TaxiOut <int>,
+#   Cancelled <int>, CancellationCode <chr>, Diverted <int>
+```
+
+##### hflights데이터셋으로부터 1월의 2일 모든 비행기의 이착률 정보 추출
+
+
+
+```r
+> #hflights데이터셋으로부터 1월의 2일 모든 비행기의 이착률 정보 추출
+> f_1_2<-flights_df %>% filter(Month %in% c(1,2))
+> print(f_1_2)
+# A tibble: 36,038 x 21
+    Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+   <int> <int>      <int>     <int>   <int>   <int> <chr>             <int>
+ 1  2011     1          1         6    1400    1500 AA                  428
+ 2  2011     1          2         7    1401    1501 AA                  428
+ 3  2011     1          3         1    1352    1502 AA                  428
+ 4  2011     1          4         2    1403    1513 AA                  428
+ 5  2011     1          5         3    1405    1507 AA                  428
+ 6  2011     1          6         4    1359    1503 AA                  428
+ 7  2011     1          7         5    1359    1509 AA                  428
+ 8  2011     1          8         6    1355    1454 AA                  428
+ 9  2011     1          9         7    1443    1554 AA                  428
+10  2011     1         10         1    1443    1553 AA                  428
+# ... with 36,028 more rows, and 13 more variables: TailNum <chr>,
+#   ActualElapsedTime <int>, AirTime <int>, ArrDelay <int>, DepDelay <int>,
+#   Origin <chr>, Dest <chr>, Distance <int>, TaxiIn <int>, TaxiOut <int>,
+#   Cancelled <int>, CancellationCode <chr>, Diverted <int>
+```
+
+##### hflights데이터셋을 년, 월, 출발시간, 도착시간순으로 오름차순 정렬
+
+```r
+> #hflights데이터셋을 년, 월, 출발시간, 도착시간순으로 오름차순 정렬
+> f_asc<-flights_df %>% arrange(Year,Month,DepTime,ArrTime)
+> print(f_asc)
+# A tibble: 227,496 x 21
+    Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+   <int> <int>      <int>     <int>   <int>   <int> <chr>             <int>
+ 1  2011     1          1         6       1     621 CO                 1542
+ 2  2011     1         21         5       4      46 XE                 2956
+ 3  2011     1          4         2       5      59 OO                 1118
+ 4  2011     1         27         4      11     216 CO                  209
+ 5  2011     1         27         4      17     240 XE                 2771
+ 6  2011     1          9         7      22     117 WN                   55
+ 7  2011     1         28         5     226     310 XE                 2956
+ 8  2011     1         18         2     537     829 DL                 1248
+ 9  2011     1         25         2     538     824 DL                 1248
+10  2011     1          7         5     538     832 DL                 1248
+# ... with 227,486 more rows, and 13 more variables: TailNum <chr>,
+#   ActualElapsedTime <int>, AirTime <int>, ArrDelay <int>, DepDelay <int>,
+#   Origin <chr>, Dest <chr>, Distance <int>, TaxiIn <int>, TaxiOut <int>,
+#   Cancelled <int>, CancellationCode <chr>, Diverted <int>
+```
+
+
+
+##### hflights데이터셋을 년(오름차순), 월(오름차순), 출발시간(내림차순), 도착시간(오름차순) 정렬
+
+```r
+> #hflights데이터셋을 년, 월, 출발시간, 도착시간순으로 오름차순 정렬
+> f_asc<-flights_df %>% arrange(Year,Month,desc(DepTime),ArrTime)
+> print(f_asc)
+# A tibble: 227,496 x 21
+    Year Month DayofMonth DayOfWeek DepTime ArrTime UniqueCarrier FlightNum
+   <int> <int>      <int>     <int>   <int>   <int> <chr>             <int>
+ 1  2011     1          2         7    2335      32 WN                  117
+ 2  2011     1          2         7    2334     121 CO                  595
+ 3  2011     1         27         4    2329      14 WN                 3665
+ 4  2011     1          6         4    2325      10 XE                 2956
+ 5  2011     1         20         4    2325      17 XE                 2450
+ 6  2011     1          3         1    2321     110 CO                  595
+ 7  2011     1         17         1    2315       8 XE                 2450
+ 8  2011     1         14         5    2315      20 XE                 2450
+ 9  2011     1         27         4    2315    2355 XE                 2956
+10  2011     1         27         4    2313       3 XE                 2450
+# ... with 227,486 more rows, and 13 more variables: TailNum <chr>,
+#   ActualElapsedTime <int>, AirTime <int>, ArrDelay <int>, DepDelay <int>,
+#   Origin <chr>, Dest <chr>, Distance <int>, TaxiIn <int>, TaxiOut <int>,
+#   Cancelled <int>, CancellationCode <chr>, Diverted <int>
+```
+
+
+
+##### hflights데이터셋으로부터 년, 월, 출발시간, 도착시간 컬럼만 검색
+
+```r
+> f_select<-flights_df %>% select(Year,Month,DepTime,ArrTime)
+> print(f_select)
+# A tibble: 227,496 x 4
+    Year Month DepTime ArrTime
+   <int> <int>   <int>   <int>
+ 1  2011     1    1400    1500
+ 2  2011     1    1401    1501
+ 3  2011     1    1352    1502
+ 4  2011     1    1403    1513
+ 5  2011     1    1405    1507
+ 6  2011     1    1359    1503
+ 7  2011     1    1359    1509
+ 8  2011     1    1355    1454
+ 9  2011     1    1443    1554
+10  2011     1    1443    1553
+# ... with 227,486 more rows
+```
+
+
+
+##### hflights데이터셋으로부터 출발지연시간과 도착지연시간과의 차리를 계산한 컬럼 추가
+
+```r
+f_def<-flights_df %>% mutate(def=(ArrDelay-DepDelay))
+> f_def1<-f_def %>% select(Year,Month,def)
+> print(f_def1)
+# A tibble: 227,496 x 3
+    Year Month   def
+   <int> <int> <int>
+ 1  2011     1   -10
+ 2  2011     1   -10
+ 3  2011     1     0
+ 4  2011     1     0
+ 5  2011     1    -8
+ 6  2011     1    -6
+ 7  2011     1     0
+ 8  2011     1   -11
+ 9  2011     1     1
+10  2011     1     0
+# ... with 227,486 more rows
+```
+
+
+
+##### hflights데이터셋으로부터 도착 시간에 대한 평균, 표준편차 계산
+
+```r
+
+```
+
+#### 답!
+
+```r
+install.packages("hflights")
+library(hflights)
+#2011년도 미국 휴스턴 출발 모든 비행기의 이착률 정보 기록
+#대략 22만건, 21개의 변수(컬럼)로 구성된 데이터셋
+str(hflights)
+flights_df <- tbl_df(flights) #현재 R콘솔 창크기에서 볼수 있는 만큼 10개행? 8개 컬럼?
+flights_df
+
+#hflights데이터셋으로부터 1월의 2일 모든 비행기의 이착률 정보 추출
+filter(hflights, Month==1 & DayofMonth==2)
+
+#hflights데이터셋을 년, 월, 출발시간, 도착시간순으로 오름차순 정렬
+arrange(hflights, Year, Month, DepTime, ArrTime)
+
+#hflights데이터셋을 년(오름차순), 월(오름차순), 출발시간(내림차순), 도착시간(오름차순) 정렬
+arrange(hflights, Year, Month, desc(DepTime), ArrTime)
+
+#hflights데이터셋으로부터 년, 월, 출발시간, 도착시간 컬럼만 검색
+select(hflights,Year, Month, DepTime, ArrTime)
+
+#hflights데이터셋으로부터 출발지연시간과 도착지연시간과의 차이를 계산한 컬럼 추가
+select(mutate(hflights, gain=ArrDelay-DepDelay,
+                 gain_per_hour = gain(AirTime/60)), 
+       Year, Month, ArrDelay, DepDelay, gain, gain_per_hour)
+
+
+#hflights데이터셋으로부터 도착 시간에 대한 평균, 표준편차 계산
+summarise(hflights, cnt=n(), delay=mean(AirTime, na.rm=T))
+summarise(hflights, arrTimeSd = sd(AirTime, na.rm=T),
+          arrTimeVar = var(AirTime, na.rm=T))
+```
+
+
+
+## ggplot2 패키지
+
+##### 자동차 배기량에 따라 고속도록 연비 
+
+```r
+#displ 배기량
+
+#manufaturer 제조사
+
+#cty 도시연비
+
+#hwy 고속도로 연비
+
+#class차종
+```
+
+
+
+```r
+install.packages("ggplot2")
+library(ggplot2)
+> mpg <- as.data.frame(ggplot2::mpg)
+> print(mpg)
+   manufacturer               model displ year cyl      trans drv
+1          audi                  a4   1.8 1999   4   auto(l5)   f
+2          audi                  a4   1.8 1999   4 manual(m5)   f
+3          audi                  a4   2.0 2008   4 manual(m6)   f
+4          audi                  a4   2.0 2008   4   auto(av)   f
+5          audi                  a4   2.8 1999   6   auto(l5)   f
+6          audi                  a4   2.8 1999   6 manual(m5)   f
+7          audi                  a4   3.1 2008   6   auto(av)   f
+8          audi          a4 quattro   1.8 1999   4 manual(m5)   4
+9          audi          a4 quattro   1.8 1999   4   auto(l5)   4
+10         audi          a4 quattro   2.0 2008   4 manual(m6)   4
+11         audi          a4 quattro   2.0 2008   4   auto(s6)   4
+12         audi          a4 quattro   2.8 1999   6   auto(l5)   4
+13         audi          a4 quattro   2.8 1999   6 manual(m5)   4
+14         audi          a4 quattro   3.1 2008   6   auto(s6)   4
+15         audi          a4 quattro   3.1 2008   6 manual(m6)   4
+16         audi          a6 quattro   2.8 1999   6   auto(l5)   4
+17         audi          a6 quattro   3.1 2008   6   auto(s6)   4
+18         audi          a6 quattro   4.2 2008   8   auto(s6)   4
+19    chevrolet  c1500 suburban 2wd   5.3 2008   8   auto(l4)   r
+20    chevrolet  c1500 suburban 2wd   5.3 2008   8   auto(l4)   r
+21    chevrolet  c1500 suburban 2wd   5.3 2008   8   auto(l4)   r
+22    chevrolet  c1500 suburban 2wd   5.7 1999   8   auto(l4)   r
+23    chevrolet  c1500 suburban 2wd   6.0 2008   8   auto(l4)   r
+24    chevrolet            corvette   5.7 1999   8 manual(m6)   r
+25    chevrolet            corvette   5.7 1999   8   auto(l4)   r
+26    chevrolet            corvette   6.2 2008   8 manual(m6)   r
+27    chevrolet            corvette   6.2 2008   8   auto(s6)   r
+28    chevrolet            corvette   7.0 2008   8 manual(m6)   r
+29    chevrolet     k1500 tahoe 4wd   5.3 2008   8   auto(l4)   4
+30    chevrolet     k1500 tahoe 4wd   5.3 2008   8   auto(l4)   4
+31    chevrolet     k1500 tahoe 4wd   5.7 1999   8   auto(l4)   4
+32    chevrolet     k1500 tahoe 4wd   6.5 1999   8   auto(l4)   4
+33    chevrolet              malibu   2.4 1999   4   auto(l4)   f
+34    chevrolet              malibu   2.4 2008   4   auto(l4)   f
+35    chevrolet              malibu   3.1 1999   6   auto(l4)   f
+36    chevrolet              malibu   3.5 2008   6   auto(l4)   f
+37    chevrolet              malibu   3.6 2008   6   auto(s6)   f
+38        dodge         caravan 2wd   2.4 1999   4   auto(l3)   f
+39        dodge         caravan 2wd   3.0 1999   6   auto(l4)   f
+40        dodge         caravan 2wd   3.3 1999   6   auto(l4)   f
+41        dodge         caravan 2wd   3.3 1999   6   auto(l4)   f
+42        dodge         caravan 2wd   3.3 2008   6   auto(l4)   f
+43        dodge         caravan 2wd   3.3 2008   6   auto(l4)   f
+44        dodge         caravan 2wd   3.3 2008   6   auto(l4)   f
+45        dodge         caravan 2wd   3.8 1999   6   auto(l4)   f
+46        dodge         caravan 2wd   3.8 1999   6   auto(l4)   f
+47        dodge         caravan 2wd   3.8 2008   6   auto(l6)   f
+48        dodge         caravan 2wd   4.0 2008   6   auto(l6)   f
+49        dodge   dakota pickup 4wd   3.7 2008   6 manual(m6)   4
+50        dodge   dakota pickup 4wd   3.7 2008   6   auto(l4)   4
+51        dodge   dakota pickup 4wd   3.9 1999   6   auto(l4)   4
+52        dodge   dakota pickup 4wd   3.9 1999   6 manual(m5)   4
+53        dodge   dakota pickup 4wd   4.7 2008   8   auto(l5)   4
+54        dodge   dakota pickup 4wd   4.7 2008   8   auto(l5)   4
+55        dodge   dakota pickup 4wd   4.7 2008   8   auto(l5)   4
+56        dodge   dakota pickup 4wd   5.2 1999   8 manual(m5)   4
+57        dodge   dakota pickup 4wd   5.2 1999   8   auto(l4)   4
+58        dodge         durango 4wd   3.9 1999   6   auto(l4)   4
+59        dodge         durango 4wd   4.7 2008   8   auto(l5)   4
+60        dodge         durango 4wd   4.7 2008   8   auto(l5)   4
+61        dodge         durango 4wd   4.7 2008   8   auto(l5)   4
+62        dodge         durango 4wd   5.2 1999   8   auto(l4)   4
+63        dodge         durango 4wd   5.7 2008   8   auto(l5)   4
+64        dodge         durango 4wd   5.9 1999   8   auto(l4)   4
+65        dodge ram 1500 pickup 4wd   4.7 2008   8 manual(m6)   4
+66        dodge ram 1500 pickup 4wd   4.7 2008   8   auto(l5)   4
+67        dodge ram 1500 pickup 4wd   4.7 2008   8   auto(l5)   4
+68        dodge ram 1500 pickup 4wd   4.7 2008   8   auto(l5)   4
+69        dodge ram 1500 pickup 4wd   4.7 2008   8 manual(m6)   4
+70        dodge ram 1500 pickup 4wd   4.7 2008   8 manual(m6)   4
+71        dodge ram 1500 pickup 4wd   5.2 1999   8   auto(l4)   4
+72        dodge ram 1500 pickup 4wd   5.2 1999   8 manual(m5)   4
+73        dodge ram 1500 pickup 4wd   5.7 2008   8   auto(l5)   4
+74        dodge ram 1500 pickup 4wd   5.9 1999   8   auto(l4)   4
+75         ford      expedition 2wd   4.6 1999   8   auto(l4)   r
+76         ford      expedition 2wd   5.4 1999   8   auto(l4)   r
+77         ford      expedition 2wd   5.4 2008   8   auto(l6)   r
+78         ford        explorer 4wd   4.0 1999   6   auto(l5)   4
+79         ford        explorer 4wd   4.0 1999   6 manual(m5)   4
+80         ford        explorer 4wd   4.0 1999   6   auto(l5)   4
+81         ford        explorer 4wd   4.0 2008   6   auto(l5)   4
+82         ford        explorer 4wd   4.6 2008   8   auto(l6)   4
+83         ford        explorer 4wd   5.0 1999   8   auto(l4)   4
+84         ford     f150 pickup 4wd   4.2 1999   6   auto(l4)   4
+85         ford     f150 pickup 4wd   4.2 1999   6 manual(m5)   4
+86         ford     f150 pickup 4wd   4.6 1999   8 manual(m5)   4
+87         ford     f150 pickup 4wd   4.6 1999   8   auto(l4)   4
+88         ford     f150 pickup 4wd   4.6 2008   8   auto(l4)   4
+89         ford     f150 pickup 4wd   5.4 1999   8   auto(l4)   4
+90         ford     f150 pickup 4wd   5.4 2008   8   auto(l4)   4
+   cty hwy fl   class
+1   18  29  p compact
+2   21  29  p compact
+3   20  31  p compact
+4   21  30  p compact
+5   16  26  p compact
+6   18  26  p compact
+7   18  27  p compact
+8   18  26  p compact
+9   16  25  p compact
+10  20  28  p compact
+11  19  27  p compact
+12  15  25  p compact
+13  17  25  p compact
+14  17  25  p compact
+15  15  25  p compact
+16  15  24  p midsize
+17  17  25  p midsize
+18  16  23  p midsize
+19  14  20  r     suv
+20  11  15  e     suv
+21  14  20  r     suv
+22  13  17  r     suv
+23  12  17  r     suv
+24  16  26  p 2seater
+25  15  23  p 2seater
+26  16  26  p 2seater
+27  15  25  p 2seater
+28  15  24  p 2seater
+29  14  19  r     suv
+30  11  14  e     suv
+31  11  15  r     suv
+32  14  17  d     suv
+33  19  27  r midsize
+34  22  30  r midsize
+35  18  26  r midsize
+36  18  29  r midsize
+37  17  26  r midsize
+38  18  24  r minivan
+39  17  24  r minivan
+40  16  22  r minivan
+41  16  22  r minivan
+42  17  24  r minivan
+43  17  24  r minivan
+44  11  17  e minivan
+45  15  22  r minivan
+46  15  21  r minivan
+47  16  23  r minivan
+48  16  23  r minivan
+49  15  19  r  pickup
+50  14  18  r  pickup
+51  13  17  r  pickup
+52  14  17  r  pickup
+53  14  19  r  pickup
+54  14  19  r  pickup
+55   9  12  e  pickup
+56  11  17  r  pickup
+57  11  15  r  pickup
+58  13  17  r     suv
+59  13  17  r     suv
+60   9  12  e     suv
+61  13  17  r     suv
+62  11  16  r     suv
+63  13  18  r     suv
+64  11  15  r     suv
+65  12  16  r  pickup
+66   9  12  e  pickup
+67  13  17  r  pickup
+68  13  17  r  pickup
+69  12  16  r  pickup
+70   9  12  e  pickup
+71  11  15  r  pickup
+72  11  16  r  pickup
+73  13  17  r  pickup
+74  11  15  r  pickup
+75  11  17  r     suv
+76  11  17  r     suv
+77  12  18  r     suv
+78  14  17  r     suv
+79  15  19  r     suv
+80  14  17  r     suv
+81  13  19  r     suv
+82  13  19  r     suv
+83  13  17  r     suv
+84  14  17  r  pickup
+85  14  17  r  pickup
+86  13  16  r  pickup
+87  13  16  r  pickup
+88  13  17  r  pickup
+89  11  15  r  pickup
+90  13  17  r  pickup
+ [ reached 'max' / getOption("max.print") -- omitted 144 rows ]
+> str(mpg)
+'data.frame':	234 obs. of  11 variables:
+ $ manufacturer: chr  "audi" "audi" "audi" "audi" ...
+ $ model       : chr  "a4" "a4" "a4" "a4" ...
+ $ displ       : num  1.8 1.8 2 2 2.8 2.8 3.1 1.8 1.8 2 ...
+ $ year        : int  1999 1999 2008 2008 1999 1999 2008 1999 1999 2008 ...
+ $ cyl         : int  4 4 4 4 6 6 6 4 4 4 ...
+ $ trans       : chr  "auto(l5)" "manual(m5)" "manual(m6)" "auto(av)" ...
+ $ drv         : chr  "f" "f" "f" "f" ...
+ $ cty         : int  18 21 20 21 16 18 18 18 16 20 ...
+ $ hwy         : int  29 29 31 30 26 26 27 26 25 28 ...
+ $ fl          : chr  "p" "p" "p" "p" ...
+ $ class       : chr  "compact" "compact" "compact" "compact" ...
+```
+
+##### 연습
+
+```r
+#Quiz> 회사별로 분리, suv 추출, 통합 연비(도시연비+고속도로 연비) 변수 생성, 
+통합 연비 평균 산출, 내림차순 정렬, 1~5위까지 출력
+
+> mpg %>% group_by(manufacturer)  %>% filter(class=="suv") %>% mutate(tot=(cty+hwy)/2)  %>% summarise(mean_tot=mean(tot)) %>% arrange(desc(mean_tot))%>% head(5)
+# A tibble: 5 x 2
+  manufacturer mean_tot
+  <chr>           <dbl>
+1 subaru           21.9
+2 toyota           16.3
+3 nissan           15.9
+4 mercury          15.6
+5 jeep             15.6
+
+
+#Quiz> 어떤 회사에서 "compact"(경차) 차종을 가장 많이 생산하는지 알아보려고 합니다. 
+각 회사별로 "compact" 차종을 내림차순으로 정렬해 출력하세요
+> result <- mpg %>% filter(class=="compact") %>% group_by(manufacturer)%>% summarise(count=n())  
+> result %>% arrange(desc(count)) 
+# A tibble: 5 x 2
+  manufacturer count
+  <chr>        <int>
+1 audi            15
+2 volkswagen      14
+3 toyota          12
+4 subaru           4
+5 nissan           2
+```
+
+
+
+## OracleDB 로부터 R실행환경(메모리)로 데이터 가져오기
+
+- RJDBC::JDBC("driver이름","driver가 존재하는 클래스경로","DB에서 문")
+- dbConnect(Driver객체, DB_Url,user,password)
+- dbGetQuery(connection 객체, select sql문장)
+
+```r
+install.packages("RJDBC")
+library(RJDBC)
+```
+
+````r
+> drv<-JDBC("oracle.jdbc.OracleDriver",
++           classPath = "C:/app/student/product/11.2.0/dbhome_1/jdbc/lib/ojdbc6.jar",
++           identifier.quote="`")
+> con<-dbConnect(drv,"jdbc:oracle:thin:@localhost:1521:orcl","hr","oracle")
+> rs<-dbGetQuery(con,"select tname from tab")
+> print(rs)
+                            TNAME
+1                     BBS_PRODUCT
+2  BIN$7bNpNNCuT0Kxmq1vwb/chQ==$0
+3                       COUNTRIES
+4                     DEPARTMENTS
+5                       EMPLOYEES
+6                EMP_DETAILS_VIEW
+7                            JOBS
+8                     JOB_HISTORY
+9                       LOCATIONS
+10                       PRODUCTS
+11                        REGIONS
+12                       USERINFO
+> View(rs)
+#cmd 창에서 sqlplus hr/oracle 로 접속하여
+#elect tname from tab 하면 확인 가능!(이걸 불러와야하는 것!
+````
+
+## 관계도  igraph()
+
+```r
+> g1<-graph(c(1,2,2,3,2,4,1,4,5,5,3,6))
+> print(g1)
+IGRAPH 821a4d2 D--- 6 6 -- 
++ edges from 821a4d2:
+[1] 1->2 2->3 2->4 1->4 5->5 3->6
+> plot(g1)
+> str(g1)
+List of 10
+ $ :List of 1
+  ..$ : 'igraph.vs' int [1:2] 2 4
+  .. ..- attr(*, "env")=<weakref> 
+  .. ..- attr(*, "graph")= chr "821a4d2e-d38d-11e9-ace2-21c0e55faa18"
+ $ :List of 1
+  ..$ : 'igraph.vs' int [1:2] 3 4
+  .. ..- attr(*, "env")=<weakref> 
+  .. ..- attr(*, "graph")= chr "821a4d2e-d38d-11e9-ace2-21c0e55faa18"
+ $ :List of 1
+  ..$ : 'igraph.vs' int 6
+  .. ..- attr(*, "env")=<weakref> 
+  .. ..- attr(*, "graph")= chr "821a4d2e-d38d-11e9-ace2-21c0e55faa18"
+ $ :List of 1
+  ..$ : 'igraph.vs' int(0) 
+  .. ..- attr(*, "env")=<weakref> 
+  .. ..- attr(*, "graph")= chr "821a4d2e-d38d-11e9-ace2-21c0e55faa18"
+ $ :List of 1
+  ..$ : 'igraph.vs' int 5
+  .. ..- attr(*, "env")=<weakref> 
+  .. ..- attr(*, "graph")= chr "821a4d2e-d38d-11e9-ace2-21c0e55faa18"
+ $ :List of 1
+  ..$ : 'igraph.vs' int(0) 
+  .. ..- attr(*, "env")=<weakref> 
+  .. ..- attr(*, "graph")= chr "821a4d2e-d38d-11e9-ace2-21c0e55faa18"
+ $ :Error in adjacent_vertices(x, i, mode = if (directed) "out" else "all") : 
+  At iterators.c:759 : Cannot create iterator, invalid vertex id, Invalid vertex id
+```
+
+![1568094131988](R.assets/1568094131988.png)
+
+
+
+```r
+> name<-c("세종대왕", "일지매 부장", "김유신 과장", "손흥민 대리", "류현진 대리",
++         "이순신 부장", "유관순 차장", "신사임당 대리", "강감찬 부장"
++         , "광개토 과장", "정몽주 대리")
+> pemp <- c("세종대왕", "세종대왕", "일지매 부장" , "김유신 과장", "김유신 과장"
++           ,"세종대왕",  "이순신 부장", "유관순 차장",  "세종대왕" , "강감찬 부장"
++           , "광개토 과장")
+> emp<-data.frame(이름=name,상사이름=pemp)    
+> print(emp)   
+            이름    상사이름
+1       세종대왕    세종대왕
+2    일지매 부장    세종대왕
+3    김유신 과장 일지매 부장
+4    손흥민 대리 김유신 과장
+5    류현진 대리 김유신 과장
+6    이순신 부장    세종대왕
+7    유관순 차장 이순신 부장
+8  신사임당 대리 유관순 차장
+9    강감찬 부장    세종대왕
+10   광개토 과장 강감찬 부장
+11   정몽주 대리 광개토 과장
+> g <- graph.data.frame(emp, direct=T) 
+> plot(g, layout=layout.fruchterman.reingold, vertex.size=8, edge.arrow.size=0.5)
+
+```
+
+![1568094811843](R.assets/1568094811843.png)
+
+## reshape 패키지
+
+
+
+- 데이터 셋의 구성이 구분변수(identifier variable)에 의해서 특정 변수가 분류된 경우 
+- 데이터 셋의 모댱을 변경하는 패키지
+- 구분변수(identifier variable) : 데이터 셋에 1개 이상으로 분류되는 집단변수
+- 측정변수(measured variable): 구분변수에 의해서 구분되는 변수
+
+```r
+install.packages("reshape")
+library(reshape)
+```
+
+
+
+##### rename()
+
+- 데이터 파일을 가져오는 경우 컬럼명이 없으면 기본적으로 V1, V2, V3...
+  형식으로 기본 컬럼명이 적용되므로 데이터 셋의 컬럼명을 변경하려면
+  rename() 함수를 사용
+
+
+
+```r
+> result<-read.csv("./reshape.csv",header=FALSE)
+> head(result)
+   V1  V2  V3  V4
+1 5.1 1.4 0.2 3.5
+2 4.9 1.4 0.2 3.0
+3 4.7 1.3 0.2 3.2
+4 4.6 1.5 0.2 3.1
+5 5.0 1.4 0.2 3.6
+6 5.4 1.7 0.4 3.9
+> result<-rename(result,c(v1='total',v2="num1",v3="num2",v4="num3"))
+
+
+```
+
+##### Indometh- 항염증제에 대한 약물동태학 데이터 셋
+
+- 기준변수 : timevar="time", idvar="Subject"
+- 관측변수 : v.names="conc"
+- 실험대상1을 기준으로 약물투여시간 0.25에서 8까지의 ...농도를 
+
+```r
+> data('Indometh')  #항염증제에 대한 약물동태학에 관한 데이터 셋
+> str(Indometh)  #생체내에서 약물의 흡수, 분포, 비축, 대사, 배설의 과정을 연구
+ #Subject(실험대상), time(약물 투여시간:hr), conc(농도:ml/mcg)
+Classes ‘nfnGroupedData’, ‘nfGroupedData’, ‘groupedData’ and 'data.frame':	66 obs. of  3 variables:
+ $ Subject: Ord.factor w/ 6 levels "1"<"4"<"2"<"5"<..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ time   : num  0.25 0.5 0.75 1 1.25 2 3 4 5 6 ...
+ $ conc   : num  1.5 0.94 0.78 0.48 0.37 0.19 0.12 0.11 0.08 0.07 ...
+ - attr(*, "formula")=Class 'formula'  language conc ~ time | Subject
+  .. ..- attr(*, ".Environment")=<environment: R_EmptyEnv> 
+ - attr(*, "labels")=List of 2
+  ..$ x: chr "Time since drug administration"
+  ..$ y: chr "Indomethacin concentration"
+ - attr(*, "units")=List of 2
+  ..$ x: chr "(hr)"
+  ..$ y: chr "(mcg/ml)"
+```
+
+
+
+##### reshape(), melt() 
+
+- 구분변수를 기분으로 측정변수를 분류하여 새로운 컬럼을 생성
+
+##### wide
+
+- 기준변수와 관련변수가 1:n 의 관계로 관측치가 구성
+- Indometh 는 long형식으로 이를 wide로 바꿔 보았다.
+
+```r
+> wide <- reshape(Indometh, v.names="conc", timevar="time", idvar="Subject", direction="wide")
+> wide
+   Subject conc.0.25 conc.0.5 conc.0.75 conc.1 conc.1.25 conc.2 conc.3
+1        1      1.50     0.94      0.78   0.48      0.37   0.19   0.12
+12       2      2.03     1.63      0.71   0.70      0.64   0.36   0.32
+23       3      2.72     1.49      1.16   0.80      0.80   0.39   0.22
+34       4      1.85     1.39      1.02   0.89      0.59   0.40   0.16
+45       5      2.05     1.04      0.81   0.39      0.30   0.23   0.13
+56       6      2.31     1.44      1.03   0.84      0.64   0.42   0.24
+   conc.4 conc.5 conc.6 conc.8
+1    0.11   0.08   0.07   0.05
+12   0.20   0.25   0.12   0.08
+23   0.12   0.11   0.08   0.08
+34   0.11   0.10   0.07   0.07
+45   0.11   0.08   0.10   0.06
+56   0.17   0.13   0.10   0.09
+```
+
+
+
+##### long
+
+- 기준변수와 관련변수가 1:1관계로 관측치가 구성
+
+```r
+> reshape(wide,direction="long")
+       Subject time conc
+1.0.25       1 0.25 1.50
+2.0.25       2 0.25 2.03
+3.0.25       3 0.25 2.72
+4.0.25       4 0.25 1.85
+5.0.25       5 0.25 2.05
+6.0.25       6 0.25 2.31
+1.0.5        1 0.50 0.94
+2.0.5        2 0.50 1.63
+3.0.5        3 0.50 1.49
+4.0.5        4 0.50 1.39
+5.0.5        5 0.50 1.04
+6.0.5        6 0.50 1.44
+1.0.75       1 0.75 0.78
+2.0.75       2 0.75 0.71
+3.0.75       3 0.75 1.16
+4.0.75       4 0.75 1.02
+5.0.75       5 0.75 0.81
+6.0.75       6 0.75 1.03
+1.1          1 1.00 0.48
+2.1          2 1.00 0.70
+3.1          3 1.00 0.80
+4.1          4 1.00 0.89
+5.1          5 1.00 0.39
+6.1          6 1.00 0.84
+1.1.25       1 1.25 0.37
+2.1.25       2 1.25 0.64
+3.1.25       3 1.25 0.80
+4.1.25       4 1.25 0.59
+5.1.25       5 1.25 0.30
+6.1.25       6 1.25 0.64
+1.2          1 2.00 0.19
+2.2          2 2.00 0.36
+3.2          3 2.00 0.39
+4.2          4 2.00 0.40
+5.2          5 2.00 0.23
+6.2          6 2.00 0.42
+1.3          1 3.00 0.12
+2.3          2 3.00 0.32
+3.3          3 3.00 0.22
+4.3          4 3.00 0.16
+5.3          5 3.00 0.13
+6.3          6 3.00 0.24
+1.4          1 4.00 0.11
+2.4          2 4.00 0.20
+3.4          3 4.00 0.12
+4.4          4 4.00 0.11
+5.4          5 4.00 0.11
+6.4          6 4.00 0.17
+1.5          1 5.00 0.08
+2.5          2 5.00 0.25
+3.5          3 5.00 0.11
+4.5          4 5.00 0.10
+5.5          5 5.00 0.08
+6.5          6 5.00 0.13
+1.6          1 6.00 0.07
+2.6          2 6.00 0.12
+3.6          3 6.00 0.08
+4.6          4 6.00 0.07
+5.6          5 6.00 0.10
+6.6          6 6.00 0.10
+1.8          1 8.00 0.05
+2.8          2 8.00 0.08
+3.8          3 8.00 0.08
+4.8          4 8.00 0.07
+5.8          5 8.00 0.06
+6.8          6 8.00 0.09
+```
+
+## varying=반복되는 색인
+
+```r
+> long <- reshape(wide, idvar ="Subject", varying=2:12,
++                 v.names="conc",  direction="long" )
+> str(long)
+Classes ‘nfnGroupedData’, ‘nfGroupedData’, ‘groupedData’ and 'data.frame':	66 obs. of  3 variables:
+ $ Subject: Ord.factor w/ 6 levels "1"<"4"<"2"<"5"<..: 1 3 6 2 4 5 1 3 6 2 ...
+ $ time   : int  1 1 1 1 1 1 2 2 2 2 ...
+ $ conc   : num  1.5 2.03 2.72 1.85 2.05 2.31 0.94 1.63 1.49 1.39 ...
+ - attr(*, "reshapeLong")=List of 4
+  ..$ varying:List of 1
+  .. ..$ conc: chr  "conc.0.25" "conc.0.5" "conc.0.75" "conc.1" ...
+  .. ..- attr(*, "v.names")= chr "conc"
+  .. ..- attr(*, "times")= int  1 2 3 4 5 6 7 8 9 10 ...
+  ..$ v.names: chr "conc"
+  ..$ idvar  : chr "Subject"
+  ..$ timevar: chr "time"
+```
+
+##### melt(data,id="기준변수",measured="측정변수")
+
+```r
+> smiths
+     subject time age weight height
+1 John Smith    1  33     90   1.87
+2 Mary Smith    1  NA     NA   1.54
+```
+
+##### 기준변수("subject","time")을 이용하여  측정변수 분류
+
+```r
+> melt(smiths, id=c("subject", "time")) 
+     subject time variable value
+1 John Smith    1      age 33.00
+2 Mary Smith    1      age    NA
+3 John Smith    1   weight 90.00
+4 Mary Smith    1   weight    NA
+5 John Smith    1   height  1.87
+6 Mary Smith    1   height  1.54
+> 
+> melt(smiths, id=c("subject", "time"), measured=c("age"))
+     subject time variable value
+1 John Smith    1      age 33.00
+2 Mary Smith    1      age    NA
+3 John Smith    1   weight 90.00
+4 Mary Smith    1   weight    NA
+5 John Smith    1   height  1.87
+6 Mary Smith    1   height  1.54
+> 
+> melt(smiths, id=c("subject", "time"), measured=c("age", "weight", "height"))
+     subject time variable value
+1 John Smith    1      age 33.00
+2 Mary Smith    1      age    NA
+3 John Smith    1   weight 90.00
+4 Mary Smith    1   weight    NA
+5 John Smith    1   height  1.87
+6 Mary Smith    1   height  1.54
+> 
+> melt(smiths, id=c(1:2), na.rm=T)
+     subject time variable value
+1 John Smith    1      age 33.00
+2 John Smith    1   weight 90.00
+3 John Smith    1   height  1.87
+4 Mary Smith    1   height  1.54
+```
+
+##### cast() 측정변수에 집합함수를 적용
+
+- cast(data,포뮬러 식, ~측정변수, 집합함수)
+
+```r
+> smithsm<-melt(smiths,id=c(1:2))
+> smithsm
+     subject time variable value
+1 John Smith    1      age 33.00
+2 Mary Smith    1      age    NA
+3 John Smith    1   weight 90.00
+4 Mary Smith    1   weight    NA
+5 John Smith    1   height  1.87
+6 Mary Smith    1   height  1.54
+
+> cast(smithsm,subject=~variable) #subject와 time 변수를 이용
+#측정변수(age, weight, height)를 분류
+     subject time age weight height
+1 John Smith    1  33     90   1.87
+2 Mary Smith    1  NA     NA   1.54
+```
+
+
 
 
 
