@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+<context:annotation-config></context:annotation-config>
+<context:component-scan base-package="lab.spring.orm"></context:component-scan>
+
+<!-- sqlSessionFactoryBean에 주입 -->
+<bean id="dataSource" class='org.springframework.jdbc.datasource.DriverManagerDataSource'
+p:driverClassName="oracle.jdbc.OracleDriver" 
+p:url="jdbc:oracle:thin:@70.12.50.134:1521:orcl" p:username="projectdb" p:password="projectdb"/>
+
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+  <property name="dataSource" ref="dataSource" />
+    <property name="mapperLocations" value="classpath*:lab/mybatis/mapper/*.xml" />
+</bean>
+
+<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+  <constructor-arg index="0" ref="sqlSessionFactory" />
+</bean>
+
+</beans>
