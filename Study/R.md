@@ -5360,5 +5360,514 @@ Classes ‘nfnGroupedData’, ‘nfGroupedData’, ‘groupedData’ and 'data.f
 
 
 
+## 영문서 형태소 분석 & 워드클라우드
 
+```r
+# Install
+install.packages("tm")  # 텍스트 마이닝을 위한 패키지
+install.packages("SnowballC") # 어간추출을 위한 패키지
+#install.packages("wordcloud") # word-cloud generator 
+install.packages("RColorBrewer") # color palettes
+# Load
+library("tm")
+library("SnowballC")
+#library("wordcloud")
+library("RColorBrewer")
+
+filePath <- "http://www.sthda.com/sthda/RDoc/example-files/martin-luther-king-i-have-a-dream-speech.txt"
+text <- readLines(filePath)
+str(text)
+
+# VectorSource () 함수는 문자형 벡터을 만듭니다.
+docs <- Corpus(VectorSource(text))
+head(docs)
+
+# 텍스트의 특수 문자 등을 대체하기 위해 tm_map () 함수를 사용하여 변환이 수행됩니다.
+# “/”,“@”및“|”을 공백으로 바꿉니다.
+toSpace <- content_transformer(function (x , pattern ) gsub(pattern, " ", x))
+docs <- tm_map(docs, toSpace, "/")
+docs <- tm_map(docs, toSpace, "@")
+docs <- tm_map(docs, toSpace, "\\|")
+head(docs)
+
+# 소문자로 변환
+docs <- tm_map(docs, content_transformer(tolower))
+# 수치 데이터 제거
+docs <- tm_map(docs, removeNumbers)
+# 영어 불용어 제거
+docs <- tm_map(docs, removeWords, stopwords("english"))
+
+# 벡터 구조로 사용자가 직접 불용어  설정 , 제거
+docs <- tm_map(docs, removeWords, c("blabla1", "blabla2")) 
+
+# 문장 부호 punctuations
+docs <- tm_map(docs, removePunctuation)
+
+# 공백 제거
+docs <- tm_map(docs, stripWhitespace)
+
+# 텍스트 형태소 분석
+# docs <- tm_map(docs, stemDocument)
+
+
+# 문서 매트릭스는 단어의 빈도를 포함하는 테이블입니다. 
+# 열 이름은 단어이고 행 이름은 문서입니다. 
+# text mining 패키지에서 문서 매트릭스를 생성하는 함수 사용
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+
+
+set.seed(1234)
+wordcloud(words = d$word, freq = d$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+
+
+## ggplot 패키지를 이용한 시각화
+
+```r
+install.packages("ggplot2")
+library(ggplot2)
+str(airquality)
+ggplot(airquality,aes(x=Day,y=Temp))+geom_point(size=3,color="red")
+```
+
+![1568177689150](R.assets/1568177689150.png)
+
+```r
+ggplot(airquality,aes(x=Day,y=Temp))+geom_line()
+```
+
+![1568178316159](R.assets/1568178316159.png)
+
+##### 그래프 겹쳐 그리기
+
+```r
+ggplot(airquality,aes(x=Day,y=Temp))+geom_line()+geom_point()
+```
+
+![1568178393005](R.assets/1568178393005.png)
+
+##### 막대그래프, geom_bar()함수
+
+```r
+ggplot(mtcars,aes(x=cyl))+geom_bar(width = 0.5)
+```
+
+![1568178457918](R.assets/1568178457918.png)
+
+##### 빈 범주 제외하고 cyl 종류별 빈도수 확인
+
+```r
+ggplot(mtcars,aes(x=factor(cyl)))+geom_bar(width=0.5)
+```
+
+![1568178539506](R.assets/1568178539506.png)
+
+##### 누적막대그리기
+
+- 누적한 gear는 비어있는 값이 있으면 안되므로 반드시 factor()사용!
+
+```r
+ggplot(mtcars,aes(x=factor(cyl)))+
+  geom_bar(aes(fill=factor(gear)))
+# +coord_polar() 이것을 추가하면 선버스트 차트로  변환!
+# + coord_polar(theta="y") 원그래프로 변환
+```
+
+![1568179240418](R.assets/1568179240418.png)
+
+##### geom_boxplot() 함수
+
+```r
+ggplot(airquality,aes(x=Day,y=Temp,group=Day))+
+  geom_boxplot() # Day 열을 그룹, 날짜별 온도 그림
+```
+
+![1568179490872](R.assets/1568179490872.png)
+
+##### geom_histogram() 
+
+```r
+ggplot(airquality,aes(Temp))+
+  geom_histogram()
+# 그래프의 폭이 넓어 기본값의 30%로 자동 조정된다.
+# 폭 직접 지정은 binwidth=비율 로 한다.
+```
+
+![1568179850421](R.assets/1568179850421.png)
+
+## ggplot2 패키지의 다양한 객체 그리는 함수
+
+##### 직선 그리기
+
+```r
+str(economics)
+ggplot(economics,aes(x=date,y=psavert))+
+  geom_line()+geom_abline(intercept=12.18671,slope=-0.0005444)
+```
+
+![1568180041012](R.assets/1568180041012.png)
+
+##### 꺽은선그래프에 평행선 그리기
+
+```r
+ggplot(economics,aes(x=date,y=psavert))+
+  geom_line()+
+  geom_hline(yintercept = mean(economics$psavert))
+```
+
+![1568180128328](R.assets/1568180128328.png)
+
+##### 꺽은선에 수직선 그리기
+
+```r
+library(dplyr)
+x_inter<-filter(economics,psavert == min(economics$psavert))$date
+
+ggplot(economics,aes(x=date,y=psavert))+
+  geom_line()+
+  geom_vline(xintercept = x_inter)
+
+```
+
+![1568180265694](R.assets/1568180265694.png)
+
+## ggplot2, 텍스트 입력 및 도형 그리기
+
+##### 산점도, 각점에 데이터 입력
+
+```r
+ggplot(airquality,aes(x=Day,y=Temp))+
+  geom_point()+
+  geom_text(aes(label=Temp,vjust=0,hjust=0))
+```
+
+![1568180395994](R.assets/1568180395994.png)
+
+## 크룰링하기
+
+##### 웹사이트에서 데이터 전처리
+
+```r
+install.packages('rvest')
+ 
+library(rvest)
+
+#스크래핑할 웹 사이트 URL을 변수에 저장
+url <- 'http://www.imdb.com/search/title?count=100&release_date=2016,2016&title_type=feature'
+
+#웹 사이트로부터  HTML code 읽기
+webpage <- read_html(url)   
+webpage
+
+# 스크래핑할 데이터 - rank, title, description, runtime, genre, rating, metascore, votes, gross_earning_in_Mil, director, actor
+
+#랭킹이 포함된 CSS selector를 찾아서 R 코드로 가져오기
+rank_data_html <- html_nodes(webpage,'.text-primary')
+
+#랭킹 데이터를 텍스트로 가져오기
+rank_data <- html_text(rank_data_html)
+head(rank_data)
+
+#랭킹 데이터를 수치형 데이터로 변환
+rank_data<-as.numeric(rank_data) 
+head(rank_data)
+#str(rank_data)
+#length(rank_data)
+
+```
+
+
+
+```r
+# 제목 영역의 CSS SELECTOR 스크래핑 
+title_data_html<-html_nodes(webpage,'.lister-item-header a')
+
+#제목 데이터 텍스트로 가져오기 
+> title_data<-html_text(title_data_html)
+> head(title_data_html)
+{xml_nodeset (6)}
+[1] <a href="/title/tt1386697/?ref_=adv_li_tt">Suicide Squad</a>
+[2] <a href="/title/tt3300542/?ref_=adv_li_tt">London Has Fallen</a>
+[3] <a href="/title/tt3385516/?ref_=adv_li_tt">X-Men: Apocalypse</a>
+[4] <a href="/title/tt1431045/?ref_=adv_li_tt">Deadpool</a>
+[5] <a href="/title/tt4972582/?ref_=adv_li_tt">Split</a>
+[6] <a href="/title/tt3748528/?ref_=adv_li_tt">Rogue One</a>
+
+
+#description 데이터 텍스트로 가져오기 
+> description_data<-html_nodes(webpage,'.ratings-bar+ .text-muted')
+> head(description_data)
+{xml_nodeset (6)}
+[1] <p class="text-muted">\n    A secret government agency recruits some o ...
+[2] <p class="text-muted">\n    In London for the Prime Minister's funeral ...
+[3] <p class="text-muted">\n    In the 1980s the X-Men must defeat an anci ...
+[4] <p class="text-muted">\n    A wisecracking mercenary gets experimented ...
+[5] <p class="text-muted">\n    Three girls are kidnapped by a man with a  ...
+[6] <p class="text-muted">\n    The daughter of an Imperial scientist join ...
+
+
+
+> #데이터 처리하ㅏ기
+> description_data<-gsub("\n","",description_data)
+> head(description_data)
+[1] "<p class=\"text-muted\">    A secret government agency recruits some of the most dangerous incarcerated super-villains to form a defensive task force. Their first mission: save the world from the apocalypse.</p>"
+[2] "<p class=\"text-muted\">    In London for the Prime Minister's funeral, Mike Banning is caught up in a plot to assassinate all the attending world leaders.</p>"                                                    
+[3] "<p class=\"text-muted\">    In the 1980s the X-Men must defeat an ancient all-powerful mutant, En Sabah Nur, who intends to thrive through bringing destruction to the world.</p>"                                  
+[4] "<p class=\"text-muted\">    A wisecracking mercenary gets experimented on and becomes immortal but ugly, and sets out to track down the man who ruined his looks.</p>"                                              
+[5] "<p class=\"text-muted\">    Three girls are kidnapped by a man with a diagnosed 23 distinct personalities. They must try to escape before the apparent emergence of a frightful new 24th.</p>"                      
+[6] "<p class=\"text-muted\">    The daughter of an Imperial scientist joins the Rebel Alliance in a risky move to steal the Death Star plans.</p>"                                                                      
+
+> library(stringr)
+> description_data<-str_trim(description_data)
+> head(description_data)
+[1] "<p class=\"text-muted\">    A secret government agency recruits some of the most dangerous incarcerated super-villains to form a defensive task force. Their first mission: save the world from the apocalypse.</p>"
+[2] "<p class=\"text-muted\">    In London for the Prime Minister's funeral, Mike Banning is caught up in a plot to assassinate all the attending world leaders.</p>"                                                    
+[3] "<p class=\"text-muted\">    In the 1980s the X-Men must defeat an ancient all-powerful mutant, En Sabah Nur, who intends to thrive through bringing destruction to the world.</p>"                                  
+[4] "<p class=\"text-muted\">    A wisecracking mercenary gets experimented on and becomes immortal but ugly, and sets out to track down the man who ruined his looks.</p>"                                              
+[5] "<p class=\"text-muted\">    Three girls are kidnapped by a man with a diagnosed 23 distinct personalities. They must try to escape before the apparent emergence of a frightful new 24th.</p>"                      
+[6] "<p class=\"text-muted\">    The daughter of an Imperial scientist joins the Rebel Alliance in a risky move to steal the Death Star plans.</p>"   
+```
+
+##### 영화 상영시간 CSS selectors  스프래핑
+
+```r
+#mins(분) 문자열 제거 후 수치형 데이터로 변환 데이터 처림
+runtime_data_heml<-html_nodes(webpage,'.text-muted .runtime')
+
+runtime_data<-html_text(runtime_data_heml)
+
+runtime_data<-gsub("min","",runtime_data)
+
+runtime_data<-as.numeric(runtime_data)
+```
+
+##### 영화장르 영역 CSS selectors 스크래핑
+
+```r
+#영화 장르 데이터
+movietype_data_html<-html_nodes(webpage,'.text-muted .genre')
+
+movietype_data<-html_text(movietype_data_html)
+
+movietype_data<-gsub("\n","",movietype_data)
+#\n제거
+movietype_data<-str_trim(movietype_data)
+#공백 제거 또는 gsub(" ","",movietype_data)
+# , 제거
+movietype_data<-gsub(",","",movietype_data)
+
+
+# , . 뒤에 * 이 오면 다 지우는 것! 밑에것만 하면 하나만 남는다.
+movietype_data<-gsub(",.*","",movietype_data)
+
+movietype_data<-as.factor(movietype_data)
+head(movietype_data)
+[1] Action Adventure Fantasy Action Thriller         
+[3] Action Adventure Sci-Fi  Action Adventure Comedy 
+[5] Horror Thriller          Action Adventure Sci-Fi 
+52 Levels: Action Adventure Comedy ... Horror Thriller
+```
+
+##### IMDB rating 영역의 CSS selectors 를 이용한 스크래핑
+
+```r
+> #IMDB rating 영역의 CSS selectors를 이용한 스크래핑
+> rating_data_html <- html_nodes(webpage,'.ratings-imdb-rating strong')
+> #IMDB rating 데이터 text로 가져오기
+> rating_data <- html_text(rating_data_html)
+> head(rating_data) 
+[1] "6.0" "5.9" "6.9" "8.0" "7.3" "7.8"
+> ##IMDB rating 데이터를 numerical으로 변환 데이터 처리
+> rating_data<-as.numeric(rating_data)
+> head(rating_data)
+[1] 6.0 5.9 6.9 8.0 7.3 7.8
+```
+
+##### votes 영역의  CSS selectors 를 이용한 스크래핑
+
+```r
+> #votes 영역의 CSS selectors를 이용한 스크래핑 
+> votes_data_html<-html_nodes(webpage,'.sort-num_votes-visible span:nth-child(2)')
+Error in fetch(key) : 
+  lazy-load database 'C:/Program Files/R/R-3.6.1/library/rvest/help/rvest.rdb' is corrupt
+> #votes 데이터 text로 가져오기
+> votes_data<-html_text(votes_data_html)
+> #콤마(,) 제거 데이터 처리
+> votes_data<-gsub(",","",votes_data)
+
+
+> #votes 데이터를 numerical으로 변환 데이터 처리
+> votes_data<-as.numeric(votes_data )
+> head(votes_data)
+[1] 544063 128895 365202 836193 371465 487692
+```
+
+##### 감독
+
+```r
+> #감독 영역의 CSS selectors를 이용한 스크래핑
+> directors_data_html <- html_nodes(webpage,
++                                   '.text-muted+ p a:nth-child(1)')
+> #감독 데이터 text로 가져오기
+> directors_data <- html_text(directors_data_html)
+> head(directors_data)
+[1] "David Ayer"         "Babak Najafi"       "Bryan Singer"      
+[4] "Tim Miller"         "M. Night Shyamalan" "Gareth Edwards"    
+> #감독 데이터 문자열을  범주형 데이터로 변환 처리
+> directors_data<-as.factor(directors_data)
+> head(direct_data)
+[1] Desmond T. Doss      Mahavir Singh Phogat Chesley Sullenberger
+[4] Ray Kroc            
+4 Levels: Chesley Sullenberger Desmond T. Doss ... Ray Kroc
+> head(directors_data)
+[1] David Ayer         Babak Najafi       Bryan Singer      
+[4] Tim Miller         M. Night Shyamalan Gareth Edwards    
+99 Levels: Adam Wingard Alex Proyas Ana Lily Amirpour ... Zack Snyder
+```
+
+
+
+##### 배우
+
+```r
+> # 배우 영역의 CSS selectors를 이용한 스크래핑 
+> actor_data_html<-html_nodes(webpage,'.lister-item-content  .ghost+ a')
+> # 배우 데이터 text로 가져오기
+> actor_data<-html_text(actor_data_html)
+> # 배우 데이터 문자열을  범주형 데이터로 변환 처리
+> actor_data<-as.factor(actor_data)
+> head(actor_data)
+[1] Will Smith     Gerard Butler  James McAvoy   Ryan Reynolds 
+[5] James McAvoy   Felicity Jones
+90 Levels: Aamir Khan Adam Driver Adam Sandler ... Zac Efron
+```
+
+##### metascore 의 개수가 없어 누락 순위에 NA채우기
+
+```r
+# metascore 영역의 CSS selectors를 이용한 스크래핑
+metascore_data_html <- html_nodes(webpage,'.metascore')
+
+# metascore 데이터 text로 가져오기
+metascore_data <- html_text(metascore_data_html)
+head(metascore_data)
+ 
+
+#1개 이상의 공백 제거
+metascore_data<-gsub(" ","",metascore_data)
+length(metascore_data)
+metascore_data
+
+#metascore 누락된 데이터  NA처리하기  - 29,58, 73, 96
+for (i in c(29,58, 73, 96)){
+  a<-metascore_data[1:(i-1)]    #리스트로 확인
+  b<-metascore_data[i:length(metascore_data)]
+  metascore_data<-append(a,list("NA"))
+  metascore_data<-append(metascore_data,b)
+}
+
+
+# metascore  데이터를 numerical으로 변환 데이터 처리
+metascore_data<-as.numeric(metascore_data)
+
+# metascore  데이터 개수 확인
+length(metascore_data) 
+
+
+#metascore 요약 통계 확인
+summary(metascore_data)
+```
+
+##### 총수익 데이터 & 빈자리 NA 채우기
+
+```r
+#gross revenue(총수익)  영역의 CSS selectors를 이용한 스크래핑 
+revenue_data_html<-html_nodes(webpage,'.sort-num_votes-visible span:nth-child(5)')
+
+#gross revenue(총수익) 데이터 text로 가져오기
+revenue_data<-html_text(revenue_data_html)
+head(revenue_data)
+# '$' 와 'M' 기호 제거 데이터 처리
+revenue_data<-gsub("[$,M]","",revenue_data)
+head(revenue_data)
+#gross revenue(총수익) 데이터 개수 확인
+length(revenue_data)
+#누락된 데이터  NA로 채우기
+for(i in c(29,45,57,62,73,93,98)){
+  a<-revenue_data[1:(i-1)]
+  b<-revenue_data[i:length(revenue_data)]
+  
+  revenue_data<-append(a,list("NA"))
+  revenue_data<-append(revenue_data,b)
+}
+
+# gross revenue(총수익) 데이터를 numerical으로 변환 데이터 처리
+revenue_data<-as.numeric(revenue_data)
+#gross revenue(총수익) 데이터 개수 확인
+length(revenue_data)
+[1] 100
+#gross revenue(총수익) 요약 통계 확인 
+summary(revenue_data)
+ Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+   0.18   12.79   54.65   95.03  125.07  532.18       7 
+```
+
+##### 그래프 그리기
+
+```r
+movie_df<-data.frame(Rank=rank_data,Title=title_data,
+                     Description=description_data,Runtime=runtime_data,
+                     Genre=movietype_data,Rating=rating_data,
+                     Metascore=metascore_data,Votes=votes_data,
+                     Director = directors_data, Actor = actor_data)
+str(movie_df)
+library(ggplot2)
+qplot(data=movie_df,Runtime,fill=Genre,bins=30)
+```
+
+![1568189113637](R.assets/1568189113637.png)
+
+```r
+#상영시간이 130-160분인 장르중 votes가 가장 높은 것은?
+ggplot(movie_df,aes(x=Runtime,y=Votes))+
+  geom_line()+
+  coord_cartesian(xlim = c(130,160)) # x축 범위지정
+```
+
+![1568190894136](R.assets/1568190894136.png)
+
+
+
+##### 문제
+
+```r
+install.packages("jsonlite")
+library(jsonlite)
+library(xml2)
+library(rvest)
+library(stringr)
+url<-'https://www.amazon.in/OnePlus-Mirror-Black-64GB-Memory/dp/B0756Z43QS?tag=googinhydr18418-21&tag=googinkenshoo-21&ascsubtag=aee9a916-6acd-4409-92ca-3bdbeb549f80'
+# 추출할 정보 : 제목, 가격, 제품 설명, 등급, 크기, 색상?
+```
+
+
+
+##### 한번에 그래프 나타내기 grid
+
+```r
+listall.packages("gridExtra")
+library(gridExtra)
+a:ggplot(mtcars)+geom_point(aes(hp,mpg))
+b:ggplot(mtcars)+geom_histogram(aes(hp))
+c:ggplot(mtcars)+geom_histogram(aes(mpg))
+
+grid.arrange(a,b,c, nrow=2,ncol=2)
+```
 
