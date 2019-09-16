@@ -5871,3 +5871,587 @@ c:ggplot(mtcars)+geom_histogram(aes(mpg))
 grid.arrange(a,b,c, nrow=2,ncol=2)
 ```
 
+
+
+## 가격 비교를 위한 크룰링
+
+##### 준비
+
+```r
+install.packages("jsonlite")
+library(jsonlite)
+library(xml2)
+library(rvest)
+library(stringr)
+
+url <- 'https://www.amazon.in/OnePlus-Mirror-Black-64GB-Memory/dp/B0756Z43QS?tag=googinhydr18418-21&tag=googinkenshoo-21&ascsubtag=aee9a916-6acd-4409-92ca-3bdbeb549f80'
+
+#추출할 정보 : 제목, 가격, 제품 설명, 등급, 크기, 색상
+```
+
+##### HTML 읽기 & 타이틀 읽어오기
+
+```r
+#HTML 파일code 읽기
+webpage<-read_html(url)
+title_html<-html_nodes(webpage,'h1#title')
+title<-html_text(title_html)
+title<-gsub("\n","",title) #줄바꿈 제거
+title<-trim(title)
+title<-str_trim(title)  #공백제거
+title<-as.factor(title)
+head(title)
+str(title)
+print(title)
+
+```
+
+##### 가격 정보 가져오기
+
+```r
+# 가격 가져오기
+price_html<-html_node(webpage,'span#priceblock_ourprice')
+price<-html_text(price_html)
+price<-gsub("\u20b9","",price)
+price<-str_trim(price)
+head(price)
+```
+
+##### 제품 설명 정보 가졍괴
+
+```r
+# 제품 설명 정보 가져오기
+desc_html<-html_nodes(webpage,'div#ddmDeliveryMessage')
+desc<-html_text(desc_html)
+desc<-str_replace_all(desc,"[\r\n]","")
+desc<-str_trim(desc)
+head(desc)
+```
+
+##### 등급 정보 가져오기
+
+```r
+# 등급 정보 가져오기
+rank_html<-html_node(webpage,'.a-star-4-5 .a-icon-alt')
+rank<-html_text(rank_html)
+rank<-str_remove(rank,"out of 5 stars")
+rank<-str_trim(rank)
+head(rank)
+```
+
+#크기 정보 가져오기
+
+```r
+#크기 가져오기
+size_html<-html_node(webpage,'span.selection')
+size<-html_text(size_html)
+
+head(size)
+```
+
+##### 색상정보 가져오기
+
+```r
+색상 정보 가져오기
+color_html<-html_node(webpage,'div #variation_color_name')
+color_html<-html_node(color_html,'span.selection')
+color<-html_text(color_html)
+color<-str_replace_all(color,"[\r\n]","")
+color<-str_trim(color)
+head(color)
+```
+
+##### json 형식으로 저장
+
+```r
+# json형식으로 저장
+
+phone_df<-data.frame(Color=color,Size=size, Rank=rank,Desc=desc,Price=price,Title=title)
+phone_df<-toJSON(phone_df)
+cat(phone_df)
+```
+
+***
+
+## 가격 비교 위한 크룰링2 (참고! )
+
+```r
+#웹 사이트로부터  HTML code 읽기
+webpage <- read_html(url)
+  
+#제목 정보의 태그 가져오기
+title_html <- html_nodes(webpage, 'h1#title')
+title <- html_text(title_html)
+head(title) 
+
+#모든 공백과 줄 바꿈 제거
+str_replace_all(title, "[\r\n]", "")
+
+#가격 정보 태그 가져오기
+price_html <- html_nodes(webpage, 'span#priceblock_ourprice')
+price <- html_text(price_html)
+#모든 공백과 줄 바꿈 제거
+price <-str_replace_all(price, "[\r\n]", "")
+head(price) 
+
+```
+
+***
+
+## 데이터 샘플 추출
+
+```r
+sample_n(mtcars,10) #함수 개수를 기준으로
+smmple_frac(mtcars,0.2)#함수 비율을 기준으로 
+#데이터는 무작위므로 실행시마다 다르게 추출
+```
+
+## GoogleVis 패키지 & ggmap패키지
+
+### GoogleVis
+
+- 구글이 제공하는 차트를 R에서도 사용 가능
+
+```r
+install.packages("googleVis")
+library(googleVis)
+```
+
+- economics 데이터 세트 이용 
+
+```r
+gvisMotionChar(데이터, idvar="기준 데이터",timevar="날짜 데이터")
+# 결과는 plot()함수 이용
+```
+
+##### 움직이는 차트 생성
+
+```R
+library(ggplot2)
+motion<-gvisMotionChart(economics,idvar="psavert",timevar="date")
+plot(motion)
+#크롬의 경우 플래시 허용 해주어야 뜬다!
+
+```
+
+![1568597367215](R.assets/1568597367215.png)
+
+##### 계기판형 그래프(게이지 차트)
+
+```r
+gvisGauge(데이터,labelvar="측정 데이터(컬럼명)"
+          ,numvar="값",options="list(그래프 옵션)")
+#결과값은 plot()함수 이용
+gauge<-gvisGauge(CityPopularity,labelvar="City",numvar="Popularity",options=list(min=0,max=1000))
+plot(gauge)
+```
+
+![1568597322937](R.assets/1568597322937.png)
+
+### ggmap 패키지
+
+##### 패키지 설치
+
+```r
+install.packages("devtools")
+library(devtools)
+install_github("dkahle/ggmap")
+library(ggmap)
+# 약관 동의가 필요하기 때문에 
+```
+
+[약관동의](http://developers.google.com/maps/terms)접속후 Getstarted 버튼 클릭 후 사용하려 하는 API 체크
+
+##### 구글 지도 가져오기
+
+```r
+googleAPikey="구글키"
+gmap_seoul<-get_googlemap("seoul",maptype="terrain")
+#옵션 terrain, satellite,roadmap,hybrid
+ggmap(gmap_seoul)
+
+```
+
+##### 구글 지도 위 산점도 그리기
+
+```r
+library(dplyr)
+library(ggplot2)
+#한글검색
+map_code<-enc2utf8("대전역") %>% geocode()
+map_data<-as.numeric(map_code)
+
+#대전역 위치 정보부른후 구글지도 호출
+get_map(center=map_data,maptype="roadmap",zoom=13) %>% ggmap()+
+geom_point(data=geo_code,aes(x=map_code$lon,y=map_code$lat))
+
+#실행해보자
+
+```
+
+## 치킨집 분포 확인
+
+##### 치킨집 데이터
+
+[다운로드](http://www.localdata.kr/) 지역별 다운로드에서 지역 선택 후 다운!
+
+- 음식점이므로 일반음식점 파일 실행
+- 일부 주소만 필터를 통해 분류한다. (강남역)
+- 가공파일 저장 
+
+##### 데이터 가공
+
+```r
+install.packages("readxl")
+library("readxl")
+ganknam<-read_excel("./강남구.xlsx")
+head(ganknam)
+# A tibble: 6 x 3
+  도로명전체주소                     음식점이름     종류         
+  <chr>                              <chr>          <chr>        
+1 서울특별시 강남구 수서동 714번지   홍짜장         중국식       
+2 서울특별시 강남구 청담동 131-13번지~ 브레쉬에비뉴   경양식       
+3 서울특별시 강남구 삼성동 8-2번지   리츠빈         까페         
+4 서울특별시 강남구 신사동 627-12번지~ 이(E)419       식육(숯불구이)~
+5 서울특별시 강남구 삼성동 114-32번지~ 뱅따           경양식       
+6 서울특별시 강남구 대치동 947번지   대독장 삼성역점~ 한식  
+
+#도로명 전체주소에서 동이름만 추출
+addr<-substr(ganknam$도로명전체주소,11,13)
+head(addr)
+
+#동별 음식점 갯수 카운트
+addr_count<-addr %>% table() %>% data.frame()
+head(addr_count)
+
+
+```
+
+![1568607102928](R.assets/1568607102928.png)
+
+## 서울시 대기 환경 정보 
+
+##### 데이터 전처리
+
+- [다운로드](http://cleanair.seoul.go.kr) 에서 [대기통계] 클릭 후 기간별 데이터 다운로드 한다.
+- 날짜 열은 텍스트 형태로 바꿔준다.(데이터 탭에서 텍스트 나누기 클릭, 3단계에서 텍스트 선택)
+- 컬럼명을 각각 'yyyymmdd','area','finedust' 로 변경해주고 저장!
+
+```r
+library(readxl)
+> seouldust<-read_excel("./미세먼지.xlsx")
+> str(seouldust)
+Classes ‘tbl_df’, ‘tbl’ and 'data.frame':	9491 obs. of  3 variables:
+ $ yyyymmdd: chr  "전체" "2018-12-31" "2018-12-31" "2018-12-31" ...
+ $ area    : chr  "평균" "평균" "종로구" "중구" ...
+ $ finedust: num  40 46 45 46 40 54 41 48 44 46 ...
+```
+
+
+
+##### 비교데이터 추출
+
+```r
+library(dplyr)
+seouldust_year<-seouldust %>% filter(area %in% c("성북구","중구"))
+View(seouldust_year)
+```
+
+![1568607842497](R.assets/1568607842497.png)
+
+##### 데이터 파악
+
+```r
+#일별 수
+count(seouldust_year,yyyymmdd) %>% arrange(desc(n))
+# A tibble: 365 x 2
+   yyyymmdd       n
+   <chr>      <int>
+ 1 2018-01-01     2
+ 2 2018-01-02     2
+ 3 2018-01-03     2
+ 4 2018-01-04     2
+ 5 2018-01-05     2
+ 6 2018-01-06     2
+ 7 2018-01-07     2
+ 8 2018-01-08     2
+ 9 2018-01-09     2
+10 2018-01-10     2
+# ... with 355 more rows
+
+
+#지역 따른 수
+count(seouldust_year,area) %>% arrange(desc(n))
+# A tibble: 2 x 2
+  area       n
+  <chr>  <int>
+1 성북구   365
+2 중구     365
+
+#지역 따른 분리
+seouldust_sb<-subset(seouldust_year,area=='성북구')
+seouldust_jr<-subset(seouldust_year,area=='중구')
+seouldust_sb
+# A tibble: 365 x 3
+   yyyymmdd   area   finedust
+   <chr>      <chr>     <dbl>
+ 1 2018-12-31 성북구       46
+ 2 2018-12-30 성북구       33
+ 3 2018-12-29 성북구       41
+ 4 2018-12-28 성북구       39
+ 5 2018-12-27 성북구       35
+ 6 2018-12-26 성북구       45
+ 7 2018-12-25 성북구       35
+ 8 2018-12-24 성북구       23
+ 9 2018-12-23 성북구       51
+10 2018-12-22 성북구       79
+# ... with 355 more rows
+
+seouldust_jr
+# A tibble: 365 x 3
+   yyyymmdd   area  finedust
+   <chr>      <chr>    <dbl>
+ 1 2018-12-31 중구        46
+ 2 2018-12-30 중구        32
+ 3 2018-12-29 중구        36
+ 4 2018-12-28 중구        34
+ 5 2018-12-27 중구        25
+ 6 2018-12-26 중구        47
+ 7 2018-12-25 중구        32
+ 8 2018-12-24 중구        22
+ 9 2018-12-23 중구        50
+10 2018-12-22 중구        79
+# ... with 355 more rows
+
+install.packages("psych")
+library(psych)
+describe(seouldust_sb$finedust)
+   vars   n  mean    sd median trimmed   mad min max range skew
+X1    1 365 41.52 23.31     38   38.64 19.27   7 138   131 1.32
+   kurtosis   se
+X1     2.22 1.22
+describe(seouldust_jr$finedust)
+   vars   n  mean    sd median trimmed   mad min max range skew
+X1    1 365 36.09 20.19     33   33.88 17.79   5 117   112 1.16
+   kurtosis   se
+X1     1.72 1.06
+```
+
+##### 시각화
+
+```r
+install.packages("psych")
+library(psych)
+describe(seouldust_sb$finedust)
+   vars   n  mean    sd median trimmed   mad min max range skew
+X1    1 365 41.52 23.31     38   38.64 19.27   7 138   131 1.32
+   kurtosis   se
+X1     2.22 1.22
+describe(seouldust_jr$finedust)
+   vars   n  mean    sd median trimmed   mad min max range skew
+X1    1 365 36.09 20.19     33   33.88 17.79   5 117   112 1.16
+   kurtosis   se
+X1     1.72 1.06
+#그래프 그리기
+boxplot(seouldust_sb$finedust,seouldust_jr$finedust,
+        main="미세먼지비교",xlab="지역",ylab="미세먼지PM",names=c("성북구","중구"),col=(c("black","yellow")))
+```
+
+![1568608419325](R.assets/1568608419325.png)
+
+```r
+> t.test(data=seouldust_year,finedust ~ area, var.equal=T)
+
+	Two Sample t-test
+
+data:  finedust by area
+t = 3.3619, df = 728, p-value = 0.0008145
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ 2.258012 8.596782
+sample estimates:
+mean in group 성북구   mean in group 중구 
+            41.51507             36.08767 
+```
+
+## 트위터 API 사용하기
+
+- [접속](https://apps.twitter.com/)후 로그인
+- create New App 버튼 클릭 
+- 앱승인을 얻고 만든다!. 키 값을 확인한다!
+
+##### twitteR 패키지 설치 및 OAuth 인증
+
+```r
+install.packages("twitteR")
+library(twitteR)
+
+conkey="키값입력"
+conSer="키값입력"
+accT="키값입력"
+accTS="키값입력"
+```
+
+```r
+setup_twitter_oauth(conkey,conSer,accT,accTS) #키값적용
+keyword<-enc2utf8("강남 한식") #한글검색위한 인코딩
+bigdata<-searchTwitter(keyword,n=100,lang="ko") #100개, lang=언어
+bigdata_df<-twListToDF(bigdata)#데이터 프레임으로 반환
+str(bigdata_df)#데이터 확인
+bigdata_text<-bigdata_df$text # 데이터중 text만 추출
+head(bigdata_text)#확인
+install.packages("KoNLP")#R패키지중 유일하게 한글 처리
+library(KoNLP)
+useSejongDic()#세종사전 설정
+
+bigdata_noun<-sapply(bigdata_text,extractNoun,USE.NAMES = F)#extractNoun이용하여 명사 추출
+bigdata_noun<-unlist(bigdata_noun)#벡터로 변환
+
+#2글자이상만 추출
+bigdata_noun<-Filter(function(x){nchar(x)>=2},bigdata_noun)
+#제외 문자
+bigdata_noun<-gsub("[A-Za-z0-9]","",bigdata_noun)
+bigdata_noun<-gsub("[~!@#$%^&*()_+|=?:]","",bigdata_noun)
+bigdata_noun<-gsub("[ㄱ-ㅎ]","",bigdata_noun)
+bigdata_noun<-gsub("(ㅜ|ㅠ)+","",bigdata_noun)
+#워드클라우드로 표현하기 위해 table()함수 이용하여 데이터세트 형태로 변환
+word_table<-table(bigdata_noun)
+
+#워드클라우드 표현
+library(wordcloud2)
+wordcloud2(word_table,fontFamily = "맑은 고딕",size=3,color="random-light",backgroundColor="black")
+
+```
+
+![1568612779558](R.assets/1568612779558.png)
+
+## 지하철역 근처 아파트 가격
+
+##### 데이터 전처리
+
+- [서울열린데이터광장](http://data.seoul.go.kr)에 접속하여 ''서울지하철 주소 ''검색후 '서울교통공사 지하철역 주소 및 전화번호 정보' 클릭!
+- File탭의 '역별 주소 및 전화번호.xlsx'항목다운로드
+- 컬럼명 '역명','구주소'만 남기기
+- [아파트실거래가](http://rt.molit.go.kr) 에서 자료를 다운받고 '시군구','번지','단지명','전용면적','거래금액'컬럼명 남긴다.
+
+##### 구글지도 정보
+
+- [google Maps platform](https://cloud.google.com/maps-platform/terms)에 접속하여  API Key 발급
+
+##### 구글지도 가져오기
+
+```r
+#패키지 설정 및 로드
+install.packages("devtools")
+library(devtools)
+install_github("dkahle/ggmap")
+library(ggmap)
+library("dplyr")
+
+
+#역별 전화번호와 주소를 csv로 가져온다.
+station_data<-read.csv("./역별.csv")
+str(station_data)
+
+#지하철의 좌표 정보를 구하려 한다.
+googleAPIkey="키값 입력"
+register_google(googleAPIkey)
+
+#문자형으로 바꾼다. geocode는 위도 경도를 가져온다.
+station_code<-as.character(station_data$구주소) %>% enc2utf8() %>% geocode()
+head(station_code)
+
+#최종적인 지하철 코드!
+stationf<-cbind(station_data,station_code)
+head(stationf)
+
+##################################################################
+#아파트 실거래가 가격 
+apart_data<-read.csv("아파트.csv")
+head(apart_data)
+
+#전용면적 반올림
+apart_data$전용면적...=round(apart_data$전용면적...)
+head(apart_data)
+
+#전용면적으로 빈도수 구하고 내림차순 정렬
+count(apart_data,전용면적...) %>% arrange(desc(n))
+
+#전용면적이 60인 데이터만 추출
+apart_data_60<-subset(apart_data,전용면적...=="60")
+head(apart_data_60)
+
+#쉼표 제거
+apart_data_60$거래금액.만원.<-gsub(",","",apart_data_60$거래금액.만원.)
+head(apart_data_60)
+
+#거래금액 정수로 바꾸고, 단지별 평균 구하기
+apart_data_60_cost<-aggregate(as.integer(거래금액.만원.)~단지명,apart_data_60,mean)
+head(apart_data_60_cost)
+
+#"거래금액 컬럼명을 변경!"
+apart_data_60_cost<-rename(apart_data_60_cost,"거래금액"="as.integer(거래금액.만원.)")
+head(apart_data_60_cost)
+
+#단지명 중복행 제거!
+apart_data_60<-apart_data_60[!duplicated(apart_data_60$단지명),]
+head(apart_data_60)
+#duplicated()함수는 중복이면 ture, 처음나오면 false를 반환 하는데 [!duplicated(중복검사 열),] 이렇게 작성하면 처음 나온 데이터만 작성 ! 배열 형태로 반환
+
+
+#단지명을 기준으로 apart_data60 과 apart_data_60_cost 합치기
+apart_data_60<-left_join(apart_data_60,apart_data_60_cost,by="단지명")
+head(apart_data_60)
+
+#일부만 추출!
+apart_data_60<-apart_data_60 %>% select("단지명","시군구","번지","전용면적...","거래금액")
+head(apart_data_60)
+
+
+##################################################################
+#"시군구"와 "번지" 열을 합친다
+apart_address<-paste(apart_data_60$시군구,apart_data_60$번지)
+head(apart_address)
+#"시군구"와 "번지"를 합친후 데이터프레임으로 변환
+apart_address <-paste(apart_data_60$시군구,apart_data_60$번지) %>% data.frame()
+head(apart_address)
+
+#열이름 변환
+apart_address<-rename(apart_address,"주소"=".")
+head(apart_address)
+
+###################################################################
+#아파트 주소를 위,경보 변환후 apart_address_code에 저장
+apart_address_code<-as.character(apart_address$주소) %>% enc2utf8() %>% geocode()
+
+#데이터를 합친 후 일부 열만 apart_codef 에 저장
+apart_codef<-cbind(apart_data_60,apart_address,apart_address_code) %>% select("단지명","전용면적...","거래금액","주소",lon,lat)
+head(apart_codef)
+
+#감남구 지도 가져오기
+gank_map<-get_googlemap("Gangnamgu",maptype="roadmap",zoom=12)
+ggmap(gank_map)
+
+#패키지 설치
+install.packages("ggplot2")
+library(ggplot2)
+
+#산접도를 이용, 지하철역 위치 표시와 역명 표시
+ggmap(gank_map)+geom_point(data=stationf,aes(x=lon,y=lat),
+                           colour="red",size=3)+
+  geom_text(data=stationf,aes(label=역명,vjust=-1))
+
+#아파트 정보 표시!!! 역삼역을 근처로 세밀하게 표현
+Yeo_map<-get_googlemap("Yeoksam Station",maptype="roadmap",zoom=15)
+
+#역삼역 지도에 지하철 정보와 아파트 정보를 표시
+ggmap(Yeo_map)+geom_point(data=stationf,aes(x=lon,y=lat),colour="red",
+                             size=3)+
+  geom_text(data=stationf,aes(label=역명,vjust=-1))+
+  geom_point(data=apart_codef,aes(x=lon,y=lat))+
+  geom_text(data=apart_codef,aes(label=단지명,vjust=-1))+
+  geom_text(data=apart_codef,aes(label=거래금액,vjust=1))
+```
+
+![1568621503567](R.assets/1568621503567.png)
+
