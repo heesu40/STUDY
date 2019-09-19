@@ -6614,8 +6614,10 @@ library(googleVis)
 
    - 귀무가설(영설) - '두 변수는 관계 없다.', '차이 없다.' **Ho**(아래첨자 0)
      - 주장의 반대!!
+     - 차이가 없다. 유의수준 0.05보다 크면 채택, 0.05보다 작으면 기각
    - 연구가설(대립가설)- '차이가 있다.', '효과가 있다.'**H₁**
      - 주장하고자 하는 바!
+     - 유의수준 0.05보다 작으면 채택
 
 6. 가설 의 요건
 
@@ -8253,5 +8255,1460 @@ data:  Performance
 McNemar's' chi-squared = 16.818, df = 1, p-value = 4.115e-05
 # 관련있따..... 유의확률은 작아야 해당! 카이저제곱은 커야 해당
 
+```
+
+## 추정과 검정
+
+### 신뢰구간
+
+##### 표본의 비율로부터 모집단의 비율 구간 측정
+
+```r
+> #A반도체 회사의 사원을 대상으로 임의 추출한 150명을 조사한 결과 90명이 여자 사원이다
+> #표본 크기(n) : 150
+> #표본비율(????)  : 90/150 = 0.6
+> n<-150
+> p<-90/150
+> #전체 여자 사원 모비율 p-1.96*sqrt(p*(1-p)/n),p+1.96*sqrt(p*(1-p)/n) 
+> p-1.96*sqrt(p*(1-p)/n)
+[1] 0.5216
+> p+1.96*sqrt(p*(1-p)/n)
+[1] 0.6784
+0.5216<= 모비율(0.6) <=0.6784 # 모비율은 상한과 하한 사이에 존재한다.
+```
+
+### 단일집단 검정
+
+- 한 개의 집단과 기존 집단과의 비율 차이 검정은 기술 통계량으로 빈도수에 대한 비율에 의미가 있다. 평균차이 검정은 표본 평균에의미가 있따.
+- 단일 집단 비율 검정
+  - 데이터 전처리(이상치, 결측치 제거) -> 기술통계량(빈도 분석) -> binom.test(), 같은지 비교 -> 검정통계량 분석
+  - 비율차이 검정으로 귀무가설의 기각 여부 결정
+
+###### 1. 데이터 전처리 & 기술통계량 분석
+
+```r
+#2016년도 114 전화번호 안내고객을 대상으로 불만을 갖는 고객은 20%였다.
+#이를 개선하기 위해서 2017년 CS 교육을 실시한 후  150명 고객을 대상으로 조사한 결과 14명이 불만을 가지고 있었다.  기존 20%보다 불만율이 낮아졌다고 할 수 있는가?.
+
+data<-read.csv("./3/one_sample.csv", header=TRUE)
+head(data)
+#no  번호
+#gender 성별
+#survey 만족도
+#time 시간간
+#관측치 150 명!
+#딱히 결측치는 없는것 같아 기술 통계로 넘어간다.
+x<-data$survey # 명목척도
+> plot(x)
+> summary(x)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  1.0000  1.0000  0.9067  1.0000  1.0000 
+> table(x)
+x
+  0   1 
+ 14 136 
+> length(x) #결측치 뺴고 구하기에 확인 가능!
+[1] 150
+
+
+```
+
+![1568856424390](R.assets/1568856424390.png)
+
+```r
+library(prettyR)
+> freq(x) #결측치 확인
+
+Frequencies for x 
+        1    0   NA
+      136   14    0
+%    90.7  9.3    0 
+%!NA 90.7  9.3
+
+
+```
+
+
+
+###### 2. binom.test() 이항분포 
+
+- alternative=“two.sided”은 양측 검정을 의미
+- conf.level=0.95는 95% 신뢰수준을 의미
+- 귀무가설이 모평균=상수 일때와 모 평균 = 상수가 아닐때 양측가설 검정을 수행하고 방향성이 있는 경우 단측가설 검정을 수행
+- alternative=“greater”은 방향성을 갖는 연구가설을 검정할 경우 이용된다.
+
+```r
+> #survey (명목척도)바탕으로 binom.test()이항분포 양측 검정 수행
+> binom.test(c(136,14),p=0.8)
+
+	Exact binomial test
+
+data:  c(136, 14)
+number of successes = 136, number of trials = 150, p-value =
+0.0006735
+alternative hypothesis: true probability of success is not equal to 0.8
+95 percent confidence interval:
+ 0.8483615 0.9480298
+sample estimates:
+probability of success 
+             0.9066667
+
+#################################양측 검측!
+> binom.test(c(136,14),p=0.8, alternative = "two.sided",conf.level = 0.95)
+
+	Exact binomial test
+
+data:  c(136, 14)
+number of successes = 136, number of trials = 150, p-value =
+0.0006735
+alternative hypothesis: true probability of success is not equal to 0.8
+95 percent confidence interval:
+ 0.8483615 0.9480298
+sample estimates:
+probability of success 
+             0.9066667 
+#유의 확률 0.0006735 유의 수준 0.05보다 작다! 기존만족률 (80%)과 차이가 있다. 그렇지만 기준보다 크다 혹은 작다의 방향성은 없다.
+
+
+
+######################단측 검정 수행
+> binom.test(c(136,14),p=0.8, alternative = "greater",conf.level = 0.95)
+
+	Exact binomial test
+
+data:  c(136, 14)
+number of successes = 136, number of trials = 150, p-value =
+0.0003179
+alternative hypothesis: true probability of success is greater than 0.8
+95 percent confidence interval:
+ 0.8579426 1.0000000
+sample estimates:
+probability of success 
+             0.9066667 
+#유의확률 0.0003179 유의수준 0.05보다 작기때문에 기본 만족률(80%) 이상의 효과를 볼 수 있따. 즉 CS 교육 후 고객 불만률 낮아졌다. 귀무가설 기각! 연구가설 채택되어 CS교육 효과가 있따.
+
+# 불만률은 c(14,136) 으로 해주면 된다.
+
+############################양측검정
+> binom.test(c(14,136),p=0.2, alternative = "two.sided",conf.level = 0.95)
+
+	Exact binomial test
+
+data:  c(14, 136)
+number of successes = 14, number of trials = 150, p-value =
+0.0006735
+alternative hypothesis: true probability of success is not equal to 0.2
+95 percent confidence interval:
+ 0.05197017 0.15163853
+sample estimates:
+probability of success 
+            0.09333333 
+###################################### 적은~ 단측 검정
+> binom.test(c(14,136),p=0.2, alternative = "less",conf.level = 0.95)
+
+	Exact binomial test
+
+data:  c(14, 136)
+number of successes = 14, number of trials = 150, p-value =
+0.0003179
+alternative hypothesis: true probability of success is less than 0.2
+95 percent confidence interval:
+ 0.0000000 0.1420574
+sample estimates:
+probability of success 
+            0.09333333 
+
+
+```
+
+### 단일집단 평균검정(단일표본  T검정)
+
+1. 데이터 전처리(이상치 결측치 제거)
+2. 기술통계량(평균)
+3. 정균분포(`shapiro.test()`)
+4. `t.test()`모수검정인 경우  or `wilcox.test()` 비모수 검정인 경우
+5.  검정 통계량 분석
+
+##### 1. 데이터 전처리
+
+```r
+#연구가설(H1) : 국내에서 생산된 노트북과 A회사에서 생산된 노트북의 평균 사용시간에 차이가 있다.
+
+#귀무가설(H0) : 국내에서 생산된 노트북과 A회사에서 생산된 노트북의 평균 사용시간에 차이가 없다.
+
+#국내에서 생산된 노트북 평균 사용시간이 5.2시간으로 파악된 상황에서 A회사에서 생산된 노트북 평균 사용시간과 차이가 있는지를 검정하기 위해서 A 회사 노트북 150대를 랜덤으로 선정하여 검정을 실시한다. 국내에서 생산된 노트북 평균 사용시간이 5.2시간으로 파악된 상황에서 A회사에서 생산된 노트북 평균 사용시간과 차이가 있는지를 검정하기 위해서 A회사 노트북 150대를 랜덤으로 선정하여 검정을 실시한다
+
+
+
+> data<-read.csv("./3/one_sample.csv",header=TRUE)
+> head(data)
+  no gender survey time
+1  1      2      1  5.1
+2  2      2      0  5.2
+3  3      2      1  4.7
+4  4      2      1  4.8
+5  5      2      1  5.0
+6  6      2      1  5.4
+> x<-data$time
+> summary(x)  #nA값이 있다!!!!!
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's '
+  3.000   5.000   5.500   5.557   6.200   7.900      41 
+> length(x)
+[1] 150
+
+##################################nA, 결측치 제외 방법 2가지
+> mean(x,na.rm=T)#na제외 평균
+[1] 5.556881
+> x1<-na.omit(x)#na제외 평균
+> mean(x1)
+[1] 5.556881
+
+```
+
+##### 2. 정규분포 검정
+
+- 검정 결과가 유의 수준0.05보다 큰 경우 정규분포로 본다!
+
+```r
+> #정규분포 검정
+> shapiro.test(x1) #정규분포인지 검정정
+
+	Shapiro-Wilk normality test
+
+data:  x1
+W = 0.99137, p-value = 0.7242
+
+#검정 통계량 0.7242 가 유의수준 0.05 보다 크기 떄문에 x1 객체의 데이터 분포는 정규분포를 따른다. 
+hist(x1)
+```
+
+![1568858194440](R.assets/1568858194440.png)
+
+```r
+
+#stats 패키지에서 정규성 검정= qqnorm(),qqline()는 정규분포 시각화
+install.packages("stats")
+library(stats)
+qqnorm(x1)
+qqline(x1,lty=1,col='blue')
+```
+
+![1568858281316](R.assets/1568858281316.png)
+
+##### 3. 모수검정 (T.검정)
+
+- 비모수의 경우 `wilcox.test()` 이며 정규분포를 따르는 경우 T검정을 한다.
+
+![1568858349714](R.assets/1568858349714.png)
+
+```r
+> #모수 검정 T 검정
+ > t.test(x1,mu=5.2)
+
+	One Sample t-test
+
+data:  x1
+t = 3.9461, df = 108, p-value = 0.0001417
+alternative hypothesis: true mean is not equal to 5.2
+95 percent confidence interval:
+ 5.377613 5.736148
+sample estimates:
+mean of x 
+ 5.556881 
+
+> t.test(x1,mu=5.2, alter="two.side",conf.level = 0.95)
+
+	One Sample t-test
+
+data:  x1
+t = 3.9461, df = 108, p-value = 0.0001417
+alternative hypothesis: true mean is not equal to 5.2
+95 percent confidence interval:
+ 5.377613 5.736148
+sample estimates:
+mean of x 
+ 5.556881 
+
+#검정 통계량 0.0001417 로 유의수준 0.05보다 작기 때문에 국내에서 생산된 노트북과 A회사에서 생산된 노트북의 평균 사용시간 차이가 있다.
+
+#x1의 평균 5.55688(점추정) 은 신뢰구간에 포함
+#A회사의 평균 사용시간 5.2는 신뢰구간에서 벗어나므로 귀무가설이 기각된다.
+
+#(신뢰구간은 귀무가설이 채택역의 의미가 있으므로 )
+```
+
+##### 4. 단측검정
+
+```r
+> #단측검정
+> t.test(x1,mu=5.2,alter="greater",conf.level = 0.95)
+
+	One Sample t-test
+
+data:  x1
+t = 3.9461, df = 108, p-value = 7.083e-05
+alternative hypothesis: true mean is greater than 5.2
+95 percent confidence interval:
+ 5.406833      Inf
+sample estimates:
+mean of x 
+ 5.556881 
+#연구가설: 국내에서 생상된 노트북 평균 사용시간이 A회사에서 생상된 노트북의 평균사용시간보다 더 길다.
+#귀무가설: 검정통계량 7.083e-6로 유의수준 0.05보다 매우 작기 때문에 귀무가설 이며 귀무가설은 'A회사에서 생산된 노트북의 평균 사용시간이 국내에서 생산된 노트북 평균 사용시간보다 더 길다'고 할 수 있다.????????????????????/?
+```
+
+##### 5. 귀무가설 임계값 계산(qt )
+
+```r
+qt(p-value,df)
+> qt(7.083e-5,108)
+[1] -3.946073
+
+임계값 3.946073 이상이면 귀무가설 기각 가능 =대립가설
+ t 검정 통계량 3.9461이므로 귀무가설 기각 가능. = 대립가설
+```
+
+### 두 집단 검정
+
+1. 데이터 전처리(이상치, 결측치 제거)
+2. subset생성
+3. 검정통계량 분석
+4. 단일표본 이항분포 비율검정 `binom.test()`이용
+5. 독립표본 이항분포 비율 검정 `prop.test()` 이용
+
+`IT 교육센터에서 PT를 이용한 프리젠테이션 교육방법과 실시간 코딩 교육방법을 적용하여 교육을 실시하였다. 2시간 교육방법 중 더 효과적인
+교육방법을 조사하기 위해서 교육생 300명을 대상으로 설문을 실시하였다. `
+
+##### 1. 데이터 전처리
+
+```r
+> data<-read.csv('./3/two_sample.csv')
+> head(data)
+  no gender method survey score
+1  1      1      1      1   5.1
+2  2      1      1      0   5.2
+3  3      1      1      1   4.7
+4  4      2      1      0   4.8
+5  5      1      1      1   5.0
+6  6      1      1      1   5.4
+> str(data)
+'data.frame':	300 obs. of  5 variables:
+ $ no    : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ gender: int  1 1 1 2 1 1 2 1 1 1 ...
+ $ method: int  1 1 1 1 1 1 1 1 1 1 ...
+ $ survey: int  1 0 1 0 1 1 0 1 1 0 ...
+ $ score : num  5.1 5.2 4.7 4.8 5 5.4 NA 5 4.4 4.9 ...
+
+#데이터는 300개다!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+> x<-data$method
+> y<-data$survey
+> length(y)
+[1] 300
+> length(x)
+[1] 300  
+#############################결측값이 없다~
+
+
+#########################################빈도수
+> table(x)
+x
+  1   2 
+150 150 
+> table(y)
+y
+  0   1 
+ 55 245 
+> table(x,y)
+   y
+x     0   1
+  1  40 110
+  2  15 135
+#########################################교차분석을 위한 분할표 생성
+> table(x,y,useNA='ifany') #결측치까지 출력
+   y
+x     0   1
+  1  40 110
+  2  15 135
+```
+
+##### 2. 두 진단 비율차이 검정
+
+```r
+> #prop.test('PT교육 만족도와 코딩교육만족도','교육방법에 대한 변량-시행횟수')  만족도 비교하는 것
+> prop.test(c(110,135),c(150,150))
+
+	2-sample test for equality of proportions with continuity
+	correction
+
+data:  c(110, 135) out of c(150, 150)
+X-squared = 12.824, df = 1, p-value = 0.0003422
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ -0.25884941 -0.07448392
+sample estimates:
+   prop 1    prop 2 
+0.7333333 0.9000000 
+#양측검정######################################################
+> prop.test(c(110,135),c(150,150),alternative = "two.sided",conf.level = 0.95)
+
+	2-sample test for equality of proportions with continuity
+	correction
+
+data:  c(110, 135) out of c(150, 150)
+X-squared = 12.824, df = 1, p-value = 0.0003422
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ -0.25884941 -0.07448392
+sample estimates:
+   prop 1    prop 2 
+0.7333333 0.9000000 
+
+#검정통계량 0.0003422로 유의수준보다 작기 떄문에 귀무가설 기각
+# 검정 통계량 X-squared로 가설 검정 수행 가능한데, 자유도가 1이므로 기각력은
+#3.84이다. (카이제곱분포표 확인) 
+```
+
+### 두 집단의 평균(기술통계량)-독립표본 검정
+
+##### 1. 결측치 확인
+
+```r
+> summary(data)
+       no             gender         method        survey      
+ Min.   :  1.00   Min.   :1.00   Min.   :1.0   Min.   :0.0000  
+ 1st Qu.: 75.75   1st Qu.:1.00   1st Qu.:1.0   1st Qu.:1.0000  
+ Median :150.50   Median :1.00   Median :1.5   Median :1.0000  
+ Mean   :150.50   Mean   :1.42   Mean   :1.5   Mean   :0.8167  
+ 3rd Qu.:225.25   3rd Qu.:2.00   3rd Qu.:2.0   3rd Qu.:1.0000  
+ Max.   :300.00   Max.   :2.00   Max.   :2.0   Max.   :1.0000  
+                                                               
+     score      
+ Min.   :3.000  
+ 1st Qu.:5.100  
+ Median :5.600  
+ Mean   :5.685  
+ 3rd Qu.:6.300  
+ Max.   :8.000  
+ NA's'  :73    
+
+```
+
+##### 2. 두 집단 subset 생성
+
+```r
+> result<-subset(data,!is.na(score),c(method,score))
+> length(result)
+[1] 2
+
+> a<-subset(result,method=1)
+> b<-subset(result,method=2)
+> ascore<-a$score
+> bscore<-b$score
+```
+
+##### 3. 기술통계량 평균
+
+```r
+> length(ascore)
+[1] 109
+> length(bscore)
+[1] 118
+> mean(ascore)
+[1] 5.556881
+> mean(bscore)
+[1] 5.80339
+
+
+```
+
+
+
+##### 4. 분산의 동질성 검정
+
+- stats패키지에서 제공하는 var.test() 함수 이용
+- 검정 결과가 유의수준 0.05보다 큰 경우 두 집단 간 분포의 모양이 같다.
+
+```r
+> var.test(ascore,bscore)
+
+	F test to compare two variances
+
+data:  ascore and bscore
+F = 1.2158, num df = 108, denom df = 117, p-value = 0.3002
+alternative hypothesis: true ratio of variances is not equal to 1
+95 percent confidence interval:
+ 0.8394729 1.7656728
+sample estimates:
+ratio of variances 
+          1.215768 
+
+#검정 통계량 p-value  값은   0.3002  유의수준 0.05보다 크므로 두 집단 분포 모양 동질하다. 동질하므로 T. 모수검정 이용
+
+```
+
+##### 5. 두 집단 평균 차이 검정
+
+- 기준은 ascore
+
+```r
+> t.test(ascore,bscore)
+
+	Welch Two Sample t-test
+
+data:  ascore and bscore
+t = -2.0547, df = 218.19, p-value = 0.0411
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.48296687 -0.01005133
+sample estimates:
+mean of x mean of y 
+ 5.556881  5.803390 
+#양측 가설 ############################################################
+> t.test(ascore,bscore,alternative = "two.sided",conf.int=TRUE,conf.level = 0.95)
+
+	Welch Two Sample t-test
+
+data:  ascore and bscore
+t = -2.0547, df = 218.19, p-value = 0.0411
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.48296687 -0.01005133
+sample estimates:
+mean of x mean of y 
+ 5.556881  5.803390 
+#유의수준보다 작으므로 평균에 차이가 있다. 
+
+#단측 가설 검정#########################################################
+#ascore기준이며 greater임으로 a보다 b가 큰것인지 확인.
+> t.test(ascore,bscore,alternative = "greater",conf.int=TRUE,conf.level = 0.95)
+
+	Welch Two Sample t-test
+
+data:  ascore and bscore
+t = -2.0547, df = 218.19, p-value = 0.9794
+alternative hypothesis: true difference in means is greater than 0
+95 percent confidence interval:
+ -0.4446915        Inf
+sample estimates:
+mean of x mean of y 
+ 5.556881  5.803390 
+#유의수준보다 크므로 평균에 차이가 없다. 즉 ascore(pt교육이)보다 코딩 교육의 실기 점수 평균이 더 높다.
+
+##############################################################
+> t.test(ascore,bscore,alternative = "less",conf.int=TRUE,conf.level = 0.95)
+
+	Welch Two Sample t-test
+
+data:  ascore and bscore
+t = -2.0547, df = 218.19, p-value = 0.02055
+alternative hypothesis: true difference in means is less than 0
+95 percent confidence interval:
+        -Inf -0.04832672
+sample estimates:
+mean of x mean of y 
+ 5.556881  5.803390 
+# 유의수준보다 작으므로 차이가 있다. 즉 ascore(pt교육)보다 코딩교육의 실기 점수 평균이 더 낮지 않다.
+```
+
+
+
+
+
+## 대응 두 집단 평균 검정(대응 표본 T 검정)
+
+##### 1. 데이터전처리
+
+`A 교육센터에서 교육생 100명을 대상으로 교수법 프로그램 적용 전에 실기시험을 실시한 후 1개월 동안 동일한 교육생에게 교수법
+프로그램을 적용한 후 실기시험을 실시한 점수와 평균에 차이가 있는지를 검정한다`
+
+```r
+> data<-read.csv("./3/paired_sample.csv")
+> head(data)
+  no before after
+1  1    5.1   6.3
+2  2    5.2   6.3
+3  3    4.7   6.5
+4  4    4.8   5.9
+5  5    5.0   6.5
+6  6    5.4   7.3
+
+```
+
+##### 2. subset
+
+```r
+#결측치 ###############################################################
+> str(data)
+'data.frame':	100 obs. of  3 variables:
+ $ no    : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ before: num  5.1 5.2 4.7 4.8 5 5.4 5 5 4.4 4.9 ...
+ $ after : num  6.3 6.3 6.5 5.9 6.5 7.3 5.9 6.2 6 7.2 ...
+> result<-subset(data,!is.na(after),c(before,after))
+> length(result$after)
+[1] 96 #결측치 제거후 96개 남음
+
+> x<-result$before
+> y<-result$after
+> mean(X)
+[1] 165.1
+> mean(x)
+[1] 5.16875
+> mean(y)
+[1] 6.220833
+```
+
+
+
+##### 3. 동질성 검정
+
+```r
+> var.test(x,y,paired=TRUE)
+
+	F test to compare two variances
+
+data:  x and y
+F = 1.0718, num df = 95, denom df = 95, p-value = 0.7361
+alternative hypothesis: true ratio of variances is not equal to 1
+95 percent confidence interval:
+ 0.7151477 1.6062992
+sample estimates:
+ratio of variances 
+          1.071793 
+#검정 통계량 p-value 값은 0.7361로 유의수준보다 높으므로 정규분포가 동일하다.
+```
+
+##### 4.평균차이 검정
+
+```r
+> t.test(x,y,paired = TRUE,alternative = "two.sided",conf.level = 0.95,conf.int=TRUE)
+
+	Paired t-test
+
+data:  x and y
+t = -13.642, df = 95, p-value < 2.2e-16
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -1.205184 -0.898983
+sample estimates:
+mean of the differences 
+              -1.052083 
+
+# 2.2e-16임으로 낮다! 차이가 있다.
+########################################################################
+> t.test(x,y,paired = TRUE,alternative = "greater",conf.level = 0.95,conf.int=TRUE)
+
+	Paired t-test
+
+data:  x and y
+t = -13.642, df = 95, p-value = 1
+alternative hypothesis: true difference in means is greater than 0
+95 percent confidence interval:
+ -1.180182       Inf
+sample estimates:
+mean of the differences 
+              -1.052083 
+#x값이 더 크다. (x보다 y값이 크기 때문에 )
+########################################################################
+> t.test(x,y,paired = TRUE,alternative = "less",conf.level = 0.95,conf.int=TRUE)
+
+	Paired t-test
+
+data:  x and y
+t = -13.642, df = 95, p-value < 2.2e-16
+alternative hypothesis: true difference in means is less than 0
+95 percent confidence interval:
+       -Inf -0.9239849
+sample estimates:
+mean of the differences 
+              -1.052083 
+#x값이 더 크다.(x보다 y값이 작지 않기 떄문에 )
+```
+
+## 세 집단 검정
+
+1. 데이터 전처리
+2. sjubset작성
+3. prop.test()
+4. 검정통계량 분석
+
+`IT 교육센터에서 3가지 교육방법을 적용하여 교육을 실시하였다. 3가지 교육방법 중 더 효과적인
+교육방법을 조사하기 위해서 교육생 150명을 대상으로 설문을 실시하였다. `
+
+##### 1. 데이터 전처리
+
+```r
+> data<-read.csv("./3/three_sample.csv",header=TRUE)
+> head(data)
+  no method survey score
+1  1      1      1   3.2
+2  2      2      0    NA
+3  3      3      1   4.7
+4  4      1      0    NA
+5  5      2      1   7.8
+6  6      3      1   5.4
+> str(data)
+'data.frame':	150 obs. of  4 variables:
+ $ no    : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ method: int  1 2 3 1 2 3 1 2 3 1 ...
+ $ survey: int  1 0 1 0 1 1 0 0 1 0 ...
+ $ score : num  3.2 NA 4.7 NA 7.8 5.4 NA 8.4 4.4 2.8 ...
+```
+
+##### 2. subset
+
+```r
+> method<-data$method
+> survey<-data$survey
+> table(method,survey,useNA="ifany") #결측치 까찌 포함
+      survey
+method  0  1
+     1 16 34
+     2 13 37
+     3 11 39
+```
+
+##### 3. prop.test(c(교육방법 만족 빈도수),(변량의 길이))
+
+```r
+> prop.test(c(34,37,39),c(50,50,50))
+
+	3-sample test for equality of proportions without continuity
+	correction
+
+data:  c(34, 37, 39) out of c(50, 50, 50)
+X-squared = 1.2955, df = 2, p-value = 0.5232
+alternative hypothesis: two.sided
+sample estimates:
+prop 1 prop 2 prop 3 
+  0.68   0.74   0.78 
+
+> prop.test(c(34,37,39),c(50,50,50) ,alter="two.sided",conf.level = 0.95)
+
+	3-sample test for equality of proportions without continuity
+	correction
+
+data:  c(34, 37, 39) out of c(50, 50, 50)
+X-squared = 1.2955, df = 2, p-value = 0.5232
+alternative hypothesis: two.sided
+sample estimates:
+prop 1 prop 2 prop 3 
+  0.68   0.74   0.78 
+#0.05유의수준보다 p=value값이 크다. 차이가 없다. 
+#임계값(카이정규분포표 참고 5.99) 인데 x-squared 기각값이 1.2955임으로 이것 보다 임계값이 큼으로 기각 할 수 없다~ 기각값이 작으면 기각 못함
+
+#만족도 비율은 68%,74%,78%
+```
+
+## 분산분석 (F 검정, 세집단 평균 차이 분석)
+
+1. 데이터 전처리
+2. 각 집단 subset 작성
+3. 기술 통계량(평균)
+4. 통질성 분포(barlett.test())
+5. acv() or kruskal.test() or TukeyHSD()
+
+`A 교육센터에서 교육생 100명을 대상으로 교수법 프로그램 적용 전에 실기시험을 실시한 후 1개월 동안 동일한 교육생에게 교수법
+프로그램을 적용한 후 실기시험을 실시한 점수와 평균에 차이가 있는지를 검정한다`
+
+##### 1. 데이터 전처리
+
+```r
+data<-read.csv("./3/three_sample.csv")
+str(data)
+data<-subset(data,!is.na(score),c(method,score)) #결측치 제거
+#이상치 제거
+plot(data$score)
+> mean(data$score)
+[1] 14.44725 #평균이상이면 없애려고!
+> length(data$score) #이상치 제거 전 데이터 개수
+[1] 91
+```
+
+![1568870042794](R.assets/1568870042794.png)
+
+```r
+#이상치 제거
+ data2<-subset(data,score<=14)
+> length(data2$score)
+[1] 88    #이상치 제거 개수 88개
+```
+
+##### 2. subset
+
+```r
+> x<-data2$score
+> data2$method2[data2$method==1]<-"방법1"
+> data2$method2[data2$method==2]<-"방법2"
+> data2$method2[data2$method==3]<-"방법3"
+
+```
+
+##### 3. 교육방법 빈도수, 데이터프레임
+
+```r
+> table(data2$method2)
+
+방법1 방법2 방법3 
+   31    27    30 
+> mCnt<-table(data2$method2)
+> mAvg<-tapply(data2$score,data2$method2,mean)
+#데이터프레임 전환
+> df<-data.frame(교육방법=mCnt,성적=mAvg)
+> df
+      교육방법.Var1 교육방법.Freq     성적
+방법1         방법1            31 4.187097
+방법2         방법2            27 6.800000
+방법3         방법3            30 5.610000
+```
+
+##### 4. 동질성
+
+```r
+> #bartlett.test(종속변수~독립변수,data=데이터셋)
+> bartlett.test(score~method, data=data2)
+
+	Bartlett test of homogeneity of variances
+
+data:  score by method
+Bartlett's' K-squared = 3.3157, df = 2, p-value = 0.1905
+
+#검정 통계량 p-value값은  0.1905로 유의수준 보다 크다.  분포 형태 동질!
+#임계값5.99(카이제곱분포표 참고)이 기각값 보다 크므로 귀무가설 기각 못한다.
+```
+
+###### 5.세 집단의 평균 차이 검정(aov())
+
+`aov(종속변수~독립변수, data=데이터 셋)`
+
+```r
+> result<-aov(score~method2, data=data2)
+> names(result) #측정변수명 확인
+ [1] "coefficients"  "residuals"     "effects"       "rank"         
+ [5] "fitted.values" "assign"        "qr"            "df.residual"  
+ [9] "contrasts"     "xlevels"       "call"          "terms"        
+[13] "model" 
+
+> summary(result)
+            Df Sum Sq Mean Sq F value   Pr(>F)    
+method2      2  99.37   49.68   43.58 9.39e-14 ***
+Residuals   85  96.90    1.14                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#검정 통계량 p-value값은 Pr값으로 9.39e-14이며 0.05보다 작다. 귀무가설 기각 한다. 차이 있다. 대립가설(연구가설 채택)
+#F 검정 통계량 해석
+#신뢰수준 범위 95% 이면 -1.96~+1.96의 범위가 귀무가설 채택 역(범위이다.)
+#F 검정 통계량은 F value 이다. 신뢰수준 범위 안에 없으므로 귀무가설 기각이다.
+```
+
+##### 6.집단간의 평균의 차에 대한 비교 =>사후검정 수행(Turkey)
+
+```r
+> TukeyHSD(result)
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = score ~ method2, data = data2)
+
+$method2
+                 diff        lwr        upr     p adj
+방법2-방법1  2.612903  1.9424342  3.2833723 0.0000000
+방법3-방법1  1.422903  0.7705979  2.0752085 0.0000040
+방법3-방법2 -1.190000 -1.8656509 -0.5143491 0.0001911
+
+#diff 폭(평균의 차이)의 크기 방법2와 방법 1의 차이가 가장 크다.
+
+#lwr, upr 은 신뢰구간의 하한값과 상한값
+
+> plot(TukeyHSD(result))
+#세 집단 간의 실기시험 평균에 차이가 있따.
+#결론 세 교육방법에 따른 분석 결과 방법 2와 방법 1의 차이가 가장 높다.
+```
+
+![1568871609975](R.assets/1568871609975.png)
+
+## 문제 확인
+
+```r
+
+연습문제01>
+중소기업에서 생산한 HDTV 판매율을 높이기 위해서 프로모션을 진행한 결과 기존 구
+매비율 보다 15% 향상되었는지를 각 단계별로 분석을 수행하여 검정하시오.
+연구가설(H1) : 기존 구매비율과 차이가 있다.
+귀무가설(H0) : 기존 구매비율과 차이가 없다.
+조건) 구매여부 변수 : buy (1: 구매하지 않음, 2: 구매)
+hdtv <- read.csv("hdtv.csv", header=TRUE)
+
+
+
+
+연습문제02>
+우리나라 전체 중학교 2학년 여학생 평균 키가 148.5cm로 알려져 있는 상태에서 A중
+학교 2학년 전체 500명을 대상으로 10%인 50명을 표본으로 선정하여 표본평균신장을
+계산하고 모집단의 평균과 차이가 있는지를 각 단계별로 분석을 수행하여 검정하시오.
+단계1: 데이터셋 가져오기 
+read.csv("student_height.csv", header=TRUE)
+
+연습문제03>
+대학에 진학한 남학생과 여학생을 대상으로 진학한 대학에 대해서 만족도에 차이가 있
+는가를 검정하시오. 
+조건1) 파일명 : two_sample.csv
+조건2, 변수명 : gender(1,2), survey(0,1)
+
+
+연습문제04>
+교육방법에 따라 시험성적에 차이가 있는지 검정하시오. 
+조건1) 파일 : twomethod.csv
+조건2) 변수 : method(교육방법), score(시험성적)
+조건3) 모델 : 교육방법(명목) -> 시험성적(비율)
+조건4) 전처리 : 결측치 제거 
+
+
+
+```
+
+###### 1번
+
+```r
+연습문제01>
+중소기업에서 생산한 HDTV 판매율을 높이기 위해서 프로모션을 진행한 결과 기존 구
+매비율 보다 15% 향상되었는지를 각 단계별로 분석을 수행하여 검정하시오.
+연구가설(H1) : 기존 구매비율과 차이가 있다.
+귀무가설(H0) : 기존 구매비율과 차이가 없다.
+조건) 구매여부 변수 : buy (1: 구매하지 않음, 2: 구매)
+hdtv <- read.csv("hdtv.csv", header=TRUE)
+
+> hdtv <- read.csv("hdtv.csv", header=TRUE)
+> head(hdtv)
+  user.id buy
+1       1   2
+2       2   1
+3       3   1
+4       4   1
+5       5   2
+6       6   2
+> str(hdtv)
+'data.frame':	50 obs. of  2 variables:
+ $ user.id: int  1 2 3 4 5 6 7 8 9 10 ...
+ $ buy    : int  2 1 1 1 2 2 1 1 1 1 ...
+> length(hdtv)
+[1] 2
+> length(hdtv$user.id)
+[1] 50
+> length(hdtv$buy)
+[1] 50
+> str(hdtv)
+'data.frame':	50 obs. of  2 variables:
+ $ user.id: int  1 2 3 4 5 6 7 8 9 10 ...
+ $ buy    : int  2 1 1 1 2 2 1 1 1 1 ...
+> userid<-hdtv$user.id
+> buy<-hdtv$buy
+> summary(userid,buy)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   1.00   13.25   25.50   25.50   37.75   50.00 
+> table(buy)
+buy
+ 1  2 
+40 10 
+> table(userid)
+userid
+ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 
+ 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1 
+30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 
+ 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1 
+> prop.test(c(10,40),c(50,50),alternative = "two.sided",conf.level = 0.95)
+
+	2-sample test for equality of proportions with continuity correction
+
+data:  c(10, 40) out of c(50, 50)
+X-squared = 33.64, df = 1, p-value = 6.631e-09
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ -0.7767971 -0.4232029
+sample estimates:
+prop 1 prop 2 
+   0.2    0.8 
+
+
+```
+
+###### 1번 답
+
+```r
+연습문제01>
+중소기업에서 생산한 HDTV 판매율을 높이기 위해서 프로모션을 진행한 결과 기존 구
+매비율 보다 15% 향상되었는지를 각 단계별로 분석을 수행하여 검정하시오.
+연구가설(H1) : 기존 구매비율과 차이가 있다.
+귀무가설(H0) : 기존 구매비율과 차이가 없다.
+조건) 구매여부 변수 : buy (1: 구매하지 않음, 2: 구매)
+
+hdtv <- read.csv("hdtv.csv", header=TRUE)
+빈도수 비율 계산
+가설 검정
+#################################################################
+# 단계2: 빈도수와 비율 계산
+summary(hdtv)
+length(hdtv$buy) # 50개
+install.packages('prettyR')
+library(prettyR) # freq() 함수 사용
+freq(hdtv$buy) # 1:40, 2:10
+table(hdtv$buy)
+table(hdtv$buy, useNA="ifany") # NA 빈도수 표시
+
+# 단계3: 가설검정
+binom.test(c(10,40), p=0.15) #15% 비교 -> p-value = 0.321
+binom.test(c(10,40), p=0.15, alternative="two.sided", conf.level=0.95)
+해설> 귀무가설 채택 : 기존 구매비율(15%)과 차이가 없다.
+
+#  방향성이 있는 단측가설 검정
+binom.test(c(10,40), p=0.15, alternative="greater", conf.level=0.95)
+#p-value=0.2089
+binom.test(c(10,40), p=0.15, alternative="less", conf.level=0.95) #p-value =0.8801
+해설> 방향성이 있는 단측가설은 모두 기각된다.
+
+# 11% 기준 : 방향성이 있는 연구가설 검정
+binom.test(c(10,40), p=0.11, alternative="greater", conf.level=0.95)
+#p-value=0.04345
+해설> 구매비율은 11%을 넘지 못한다.
+
+```
+
+
+
+###### 2번
+
+```r
+> Q2<-read.csv("student_height.csv", header=TRUE)
+> str(Q2)
+'data.frame':	50 obs. of  2 variables:
+ $ sudent.id: int  1 2 3 4 5 6 7 8 9 10 ...
+ $ height   : int  148 150 149 144 152 150 155 147 148 151 ...
+> plot(Q2)
+> mean(Q2$height)
+[1] 149.4
+> length(Q2$height)
+[1] 50
+> id2<-Q2$sudent.id
+> h2<-Q2$height
+> table(h2)
+h2
+140 141 144 147 148 149 150 151 152 153 155 160 165 
+  1   1   4   8   4   6  12   4   4   3   1   1   1 
+> mean(h2)
+[1] 149.4
+> #표본비율 0.1
+> p<-0.1
+> p-1.96*sqrt(0.1*0.9/500)
+[1] 0.07370384
+> p+1.96*sqrt(0.1*0.9/500)
+[1] 0.1262962
+> t.test(h2,mu=148.5,alternative = "two.sided",conf.level = 0.95)
+
+	One Sample t-test
+
+data:  h2
+t = 1.577, df = 49, p-value = 0.1212
+alternative hypothesis: true mean is not equal to 148.5
+95 percent confidence interval:
+ 148.2531 150.5469
+sample estimates:
+mean of x 
+    149.4 
+#유의 확률이 0.1212 임으로 임의 수준모다 크다. 차이 없음을 확인!
+```
+
+###### 2번 답
+
+```r
+###############################################################
+연습문제02>
+우리나라 전체 중학교 2학년 여학생 평균 키가 148.5cm로 알려져 있는 상태에서 A중
+학교 2학년 전체 500명을 대상으로 10%인 50명을 표본으로 선정하여 표본평균신장을
+계산하고 모집단의 평균과 차이가 있는지를 각 단계별로 분석을 수행하여 검정하시오.
+ 
+read.csv("student_height.csv", header=TRUE)
+기술 통계량 평균 계산
+정규성 검정
+가설 검정
+##############################################################
+stheight<- read.csv("./data/student_height.csv", header=TRUE)
+stheight
+height <- stheight$height
+head(height)
+# 단계2: 기술 통계량/결측치 확인
+length(height) #50
+summary(height) # 149.4
+
+x1 # 정제 데이터
+mean(x1) # 149.4 : 평균신장
+단계3: 정규성 검정
+shapiro.test(x1) # p-value = 0.0001853 -> 정규분포 아님
+# 정규분포(모수검정) - t.test()
+# 비정규분포(비모수검정) - wilcox.test()
+
+단계4: 가설검정 - 양측검정
+wilcox.test(x1, mu=148.5) # p-value = 0.067
+wilcox.test(x1, mu=148.5, alter="two.side", conf.level=0.95) # p-value = 0.067
+해설> 귀무가설을 기각할 수 없다.
+```
+
+
+
+###### 3번
+
+```r
+연습문제03>
+대학에 진학한 남학생과 여학생을 대상으로 진학한 대학에 대해서 만족도에 차이가 있
+는가를 검정하시오. 
+조건1) 파일명 : two_sample.csv
+조건2, 변수명 : gender(1,2), survey(0,1)
+
+
+
+> Q3<-read.csv("./3/two_sample.csv")
+> str(Q3)
+'data.frame':	300 obs. of  5 variables:
+ $ no    : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ gender: int  1 1 1 2 1 1 2 1 1 1 ...
+ $ method: int  1 1 1 1 1 1 1 1 1 1 ...
+ $ survey: int  1 0 1 0 1 1 0 1 1 0 ...
+ $ score : num  5.1 5.2 4.7 4.8 5 5.4 NA 5 4.4 4.9 ...
+> length(Q3$gender)
+[1] 300
+> length(Q3$survey)
+[1] 300
+> gender3<-Q3$gender
+> survey3<-Q3$survey
+> table(gender3)  
+gender3
+  1   2 
+174 126 
+> table(survey3)
+survey3
+  0   1 
+ 55 245 
+> table(gender3,survey3)
+       survey3
+gender3   0   1
+      1  36 138
+      2  19 107
+> str(survey3)
+ int [1:300] 1 0 1 0 1 1 0 1 1 0 ...
+> prop.test(c(138,107),c(174,126),alternative = "two.sided",conf.level = 0.95)
+
+	2-sample test for equality of proportions with continuity correction
+
+data:  c(138, 107) out of c(174, 126)
+X-squared = 1.1845, df = 1, p-value = 0.2765
+alternative hypothesis: two.sided
+95 percent confidence interval:
+ -0.14970179  0.03749599
+sample estimates:
+   prop 1    prop 2 
+0.7931034 0.8492063 
+
+```
+
+###### 3번 답
+
+```r
+##############################################################
+연습문제03>
+대학에 진학한 남학생과 여학생을 대상으로 진학한 대학에 대해서 만족도에 차이가 있
+는가를 검정하시오.  (두 집단 비율 차이 검정)
+조건1) 파일명 : two_sample.csv
+조건2) 변수명 : gender(1,2), survey(0,1)
+##############################################################
+
+# 실습데이터 가져오기
+getwd()
+ 
+data <- read.csv("./data/two_sample.csv", header=TRUE)
+data
+head(data) # 변수명 확인
+단계2: 두 집단 subset 작성
+data$gender
+data$survey # 1(만족), 0(불만족)
+
+# 데이터 정체/전처리
+x<- data$gender # 성별 추출
+y<- data$survey # 만족도 추출
+
+# 교차테이블 확인
+table(x) # 성별 구분 (1 : 174, 2 : 126)
+table(y) # # 대학진학 만족도(0 : 55, 1 : 245)
+table(x, y, useNA="ifany") # 결측치 까지 출력
+
+# 두 집단 비율차이검증 : prop.test()
+prop.test(c(138,107),c(174,126), alternative="two.sided", conf.level=0.95)
+해설> p-value = 0.2765 : 남학생과 여학생의 만족도에 차이가 없다.
+```
+
+
+
+###### 4번
+
+```r
+연습문제04>
+교육방법에 따라 시험성적에 차이가 있는지 검정하시오. (두 집단 평균 차이 검정)
+조건1) 파일 : twomethod.csv
+조건2) 변수 : method(교육방법), score(시험성적)
+조건3) 모델 : 교육방법(명목) -> 시험성적(비율)
+조건4) 전처리 : 결측치 제거 
+
+> Q4<-read.csv("./3/twomethod.csv")
+> str(Q4)
+'data.frame':	63 obs. of  3 variables:
+ $ id    : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ method: int  1 1 1 1 1 1 1 1 1 1 ...
+ $ score : int  27 5 21 NA 14 23 20 9 28 15 ...
+> Q4<-subset(Q4,!is.na(score),c(method,score))
+> str(Q4)
+'data.frame':	57 obs. of  2 variables:
+ $ method: int  1 1 1 1 1 1 1 1 1 1 ...
+ $ score : int  27 5 21 14 23 20 9 28 15 29 ...
+> #결측값 63-57=6개 제거
+> Q4$method2[Q4$method==1]<-"방법1"
+> Q4$method2[Q4$method==2]<-"방법2"
+> QmC4<-table(Q4$method2)
+> Qav4<-tapply(Q4$score,Q4$method2,mean)
+> Q44<-data.frame(교육방법=QmC4,성적=Qav4)
+> Q44
+      교육방법.Var1 교육방법.Freq     성적
+방법1         방법1            22 16.40909
+방법2         방법2            35 29.22857
+> bartlett.test(score~method,data=Q4)
+
+	Bartlett test of homogeneity of variances
+
+data:  score by method
+Bartlett's'K-squared = 0.02521, df = 1, p-value = 0.8738
+########결과는 유의 수준보다 크므로 동질설이 있다. 분포 형태가 동질! 동질성은 있다. 동질하다는 것은 정규분포를 따른 다는 것????? 모수검정 방식 따른다.
+
+> Q4result<-aov(score~method,data=Q4)
+> summary(Q4result)
+            Df Sum Sq Mean Sq F value   Pr(>F)    
+method       1   2220  2220.0   31.88 5.95e-07 ***
+Residuals   55   3829    69.6                     
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+#p=value 5.95e-07 이 유의 확률 모다 낮으므로 귀무가설 기각 가능  즉 공부 방식에 따른 성적이 다르다는 것!
+```
+
+###### 4번 답
+
+```r
+##########################################################################
+연습문제04>
+교육방법에 따라 시험성적에 차이가 있는지 검정하시오. (두 집단 평균 차이 검정)
+조건1) 파일 : twomethod.csv
+조건2) 변수 : method(교육방법), score(시험성적)
+조건3) 모델 : 교육방법(명목) -> 시험성적(비율)
+조건4) 전처리 : 결측치 제거 
+##########################################################################
+
+#실습파일 가져오기 
+edumethod <- read.csv("./data/twomethod.csv", header=TRUE)
+head(edumethod) #3개 변수 확인 -> id method score
+
+# 두 집단 subset 작성(데이터 정제, 전처리)
+# 데이터 전처리(score의 NA 처리)
+result <- subset(edumethod, !is.na(score), c(method, score))
+result
+
+# 데이터 분리
+# 1) 교육방법별로 분리
+a <- subset(result,method==1)
+b <- subset(result,method==2)
+# 2) 교육방법에서 영업실적 추출
+a1 <- a$score
+b1 <- b$score
+# 3) 기술 통계량
+length(a1); # 22
+length(b1); # 35
+
+# 분포모양 검정
+var.test(a1, b1) # p-value = 0.8494 : 차이가 없다.
+해설> 동질성 분포와 차이가 없다. 모수검정 방법 수행
+
+# 가설검정
+t.test(a1, b1) # p-value = 1.303e-06
+t.test(a1, b1, alter="greater", conf.int=TRUE, conf.level=0.95) # p-value = 1
+해설> a1 교육방법과 b1 교육방법 간의 시험성적에 차이가 있다.
+
+t.test(b1, a1, alter="greater", conf.int=TRUE, conf.level=0.95) #
+p-value=6.513e-07
+해설> b1 교육 방법이 a1 교육방법 보다 시험성적이 더 좋다.
+
+```
+
+## 요인분석
+
+- 다수의 변수를 대상으로 변수간의 관계를 분석, 공통차원으로 축약
+- 데이터를 축소하는 변수의 정제 과정
+
+### 공통요인으로 변수를 정제하는 요인분석
+
+```r
+#6개 과목 (s1~s6)
+s1 <- c(1, 2, 1, 2, 3, 4, 2, 3, 4, 5) #자연과학
+s2 <- c(1, 3, 1, 2, 3, 4, 2, 4, 3, 4) #물리화학
+s3 <- c(2, 3, 2, 3, 2, 3, 5, 3, 4, 2) #인문사회
+s4 <- c(2, 4, 2, 3, 2, 3, 5, 3, 4, 1) #신문방송
+s5 <- c(4, 5, 4, 5, 2, 1, 5, 2, 4, 3) #응용수학
+s6 <- c(4, 3, 4, 4, 2, 1, 5, 2, 4, 2) #추론통계
+name <-1:10 #각 과목의 문제 이름	
+
+
+```
+
+###### 데이터 프레임 형성
+
+```r
+> subject<-data.frame(s1,s2,s3,s4,s5,s6)
+> str(subject)
+'data.frame':	10 obs. of  6 variables:
+ $ s1: num  1 2 1 2 3 4 2 3 4 5
+ $ s2: num  1 3 1 2 3 4 2 4 3 4
+ $ s3: num  2 3 2 3 2 3 5 3 4 2
+ $ s4: num  2 4 2 3 2 3 5 3 4 1
+ $ s5: num  4 5 4 5 2 1 5 2 4 3
+ $ s6: num  4 3 4 4 2 1 5 2 4 2
+```
+
+###### 주성분 분석으로 요인수 구하기
+
+- 밑은 요인수를 확인해 보는 것으로 꼭 이것을 요인수로 하는 것이 아니다
+
+```r
+> help(prcomp)  #주성분 분석 수행 함수
+> pc <- prcomp(subject) # scale = TRUE
+> summary(pc)
+Importance of components:
+                         PC1    PC2     PC3     PC4     PC5     PC6
+Standard deviation     2.389 1.5532 0.87727 0.56907 0.19315 0.12434
+Proportion of Variance 0.616 0.2603 0.08305 0.03495 0.00403 0.00167
+Cumulative Proportion  0.616 0.8763 0.95936 0.99431 0.99833 1.00000
+> plot(pc)
+```
+
+![1568881453201](R.assets/1568881453201.png)
+
+###### 고유값으로 요인 수 분석
+
+```r
+> # 고유값으로 요인 수 분석 
+> en <- eigen(cor(subject)) # $values : 고유값, $vectors : 고유벡터  
+> names(en) # "values"  "vectors"
+[1] "values"  "vectors"
+> en$values
+[1] 3.44393944 1.88761725 0.43123968 0.19932073 0.02624961 0.01163331
+> en$vectors
+           [,1]         [,2]        [,3]       [,4]        [,5]        [,6]
+[1,] -0.4062499 -0.351093036  0.63460534  0.3149622  0.45699508  0.03041553
+[2,] -0.4319311 -0.400526644  0.11564711 -0.4422216 -0.57042232  0.34452594
+[3,]  0.2542077 -0.628807884 -0.06984072  0.3339036 -0.35389906 -0.54622817
+[4,]  0.3017115 -0.566028650 -0.37734321 -0.2468016  0.50326085  0.36333366
+[5,]  0.4763815  0.008436692  0.58035475 -0.6016209  0.05643527 -0.26654314
+[6,]  0.5155637  0.021286661  0.31595023  0.4133867 -0.28995329  0.61559319
+> en$values # $values : 고유값(스칼라) 보기 
+[1] 3.44393944 1.88761725 0.43123968 0.19932073 0.02624961 0.01163331
+> plot(en$values, type="o") # 고유값을 이용한 시각화 
+```
+
+![1568881860011](R.assets/1568881860011.png)
+
+###### 변수간의 상관관계 분석과 요인 분석
+
+1. 상관관계 분석
+2. 요인 회전법 적용- 베리멕스 회전법을 기본으로 **factanal()**
+3. 유의수준보다 유의확률이 낮게 나오면 유인수로 부족하다는 것을 뜻함
+
+- 요인분석결과에서
+  만약 p-value 값이
+  0.05 미만이면
+  요인수가 부족하다는 의미로 요인수를
+  늘려서 다시 분석을 수행해야 한다.
+
+- Uniqueness항목은
+유효성을 판단하여 제시한 값으로 통상 0.05이하이면
+유효한 것으로 본다
+- Loading
+  항목은
+  요인 적재값(Loadings)를
+  보여주는 항목으로 각 변수와 해당 요인 간의 상관관계계수를 제시한다.                  요인적재값(요인 부하량)이 통상 +0.4 이상이면 유의하다고
+  볼 수 있다.
+  +0.4 미만이면
+  설명력이 부족한 요인(중요도가
+  낮은 변수)으로
+  판단할 수 있다
+
+- SS loadings 항목은
+각 요인 적재값의
+제곱의 합을 제시한 값으로 각 요인의 설명력을 보여준다.
+- Proportion
+Var 항목은
+설명된 요인의 분산 비율로 각 요인이 차지하는 설명력의 비율이다.
+- Cumulative Var 항목은
+누적 분산 비율로 요인의 분산 비율을 누적하여 제시한 값으로 정보손실이 너무 크면 요인분석의 의미가 없어진다.
+
+```r
+> result<-factanal(subject,factors=2,rotation="varimax")
+> result
+
+Call:
+factanal(x = subject, factors = 2, rotation = "varimax")
+
+Uniquenesses:
+   s1    s2    s3    s4    s5    s6 
+0.250 0.015 0.005 0.136 0.407 0.107 
+
+Loadings:
+   Factor1 Factor2
+s1  0.862         
+s2  0.988         
+s3          0.997 
+s4 -0.115   0.923 
+s5 -0.692   0.338 
+s6 -0.846   0.421 
+
+               Factor1 Factor2
+SS loadings      2.928   2.152
+Proportion Var   0.488   0.359
+Cumulative Var   0.488   0.847
+
+Test of the hypothesis that 2 factors are sufficient.
+The chi square statistic is 11.32 on 4 degrees of freedom.
+The p-value is 0.0232 
+#유의 확률이 0.0232 이고 유희수준보다 0.05보다 작으므로 요인수로는 부족하다.
+
+
+> result<-factanal(subject,factors=3,rotation="varimax",scores="regression")
+> result
+
+Call:
+factanal(x = subject, factors = 3, scores = "regression", rotation = "varimax")
+#0.5이하면 유효하다 본다. 모든것이 다 해당하므로 다 유효
+Uniquenesses:
+   s1    s2    s3    s4    s5    s6 
+0.005 0.056 0.051 0.005 0.240 0.005 
+#요인의 적재값을 보여주고, 각 변수와 해당 요인 간의 상관관계계수 제시
+Loadings:
+   Factor1 Factor2 Factor3
+s1 -0.379           0.923 
+s2 -0.710   0.140   0.649 
+s3  0.236   0.931   0.166 
+s4  0.120   0.983  -0.118 
+s5  0.771   0.297  -0.278 
+s6  0.900   0.301  -0.307 
+
+               Factor1 Factor2 Factor3
+SS loadings      2.122   2.031   1.486
+Proportion Var   0.354   0.339   0.248
+Cumulative Var   0.354   0.692   0.940
+
+The degrees of freedom for the model is 0 and the fit was 0.7745 
+# 
 ```
 
