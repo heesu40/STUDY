@@ -8568,7 +8568,7 @@ qt(p-value,df)
  t 검정 통계량 3.9461이므로 귀무가설 기각 가능. = 대립가설
 ```
 
-### 두 집단 검정
+### 두 집단 검정(독립표본 이항분포 비율 검정)
 
 1. 데이터 전처리(이상치, 결측치 제거)
 2. subset생성
@@ -8814,7 +8814,9 @@ mean of x mean of y
 
 
 
-## 대응 두 집단 평균 검정(대응 표본 T 검정)
+## 대응 두 집단 평균 검정(대응 표본 T 검정, 사건 전 , 후)
+
+- 같은 대상자로 사건 전, 후 
 
 ##### 1. 데이터전처리
 
@@ -9061,7 +9063,7 @@ plot(data$score)
 방법3         방법3            30 5.610000
 ```
 
-##### 4. 동질성
+##### 4. 동질성 (bartlett.test)
 
 ```r
 > #bartlett.test(종속변수~독립변수,data=데이터셋)
@@ -9078,7 +9080,9 @@ Bartlett's' K-squared = 3.3157, df = 2, p-value = 0.1905
 
 ###### 5.세 집단의 평균 차이 검정(aov())
 
-`aov(종속변수~독립변수, data=데이터 셋)`
+`aov(종속변수~독립변수, data=데이터 셋)` 모수 검정인 경우
+
+kruskal.test()  비모수 검정인 경우
 
 ```r
 > result<-aov(score~method2, data=data2)
@@ -9577,12 +9581,12 @@ name <-1:10 #각 과목의 문제 이름
  $ s6: num  4 3 4 4 2 1 5 2 4 2
 ```
 
-###### 주성분 분석으로 요인수 구하기
+### 1. 주성분 분석으로 요인수 구하기(prcomp())
 
 - 밑은 요인수를 확인해 보는 것으로 꼭 이것을 요인수로 하는 것이 아니다
 
 ```r
-> help(prcomp)  #주성분 분석 수행 함수
+> help(prcomp)  #주성분 분석 수행 함수 (primary compare 주요분석이라 외워보자.....)
 > pc <- prcomp(subject) # scale = TRUE
 > summary(pc)
 Importance of components:
@@ -9595,7 +9599,10 @@ Cumulative Proportion  0.616 0.8763 0.95936 0.99431 0.99833 1.00000
 
 ![1568881453201](R.assets/1568881453201.png)
 
-###### 고유값으로 요인 수 분석
+### 2. 고유값으로 요인 수 분석(eigen())
+
+- 서로의 상관관계가 있는 가의 대한 실수값 =상관관계를 실수값으로 알려준다.
+- 변수의 상관계수 행렬=고유값 (그래서 반환값은 2차원 matrix로 나온다.)
 
 ```r
 > # 고유값으로 요인 수 분석 
@@ -9619,7 +9626,7 @@ Cumulative Proportion  0.616 0.8763 0.95936 0.99431 0.99833 1.00000
 
 ![1568881860011](R.assets/1568881860011.png)
 
-###### 변수간의 상관관계 분석과 요인 분석
+### 3. 변수간의 상관관계 분석과 요인 분석(factanal())
 
 1. 상관관계 분석
 2. 요인 회전법 적용- 베리멕스 회전법을 기본으로 **factanal()**
@@ -9654,6 +9661,7 @@ Var 항목은
 누적 분산 비율로 요인의 분산 비율을 누적하여 제시한 값으로 정보손실이 너무 크면 요인분석의 의미가 없어진다.
 
 ```r
+# factanal(dataset,factors="", rotation="") 요인수 factors를 2로
 > result<-factanal(subject,factors=2,rotation="varimax")
 > result
 
@@ -9683,7 +9691,7 @@ The chi square statistic is 11.32 on 4 degrees of freedom.
 The p-value is 0.0232 
 #유의 확률이 0.0232 이고 유희수준보다 0.05보다 작으므로 요인수로는 부족하다.
 
-
+# factanal(dataset,factors="", rotation="") 요인수 factors를 3로
 > result<-factanal(subject,factors=3,rotation="varimax",scores="regression")
 > result
 
@@ -9711,4 +9719,1125 @@ Cumulative Var   0.354   0.692   0.940
 The degrees of freedom for the model is 0 and the fit was 0.7745 
 # 
 ```
+
+### 4.요인분석 결과 요인 점수를 이용한 요인적재량 시각화
+
+```r
+plot(result$scores[, c(1:2)],main="Factor1과 Factor2의 요인점수 행렬")
+text(result$scores[, 1],result$scores[,2],labels=name,cex=0.7, pos=3 ,col='red')
+points(result$loadings[,c(1:2)],pch=19,col="blue")
+text(result$loadings[,1],result$loadings[,2],cex=0.8,pos=3,col="orange")
+
+```
+
+![1568939789095](R.assets/1568939789095.png)
+
+- 해석?
+
+###### 4.1 요인 점수별 분류(3d로)
+
+```r
+#점수별 분류
+library(scatterplot3d)
+Factor1<-result$scores[,1]
+Factor2<-result$scores[,2]
+Factor3<-result$scores[,3]
+
+#scatterplot3d(밑변, 오른쪽 변, 왼쪽변, type)
+d3<-scatterplot3d(Factor1, Factor2, Factor3,type='p')
+
+#요인적재량 표기
+loadings1<-result$loadings[,1]
+loadings2<-result$loadings[,2]
+loadings3<-result$loadings[,3]
+
+d3$points3d(loadings1,loadings2,loadings3,bg='red',cex=2,pch=21,type="h")
+```
+
+![1568940345531](R.assets/1568940345531.png)
+
+### 5.요인분석 결과 이용  변수 묶기
+
+1. 변수 묶기
+2. 상관분석이나 회귀 분석
+3. 
+
+```r
+app<-data.frame(subject$s5,subject$s6)
+soc<-data.frame(subject$s3,subject$s4)
+net<-data.frame(subject$s1,subject$s2)
+
+#산술평균을 계산하여 파생변수 생성
+app_science<-round((app$subject.s5+app$subject.s6)/ncol(app),2)
+soc_science<-round((soc$subject.s3+soc$subject.s4)/ncol(soc),2)
+net_science<-round((net$subject.s1+net$subject.s2)/ncol(net),2)
+
+#상관관계 분석
+subject_factor_df<-data.frame(app_science,soc_science,net_science)
+cor(subject_factor_df)
+            app_science soc_science net_science
+app_science   1.0000000  0.43572654 -0.68903024
+soc_science   0.4357265  1.00000000 -0.02570212
+net_science  -0.6890302 -0.02570212  1.00000000
+
+
+#상관관계 분석하자 요인별로  
+'응용과학','사회과학은' 양의 상관관계 (0.4 정도니 쪼끔 높은 상관관계), 
+'자연과학' ,"사회과학" -0.02570212 상관관게 없다.
+''
+```
+
+### 6. 잘못된 요인 분석 제거
+
+- 요인분석 위해 spss에서 사용되는 데이터를 R로 가져오고 memisc패키지 설치
+- spss.system.file()함수 이용-> 데이터 가져오고-> 데이터프레임 변경 하여 전처리
+
+##### 6.1.sapss.system.file()함수 이용하여 데이터프레임으로 전처리
+
+```r
+install.packages("memisc")
+library(memisc)
+> spss.system.file("./drinking_water.sav")
+
+SPSS system file './drinking_water.sav' 
+	with 15 variables and 380 observations
+> data.spss<-as.data.set(spss.system.file("./drinking_water.sav"))
+> data.spss
+
+Data set with 380 observations and 15 variables
+
+   q1 q2 q3 q4 q5 q6 q7 q8 q9 q10 q11 성별 연령 지역       학력
+ 1  3  2  3  3  4  3  4  3  4   3   4 남자 20대 대구   전문대졸
+ 2  3  3  3  3  3  3  2  3  3   2   3 여자 20대 대구   전문대졸
+ 3  3  3  3  4  3  4  3  4  4   4   4 남자 20대 대구       고졸
+ 4  3  3  3  1  3  2  3  2  2   2   2 여자 20대 대구   전문대졸
+ 5  3  3  2  2  3  3  2  2  2   2   2 여자 20대 대구   전문대졸
+ 6  1  1  1  1  1  1  1  3  3   3   3 남자 30대 대구   전문대졸
+ 7  2  2  2  3  2  3  5  4  4   4   4 여자 20대 대구       대졸
+ 8  2  2  1  2  1  2  1  2  2   2   2 여자 20대 대구   전문대졸
+ 9  2  2  1  2  3  3  1  3  2   3   1 여자 20대 대구       대졸
+10  4  3  3  3  4  3  3  4  2   3   4 여자 20대 대구 대학원이상
+11  3  4  4  3  4  4  4  5  5   5   5 여자 20대 대구       대졸
+12  2  1  1  2  2  2  1  4  4   5   5 남자 20대 대구       고졸
+13  1  1  1  2  1  1  1  1  1   1   1 여자 20대 대구   전문대졸
+14  2  3  2  2  3  1  2  3  2   2   2 여자 20대 대구   전문대졸
+15  1  2  2  1  1  1  1  2  2   2   2 남자 30대 대구   전문대졸
+16  3  2  2  2  3  2  2  2  2   2   1 남자 20대 대구   전문대졸
+17  3  3  3  3  2  3  2  3  3   3   3 여자 20대 대구   전문대졸
+18  3  3  3  3  2  2  2  2  3   3   2 여자 20대 대구   전문대졸
+19  3  3  2  2  3  2  2  3  3   3   3 여자 20대 대구   전문대졸
+20  4  4  4  4  4  4  3  4  4   4   4 여자 20대 대구   전문대졸
+21  3  4  2  1  1  1  1  3  2   3   1 여자 20대 대구   전문대졸
+22  4  2  2  1  1  1  1  3  4   4   1 여자 20대 대구   전문대졸
+23  3  3  2  2  2  2  3  2  3   3   3 남자 20대 대구   중졸이하
+24  2  2  2  2  2  3  1  4  4   4   2 남자 20대 대구   전문대졸
+25  2  2  2  2  2  2  3  4  3   3   3 남자 20대 대구   전문대졸
+.. .. .. .. .. .. .. .. .. .. ... ... .. .. .. ........
+(25 of 380 observations shown)
+#제품 친밀도(q1:브랜드, q2:친근감, q3:익숙함, q4:편안함)
+#제품 적절성(q5:가격적절성, q6:당도적절성, q7:성분 적절성)
+#제품 만족도(q8:음료의 목넘김, q9: 맛,  q10:향 ,q11: 가격)
+> drinking_water<-data.spss[1:11] 
+> drinking_water_df<-as.data.frame(drinking_water)
+> str(drinking_water_df)
+'data.frame':	380 obs. of  11 variables:
+ $ q1 : num  3 3 3 3 3 1 2 2 2 4 ...
+ $ q2 : num  2 3 3 3 3 1 2 2 2 3 ...
+ $ q3 : num  3 3 3 3 2 1 2 1 1 3 ...
+ $ q4 : num  3 3 4 1 2 1 3 2 2 3 ...
+ $ q5 : num  4 3 3 3 3 1 2 1 3 4 ...
+ $ q6 : num  3 3 4 2 3 1 3 2 3 3 ...
+ $ q7 : num  4 2 3 3 2 1 5 1 1 3 ...
+ $ q8 : num  3 3 4 2 2 3 4 2 3 4 ...
+ $ q9 : num  4 3 4 2 2 3 4 2 2 2 ...
+ $ q10: num  3 2 4 2 2 3 4 2 3 3 ...
+ $ q11: num  4 3 4 2 2 3 4 2 1 4 ...
+```
+
+##### 6.2.요인분석
+
+- p-value값은 chi_sqare(카이제곱) 검정 결과로 기대치와 관찰치에 차이가 있음을 알려주는 확률값 
+- p-value값이 < 유의수준(0.05) 이면 유인수에 문제가 있다. 
+
+```r
+> result<-factanal(drinking_water_df,factors = 3,rotation = "varimax")
+> result
+
+Call:
+factanal(x = drinking_water_df, factors = 3, rotation = "varimax")
+
+Uniquenesses:
+   q1    q2    q3    q4    q5    q6    q7    q8    q9   q10   q11 
+0.321 0.238 0.284 0.447 0.425 0.373 0.403 0.375 0.199 0.227 0.409 
+
+Loadings:
+    Factor1 Factor2 Factor3
+q1  0.201   0.762   0.240  
+q2  0.172   0.813   0.266  
+q3  0.141   0.762   0.340  
+q4  0.250   0.281   0.641  
+q5  0.162   0.488   0.557  
+q6  0.224   0.312   0.693  
+q7  0.235   0.219   0.703  
+q8  0.695   0.225   0.304  #상관성 높
+q9  0.873   0.122   0.155  #높 factor1
+q10 0.852   0.144   0.161  #높factor1
+q11 0.719   0.152   0.225  #높factor1
+
+               Factor1 Factor2 Factor3
+SS loadings      2.772   2.394   2.133
+Proportion Var   0.252   0.218   0.194
+Cumulative Var   0.252   0.470   0.664
+
+Test of the hypothesis that 3 factors are sufficient.
+The chi square statistic is 40.57 on 25 degrees of freedom.
+The p-value is 0.0255 
+################################################################3
+Uniqueness는 11개 변수가 0.5이하의 값이면 모두 유효하다 볼수 있다.
+loadings: Factor1(q8~q11),Factor2(q1~q3),Factor3(q4~q7) 이렇게 요인분석 결과 관련 있다 나오는데 처음 분류 방식은 
+#제품 친밀도(q1:브랜드, q2:친근감, q3:익숙함, q4:편안함)
+#제품 적절성(q5:가격적절성, q6:당도적절성, q7:성분 적절성)
+#제품 만족도(q8:음료의 목넘김, q9: 맛,  q10:향 ,q11: 가격)
+이거다. 즉 q4를 잘못 분류했음을 확인.
+p-value 0.0255로 유의수준 0.05보다 작기 때문에 요인수 선택에 문제가 있다고 볼 수 있다. 
+q4제거 해야한다.!!!!!!!!!!1
+```
+
+##### 6.3 문제있는 요인수 제거&요인별 변수 묶기
+
+```r
+> dw_df<-drinking_water_df[-4]
+> str(dw_df)
+'data.frame':	380 obs. of  10 variables:
+ $ q1 : num  3 3 3 3 3 1 2 2 2 4 ...
+ $ q2 : num  2 3 3 3 3 1 2 2 2 3 ...
+ $ q3 : num  3 3 3 3 2 1 2 1 1 3 ...
+ $ q5 : num  4 3 3 3 3 1 2 1 3 4 ...
+ $ q6 : num  3 3 4 2 3 1 3 2 3 3 ...
+ $ q7 : num  4 2 3 3 2 1 5 1 1 3 ...
+ $ q8 : num  3 3 4 2 2 3 4 2 3 4 ...
+ $ q9 : num  4 3 4 2 2 3 4 2 2 2 ...
+ $ q10: num  3 2 4 2 2 3 4 2 3 3 ...
+ $ q11: num  4 3 4 2 2 3 4 2 1 4 ...
+> s<-data.frame(dw_df$q8,dw_df$q9,dw_df$q10,dw_df$q11) #만족도
+> c<-data.frame(dw_df$q1,dw_df$q2,dw_df$q3)#친밀도
+> p<-data.frame(dw_df$q5,dw_df$q6,dw_df$q7)#적절성
+```
+
+##### 6.4 요인별 산술평균 계산
+
+```r
+satisfaction<-round((dw_df$q8+dw_df$q9+dw_df$q10+dw_df$q11)/ncol(s),2)
+closeness<-round((dw_df$q1+dw_df$q2+dw_df$q3)/ncol(c),2)
+pertinence<-round((dw_df$q5+dw_df$q6+dw_df$q7)/ncol(p),2)
+```
+
+##### 6.5 상관관계 분석(cor())
+
+```r
+> dwf_df<-data.frame(satisfaction,closeness,pertinence)
+> colnames(dwf_df)<-c("제품 만족도","제품 친밀도","제품 적절성")
+> cor(dwf_df)
+            제품 만족도 제품 친밀도 제품 적절성
+제품 만족도   1.0000000   0.4047543   0.4825335
+제품 친밀도   0.4047543   1.0000000   0.6344751
+제품 적절성   0.4825335   0.6344751   1.0000000
+
+################################ 해석
+제품 친밀도와 제품 적절성이 상관관계가 높다. 
+```
+
+### 7. 상관관계 분석
+
+##### 7.1 상관관계 분석
+
+1. 변수간의 고나련성 분석하기 위해 사용
+2. 어느 정도 관련성이 있는지 분석
+
+##### 7.2 중요사항
+
+1. 변수간 분석 전 변수간 관련성 분석해야 한다.
+2. 상관계수인 피어슨(Pearson)R 계수를 이용해 관련성 유무 정도 파악
+3. 상관관계 분석의 척도인 피어슨 상관계수 R상관 정도
+
+| 피어슨 상관계수 R | 상관관계 정도        |
+| ----------------- | -------------------- |
+| ±0.9이상          | 매우 높은 상관관계   |
+| ±0.9 ~ ±0.7       | 높은   상관관계      |
+| ±0.7 ~±0.4        | 다소   높은 상관관계 |
+| ±0.4 ~ ±0.2       | 낮은 상관관계        |
+| ±0.2 미만         | 상관관계 없음        |
+
+##### 7.3 상관계수
+
+1. x,y사이의 상관관계 정도를 나타내는 수치
+
+2. 인과관계는 모르고 선형관계만 파악 가능
+
+3. 인과관계는 
+
+4. 상관계수 R과 상관관계 정도
+
+   ![1568944065731](R.assets/1568944065731.png)
+
+5. 상관계수는 cor()로 확인한다.
+
+
+
+##### 7.4 상관분석 유형
+
+| 구분 | 피어슨                                                  | 스피어만                                                     | 켄달                                      |
+| ---- | ------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| 개념 | 등간척도 이상으로 측정된 두 변수들의 상관계수 측정 방식 | 서열척도인 두 변수들의 상관관계 측정 방식                    | 서열척도인 두 변수들의 상관관계 측정 방식 |
+| 특징 | •연속성   변수, 정규성 가정   •대부분   많이 사용함     | •순서형   변수, 모수 방법   •순위를   기준으로 상관관계 측정 | 순서형 변수, 비모수 방법                  |
+
+1. 단순 상관관계
+2. 다중 상관 관계
+3. 편(Partial)상관관계
+4. 부분(Semi partial) 상관관계
+
+###### 7.4.1 단순 상관관계
+
+```r
+> result<-read.csv("./product.csv",header=TRUE)
+> head(result)
+  제품_친밀도 제품_적절성 제품_만족도
+1           3           4           3
+2           3           3           2
+3           4           4           4
+4           2           2           2
+5           2           2           2
+6           3           3           3
+> str(result)
+'data.frame':	264 obs. of  3 variables:
+ $ 제품_친밀도: int  3 3 4 2 2 3 4 2 3 4 ...
+ $ 제품_적절성: int  4 3 4 2 2 3 4 2 2 2 ...
+ $ 제품_만족도: int  3 2 4 2 2 3 4 2 3 3 ...
+####요약정리
+> summary(result)
+  제품_친밀도     제품_적절성     제품_만족도   
+ Min.   :1.000   Min.   :1.000   Min.   :1.000  
+ 1st Qu.:2.000   1st Qu.:3.000   1st Qu.:3.000  
+ Median :3.000   Median :3.000   Median :3.000  
+ Mean   :2.928   Mean   :3.133   Mean   :3.095  
+ 3rd Qu.:4.000   3rd Qu.:4.000   3rd Qu.:4.000  
+ Max.   :5.000   Max.   :5.000   Max.   :5.000  
+#### 표준편차
+> sd(result$제품_친밀도)
+[1] 0.9703446
+> sd(result$제품_적절성)
+[1] 0.8596574
+> sd(result$제품_만족도)
+[1] 0.8287436
+#### 상관관계 확인
+##개별적 보기
+> cor(result$제품_친밀도,result$제품_만족도)
+[1] 0.467145
+##두개를 묶어서 상관관계 확인
+> cor(result$제품_만족도+result$제품_적절성,result$제품_만족도)
+[1] 0.937616
+## 한번에 보기
+> cor(result,method="pearson")
+            제품_친밀도 제품_적절성 제품_만족도
+제품_친밀도   1.0000000   0.4992086   0.4671450
+제품_적절성   0.4992086   1.0000000   0.7668527
+제품_만족도   0.4671450   0.7668527   1.0000000
+```
+
+### 8. 상관관계에 따라 시각화
+
+##### 8.1. 상관계수에 따라 색의 농도로 시각화
+
+```r
+install.packages("corrgram")
+library(corrgram)
+corrgram(result)
+```
+
+![1568945769897](R.assets/1568945769897.png)
+
+```r
+corrgram(result, upper.panel = panel.conf)
+```
+
+![1568945888909](R.assets/1568945888909.png)
+
+##### 8.2 상관성, 밀도곡선, 유의확률 시각화
+
+```r
+install.packages("PerformanceAnalytics")
+library(PerformanceAnalytics)
+# 상관성, p값(*), 정규분포 시각화
+chart.Correlation(result, histogram=, pch="+")
+```
+
+![1568945964883](R.assets/1568945964883.png)
+
+##### 
+
+## 예측 분석 지도학습
+
+### 1. 지도학습
+
+##### 1.1 기계학습(Machine Learning)
+
+1. 알고리즘을 통해 기계(컴퓨터, 로봇 등)에게 학습을 시킨 후 새로운 데이터가 들어오는 경우 해당 결과 예측 학문 분야
+2. 인간과 로봇관의 상호작용, 포털 사이트에서 검색어 자동 완성 기능 , 코드 탐지, 문자인식 등
+3. 데이터를 통해 반복 학습으로 만들어진 모델을 바탕으로 최적의 판단이나 예측 가능하는 것이 목표
+
+##### 1.2. 기계학습 분류
+
+1. 지도 학습
+
+   - 사전에 입력과 출력에 대한 정보를 가지고 있는 상태에서 나타나느 규칙발견(알고리즘 이용), 만들어진 모델에 의해 새로운 데이터 추정 및 예측
+
+2. 비지도 학습
+
+   - 최종적인 정보가 없다. 컴퓨터 스스로 공통점과 차이점 등의 패턴을 이용하여 규칙을 생성, 분석 결과 도출 하는 방식
+   - 유사 데이터를 그룹화해주는 군집화와 군집 내의 특성을 나타내는 연관분석에 이용
+
+   
+
+   | 분류 | 지도학습                        | 비지도학습                      |
+   | ---- | ------------------------------- | ------------------------------- |
+   | 주관 | 사람의 개입에 의한 학습         | 컴퓨터에 의한 기계학습          |
+   | 기법 | 확률과 통계기반 추론통계        | 패턴분석 기반 데이터 마이닝     |
+   | 유형 | 회귀분석, 분류분석(y 변수 있음) | 군집분석, 연관분석(y 변수 없음) |
+   | 분야 | 인문. 사회   계열               | 공학. 자연   계열               |
+
+##### 1.3. 혼돈 매트릭스
+
+1. 기계학습에 의해서 생성 된 분류분석 모델 성능 지표화, 예측한 값 열, 관측값 행
+
+   |          | 예측치 P         | 예측치 N      |
+   | -------- | ---------------- | ------------- |
+   | 관측치 P | TP(참   긍정)    | 거짓 부정(FN) |
+   | 관측치 N | FP (거짓   긍정) | 참 부정(TN)   |
+
+2. 정분류율(Accuracy)  = (TP +TN) / 전체관측치(TN+FP+FN+TP)
+   - 모델이 Yes로 판단한 것 중에서 실제로(관측치가) Yes인 비율
+
+3. 오분류율(Inaccuracy)  = (FN +FP) / 전체관측치(TN+FP+FN+TP) = 1- 정분류율
+4. 정확율(Precision)  = TP  / (TP +FP) 
+5. 재현율(Recall)  = TP  / (TP +FN) 
+   - 관측치가 Yes인 것 중에서 모델이 Yes로 판단한 비율 
+6. F1 점수(F1 score)  =(2 * (Precision * Recall) / (Precision + Recall)
+   - 기계학습에서 Y변수가 갖는 1(Yes)과 0(No)의 비율이 불균형을 이루는 경우 모델의 평가결과로 F1 점수를 주로 이용한다.
+
+### 2. 지도학습 절차
+
+##### 2.1 지도학습 절차
+
+1. 학습데이터로 알고리즘
+2. 학습 후 모델 생성
+3. 검정데이터를 이용 생성된 모델 정확도 판단
+
+### 3. 회귀분석
+
+1. 특정 변수(독립변수)가 다른 변수(종속변수)에 어떠한 영향을 미치는가를 분석
+2. 인과관계가 있는지 등을 분석하기 위한 방법
+
+##### 3.1 단순 회귀 분석
+
+- 독립변수와 종속변수가 각각 한 개일 경우 독립 변수가 종속변수에 미치는 인과관계를 분석할 떄 이용
+
+##### 3.2 회귀분석 가정 충족
+
+- 선형성 : 독립변수와 종속변수가 선형적이어야 한다. – 회귀선 확인
+- 잔차 정규성 : 잔차(오차)란 종속변수의 관측값과 회귀모델의 예측값 간의 차이로 잔차의 기대값은 0이며, 정규분포를 이루어야 한다 – 정규성 검정 확인
+- 잔차 독립성 : 잔차들은 서로 독립적이어야 한다. – 더빈 왓슨 값 확인
+- 잔차 등분산성 : 잔차들의 분산이 일정해야 한다 – 표준잔차와 표준예측치 도표
+- 다중 공산성 : 다중 회귀분석을 수행할 경우 3개 이상의 독립변수 간의 강한 상관관계로 인한 문제가 발생하지 않아야 한다. – 분산팽창요인(VIF) 확인
+
+##### 3.3. 회귀 분석 분석 절차
+
+1. 회귀분석 기본적 가정 충족 확인
+2. 분산분석의 F값으로 회귀모형의 유의성 여부 판단
+3. 독립변수와 종속변수 간의 상관관계와 회귀모형의 설명력 확인
+4. 검정 통계량 t값에 대한 유의확률을 통해서 가설 채택 여부 결정
+5. 회귀방정식을 적용 회귀식을 수집하고 결과 해석
+
+##### 3.4. 회귀분석
+
+1. 데이터로부터 독립변수, ,종속변수 생성
+2. 단순 선형회귀 모델 생성- stats 패키지의 lm()
+3. 모델의 적합값과 잔차 보기(계산)
+4. 선형회귀분석 모델 시각화- 회귀선
+
+##### 3.5. 회귀 방정식 (Y=α +βX)
+
+1. α: 절편 , β:
+
+##### 3.6 단순 선형회귀 모델 생성 lm (y~x,data)
+
+###### 3.6.1 실습1 
+
+```r
+product <-read.csv("./product.csv")
+head(product)
+> y<-product$제품_만족도 #종속 변수
+> x<-product$제품_적절성 #독립 변수
+> df<-data.frame(x,y)
+> #단순 선형회귀 모델 생성 lm(y~x,data)
+> lm(y~x,product)
+
+Call:
+lm(formula = y ~ x, data = product)
+
+Coefficients:
+(Intercept)            x  
+     0.7789       0.7393  
+
+#### 결과
+Y=0.7789 + 0.7393*X 
+```
+
+###### 3.6.2 생성된 선형회귀 모델의 적합값과 잔차 계산
+
+```r
+> #단순 선형회귀 모델 생성 lm(y~x,data)
+> result.lm<-lm(y~x,product)
+> names(result.lm)
+ [1] "coefficients"  "residuals"     "effects"       "rank"          "fitted.values"
+ [6] "assign"        "qr"            "df.residual"   "xlevels"       "call"         
+[11] "terms"         "model"        
+> fitted.values(result.lm)
+       1        2        3        4        5        6        7        8        9 
+3.735963 2.996687 3.735963 2.257411 2.257411 2.996687 3.735963 2.257411 2.257411 
+      10       11       12       13       14       15       16       17       18 
+2.257411 4.475239 3.735963 1.518135 2.257411 2.257411 2.257411 2.996687 2.996687 
+      19       20       21       22       23       24       25       26       27 
+
+> head(df,1)
+  x y
+1 4 3
+
+#관측값 x=4, y=3
+Y=0.7789 + 0.7393*X  에 대입해보자.
+Y= 3.7361
+
+#오차는 관측값-적합값 관측값=3 적합값 =3.735963
+3-3.735963  답은 -0.935963
+
+> residuals(result.lm)[1:2]
+         1          2 
+-0.7359630 -0.9966869 
+
+#관측값은 잔차+적합값
+-0.7359630 + 3.735963   #3
+
+```
+
+###### 3.6.3 선형회귀분석 모델 시각화
+
+```r
+
+plot(formula=y~x,data=result)
+abline(result.lm,col="red")
+
+#선형회귀분석 결과
+summary(result.lm)
+
+Call:
+lm(formula = y ~ x, data = product)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.99669 -0.25741  0.00331  0.26404  1.26404 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.77886    0.12416   6.273 1.45e-09 ***
+x            0.73928    0.03823  19.340  < 2e-16 ***
+
+#유의수준이 0.05보다 매우 작다! x 제품의 t value=19.340 "제품의 가격과 품질을 결정하는 제품 적절성은 제품 만족도에 양의 영향을 미친다. "
+
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.5329 on 262 degrees of freedom
+Multiple R-squared:  0.5881,	Adjusted R-squared:  0.5865 
+F-statistic:   374 on 1 and 262 DF,  p-value: < 2.2e-16
+# F-statistic 적합성을 나타낸다.
+# p-value<2.2e-16
+# F검정(F-statistic) 와 p-value를 이용하여 회귀모델 자체를 신뢰할 수 있는지 판단.
+#p-value가 0.05보다 작기때문에 회귀선이 모델에 적합하다. 
+p-value가 0.05보다 매우 작기 때문에 "제품의 가격과 품질을 결정하는 제품 적절성은 제품 만족도에 양의 영향을 미친다." 연구가설 채택
+
+# Multiple R-squared:  0.5881 는 독립변수에 의해서 종속변수가 얼마만큼 설명되었는가 (회귀모델의 설명력)
+# Multiple R-squared 값은 독립변수와 종속변수 간의 상관관계를 나타내는 결정계수
+# 설명력이 1에 가까울수록 설명변수(독립변수)가 설명을 잘한다고 판단할 수 있습니다. => 변수의 모델링이 잘 되었다는 의미
+```
+
+
+
+![1568954395472](R.assets/1568954395472.png)
+
+### 4. 다중 회귀분석
+
+##### 4.1 다중회귀분석
+
+1. 여러 개의 독립변수가 동시에 한 개의 종속 변수에 미치는 영향을 분석할 때 이용
+2. 다수의 독립변수가 투입되기 때문에 독립변수가 다른 독립변수들에 의해서 설명되지 않는 부분을 의미하는 공차한계(Tolerance)와 공차한계의 역수로 표시되는 분산팽창요인(VIF) 로 다중 공정선에 문제가 없는지 체크
+
+##### 4.2 다중공선성 문제
+
+- 한 독립변수의 값이 증가할 때 다른 독립변수의 값이 이와 관련하여 증가하거나 감소하는 현상
+- 대부분 다중회귀분석에서 독립변수들은 어느 정도 상관관계를 보이고 있기 때문에 다중 공선성은 존재하지만, 독립변수들이 강한 상관관계를 보이는 경우 회귀분석의 결과를 신뢰하기 어렵다. 
+- 해결방법은 상관관계가 높은 독립변수 중 하나 혹은 일부를 제거하거나 변수를 변형시켜 해결
+- 분산 팽창요인 값을 확인하기 위해 관련 패키지를 설치 후 wif() 함수를 이용하여 다중 공선성 문제를 확인.
+
+##### 4.3 실습(다중공선성 문제 없는 경우)
+
+```r
+product<-read.csv("./3/product.csv",header=TRUE)
+head(product)
+  제품_친밀도 제품_적절성 제품_만족도
+1           3           4           3
+2           3           3           2
+3           4           4           4
+4           2           2           2
+5           2           2           2
+6           3           3           3
+str(product)
+'data.frame':	264 obs. of  3 variables:
+ $ 제품_친밀도: int  3 3 4 2 2 3 4 2 3 4 ...
+ $ 제품_적절성: int  4 3 4 2 2 3 4 2 2 2 ...
+ $ 제품_만족도: int  3 2 4 2 2 3 4 2 3 3 ...
+
+y<-product$제품_만족도
+x1<-product$제품_적절성
+x2<-product$제품_친밀도
+df<-data.frame(x1,x2,y)
+
+
+
+> #다중 회귀 분석
+> result.lm<-lm(formula=y~x1+x2,data=df)
+> result.lm #절편(0.66731)과 기울기(x1:0.09593,x2:0.68522) 확인
+
+Call:
+lm(formula = y ~ x1 + x2, data = df)
+
+Coefficients:
+(Intercept)           x1           x2  
+    0.66731      0.68522      0.09593  
+
+
+#다중 공선성문제  확인
+install.packages("car")
+library(car)
+> vif(result.lm) #분산팽창요인(VIF)
+      x1       x2 
+1.331929 1.331929 
+#결과값이 10 이상인 경우에는 다중 공선성문제를 의심해 볼수 있습니다. 
+```
+
+###### 4.3.1 결과
+
+```r
+> summary(result.lm)
+
+Call:
+lm(formula = y ~ x1 + x2, data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.01076 -0.22961 -0.01076  0.20809  1.20809 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  0.66731    0.13094   5.096 6.65e-07 ***
+x1           0.68522    0.04369  15.684  < 2e-16 *** 
+x2           0.09593    0.03871   2.478   0.0138 *  
+#x1는 제품의 적절성이 제품 만족도에 미치는 영향 t검정통계량 15.684,
+#x2는 제품의 친밀도가 제품 만족도에 미치는 영향 t검정통계량 2.478
+#x1,x2의 유의확률(Pr)모두 0.05보다 작기 떄문에 제품 만족도에 양의 영향을 미친다.(대립가설 채택)
+
+
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.5278 on 261 degrees of freedom
+Multiple R-squared:  0.5975,	Adjusted R-squared:  0.5945 
+F-statistic: 193.8 on 2 and 261 DF,  p-value: < 2.2e-16
+# Multiple R-squared 상관계수(결정계수) 0.5975 다소 높은 상관관계를 나타낸다. 설명력(Adjusted R-squared:  0.5945 )은 59.45%
+#회귀모델의 적합성은 f검정통계량 (F-statistic) 193.8
+#유의확률 (p-value<2.2e-16)이므로 0.05보다 매우 낮으므로 제품만족도에 영향을 끼친다.(대립가설 채택)
+```
+
+##### 4.4 실습(다중공선성 문제 있는 경우)
+
+1. 학습데이터와 검정데이터를 7:3 비율로 샘플링
+2. 표본 추출
+3. 다중 공선성 문제 해결 – 강한 상관관계를 갖는 독립변수를 제거하여 해결
+4. 학습 데이터로부터 회귀모델 생성
+5. 검정 통계량 분석하여 가설 검정
+6. 검정 데이터를 이용하여 모델의 예측치 생성 – stats패키지의 predict() 
+7. 회귀 모델 성능을 평가 – 상관계수를 이용 , 모델의 예측치(pred)와 검정데이터의 종속변수(y)를 이용하여 상관계수(r) 를 구하여 모델의 분류정확도를 평가한다
+
+```r
+> lm(formula=Sepal.Length ~ Sepal.Width+Petal.Length+Petal.Width,data=iris)
+
+Call:
+lm(formula = Sepal.Length ~ Sepal.Width + Petal.Length + Petal.Width, 
+    data = iris)
+
+Coefficients:
+ (Intercept)   Sepal.Width  Petal.Length   Petal.Width  
+      1.8560        0.6508        0.7091       -0.5565  
+
+> vif(fit)
+Error in vif(fit) : object 'fit' not found
+> fit<-lm(formula=Sepal.Length ~ Sepal.Width+Petal.Length+Petal.Width,data=iris)
+> vif(fit)
+ Sepal.Width Petal.Length  Petal.Width 
+    1.270815    15.097572    14.234335 
+
+
+
+
+```
+
+###### 4.4.1 다중공선성 문제가 의심되는 변수의 상관관계 확인
+
+```r
+> #다중공선성 문제가 의심되는 변수의 상관계수 확인
+> cor(iris[,-5])
+             Sepal.Length Sepal.Width Petal.Length Petal.Width
+Sepal.Length    1.0000000  -0.1175698    0.8717538   0.8179411
+Sepal.Width    -0.1175698   1.0000000   -0.4284401  -0.3661259
+Petal.Length    0.8717538  -0.4284401    1.0000000   0.9628654
+Petal.Width     0.8179411  -0.3661259    0.9628654   1.0000000
+```
+
+###### 4.4.2 학습데이터와 검정 데이터를 7:3으로 표본 추출
+
+```r
+> x<-sample(1:nrow(iris),0.7*nrow(iris))# 70%표본 추출
+> train<-iris[x,]#학습 데이터
+> test<-iris[-x,]#검정 데이터
+```
+
+###### 4.4.3 Petal.Width 변수를 제거한 후 학습데이터로부터 회귀모델 생성
+
+```r
+> model<-lm(formula= Sepal.Length ~ Sepal.Width+Petal.Length, data=iris)
+> model
+
+Call:
+lm(formula = Sepal.Length ~ Sepal.Width + Petal.Length, data = iris)
+
+Coefficients:
+ (Intercept)   Sepal.Width  Petal.Length  
+      2.2491        0.5955        0.4719  
+
+> summary(model)
+
+Call:
+lm(formula = Sepal.Length ~ Sepal.Width + Petal.Length, data = iris)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.96159 -0.23489  0.00077  0.21453  0.78557 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   2.24914    0.24797    9.07 7.04e-16 ***
+Sepal.Width   0.59552    0.06933    8.59 1.16e-14 ***
+Petal.Length  0.47192    0.01712   27.57  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3333 on 147 degrees of freedom
+Multiple R-squared:  0.8402,	Adjusted R-squared:  0.838 
+F-statistic: 386.4 on 2 and 147 DF,  p-value: < 2.2e-16
+#꽃받침의 너비가 꽃받침의 길이에 영향을 미친다.
+#꽃잎의 기링가 꽃받침의 길이에 영향을 준다.
+```
+
+###### 4.4.4 검정데이터에 회귀모델 적용 예측값 생성 후 모델 평가
+
+```r
+> #검정데이터에 회귀모델 적용 예측값 생성 후 모델 평가
+> head(train,1)
+    Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
+124          6.3         2.7          4.9         1.8 virginica
+
+> #회귀방정식
+> Y=2.2491  +      0.5955*3.3   +0.4719*5.7
+
+> Y
+[1] 6.90408
+
+오차 =예측값 -관측값 (6.90408-6.7) 0.20408
+
+
+
+> #stats::predict(model,data)
+> stats::predict(model,test)
+       7        8        9       10       11       18       24       28       31 
+4.934612 4.981804 4.636850 4.803147 5.160462 4.994165 5.016636 5.041357 4.850339 
+      36       40       47       50       51       53       59       66       72 
+4.721123 4.981804 5.267206 4.875060 6.372844 6.407675 6.146994 6.171715 5.804290 
+      73       77       79       80       83       84       88       91       92 
+6.050360 6.181826 6.099802 5.449225 5.697545 6.263849 5.695295 5.873953 6.206547 
+      96       97      102      103      104      106      107      113      114 
+6.017779 5.958226 6.263849 6.820043 6.618914 7.150387 5.861592 6.631275 6.097552 
+     115      116      119      123      126      130      132      137      138 
+6.323402 6.655996 7.053753 7.078474 6.986340 6.772851 7.532422 6.916677 6.690827 
+#
+pred<-predict(model,test)
+pred
+#결과값 같다.
+```
+
+###### 4.4.5 모델 평가는 상관계수를 이용& 모델의 정확도 평가 
+
+```r
+> cor(pred,test$Sepal.Length)
+[1] 0.9109266
+#예측치와 실제 관측치는 상관계수가 0.9419519임으로 매우 높은 상관계수를 갖는다. 모델의 정확도가 아주 높다고 볼 수 있따. 
+```
+
+### 실습
+
+```r
+01] product.csv 파일의 데이터를 이용하여 다음과 같은 단계로 다중회귀분석을 수행하시오.
+product <- read.csv("./product2.csv", header=TRUE)
+
+단계1 : 학습데이터(train), 검정데이터(test)를 7 : 3 비율로 샘플링
+
+단계2 : 학습데이터 이용 회귀모델 생성
+변수 모델링) y변수 : 제품_만족도, x변수 : 제품_적절성, 제품_친밀도
+
+단계3 : 검정데이터 이용 모델 예측치 생성
+
+단계4 : 모델 평가 : cor() 함수 이용
+
+
+02] ggplot2패키지에서 제공하는 diamonds 데이터 셋을 대상으로 carat, table, depth 변수
+중 다이아몬드의 가격(price)에 영향을 미치는 관계를 다중회귀 분석을 이용하여 예측하
+시오.
+조건1) 다이아몬드 가격 결정에 가장 큰 영향을 미치는 변수는?
+조건2) 다중회귀 분석 결과를 양(+)과 음(-) 관계로 해설
+
+
+```
+
+```r
+################다중 회귀 분석 연습문제 #####################
+01] product.csv 파일의 데이터를 이용하여 다음과 같은 단계로 다중회귀분석을 수행하시오.
+product <- read.csv("./product2.csv", header=TRUE)
+
+단계1 : 학습데이터(train), 검정데이터(test)를 7 : 3 비율로 샘플링
+idx <- sample(1:nrow(product), 0.7*nrow(product))
+train <- product[idx,] # result중 70%
+dim(train) # [1] 184 3
+train # 학습데이터
+test <- product[-idx, ] # result중 나머지 30%
+dim(test) # [1] 80 3
+test # 검정 데이터
+
+
+단계2 : 학습데이터 이용 회귀모델 생성
+변수 모델링) y변수 : 제품_만족도, x변수 : 제품_적절성, 제품_친밀도
+model <- lm(formula=제품_만족도 ~ 제품_적절성 + 제품_친밀도, data=train)
+summary(model) # 학습데이터 분석 : p-value: < 2.2e-16
+
+
+단계3 : 검정데이터 이용 모델 예측치 생성
+pred <- predict(model, test) # 예측치 생성
+
+
+단계4 : 모델 평가 : cor() 함수 이용
+cor(pred, test$제품_만족도) # 모델 평가
+
+
+
+
+
+02] ggplot2패키지에서 제공하는 diamonds 데이터 셋을 대상으로 carat, table, depth 변수
+중 다이아몬드의 가격(price)에 영향을 미치는 관계를 다중회귀 분석을 이용하여 예측하
+시오.
+조건1) 다이아몬드 가격 결정에 가장 큰 영향을 미치는 변수는?
+조건2) 다중회귀 분석 결과를 양(+)과 음(-) 관계로 해설
+
+library(ggplot2)
+data(diamonds)
+
+# diamonds에서 비율척도 대상으로 식 작성
+formula <- price ~ carat + table + depth
+head(diamonds)
+result <- lm(formula, data=diamonds)
+summary(result) # 회귀분석 결과
+
+#Coefficients:
+#Estimate Std. Error t value Pr(>|t|)
+#(Intercept) 13003.441 390.918 33.26 <2e-16 ***
+#carat 7858.771 14.151 555.36 <2e-16 ***
+#table -104.473 3.141 -33.26 <2e-16 ***
+#depth -151.236 4.820 -31.38 <2e-16 ***
+해설>carat은 price에 정(+)의 영향을 미치지만, table과 depth는 부(-)의 영향을 미친다.
+```
+
+### 5. 로지스틱 회귀분석
+
+1. 종속변수와 독립변수 간의 관계를  예측모델로 생성
+2. 독립변수(x)에 의해서 종속변수(y)의 범주로 분류분석 방법
+
+##### 5.1. 특징
+
+1. 종속
+
+##### 실습
+
+```r
+> weather<- read.csv("./4/weather.csv",stringsAsFactors = F)
+> dim(weather)  
+[1] 366  15
+> str(weather)
+'data.frame':	366 obs. of  15 variables:
+ $ Date         : chr  "2014-11-01" "2014-11-02" "2014-11-03" "2014-11-04" ...
+ $ MinTemp      : num  8 14 13.7 13.3 7.6 6.2 6.1 8.3 8.8 8.4 ...
+ $ MaxTemp      : num  24.3 26.9 23.4 15.5 16.1 16.9 18.2 17 19.5 22.8 ...
+ $ Rainfall     : num  0 3.6 3.6 39.8 2.8 0 0.2 0 0 16.2 ...
+ $ Sunshine     : num  6.3 9.7 3.3 9.1 10.6 8.2 8.4 4.6 4.1 7.7 ...
+ $ WindGustDir  : chr  "NW" "ENE" "NW" "NW" ...
+ $ WindGustSpeed: int  30 39 85 54 50 44 43 41 48 31 ...
+ $ WindDir      : chr  "NW" "W" "NNE" "W" ...
+ $ WindSpeed    : int  20 17 6 24 28 24 26 24 17 6 ...
+ $ Humidity     : int  29 36 69 56 49 57 47 57 48 32 ...
+ $ Pressure     : num  1015 1008 1007 1007 1018 ...
+ $ Cloud        : int  7 3 7 7 7 5 6 7 7 1 ...
+ $ Temp         : num  23.6 25.7 20.2 14.1 15.4 14.8 17.3 15.5 18.9 21.7 ...
+ $ RainToday    : chr  "No" "Yes" "Yes" "Yes" ...
+ $ RainTomorrow : chr  "Yes" "Yes" "Yes" "Yes" ...
+> weather_df<-weather[,c(-1,-6,-8,-14)]
+
+
+> #y 변수 (RainTomorrow)의 로직변화 :(0,1)로 생성
+> weather_df$RainTomorrow[weather_df$RainTomorrow=='Yes']<-1
+> weather_df$RainTomorrow[weather_df$RainTomorrow=='No']<-0
+> head(weather_df)
+  MinTemp MaxTemp Rainfall Sunshine WindGustSpeed WindSpeed Humidity Pressure Cloud
+1     8.0    24.3      0.0      6.3            30        20       29   1015.0     7
+2    14.0    26.9      3.6      9.7            39        17       36   1008.4     3
+3    13.7    23.4      3.6      3.3            85         6       69   1007.2     7
+4    13.3    15.5     39.8      9.1            54        24       56   1007.0     7
+5     7.6    16.1      2.8     10.6            50        28       49   1018.5     7
+6     6.2    16.9      0.0      8.2            44        24       57   1021.7     5
+  Temp RainTomorrow
+1 23.6            1
+2 25.7            1
+3 20.2            1
+4 14.1            1
+5 15.4            0
+6 14.8            0
+> weather_df$RainTomorrow<-as.numeric(weather_df$RainTomorrow)
+> str(weather_df)
+'data.frame':	366 obs. of  11 variables:
+ $ MinTemp      : num  8 14 13.7 13.3 7.6 6.2 6.1 8.3 8.8 8.4 ...
+ $ MaxTemp      : num  24.3 26.9 23.4 15.5 16.1 16.9 18.2 17 19.5 22.8 ...
+ $ Rainfall     : num  0 3.6 3.6 39.8 2.8 0 0.2 0 0 16.2 ...
+ $ Sunshine     : num  6.3 9.7 3.3 9.1 10.6 8.2 8.4 4.6 4.1 7.7 ...
+ $ WindGustSpeed: int  30 39 85 54 50 44 43 41 48 31 ...
+ $ WindSpeed    : int  20 17 6 24 28 24 26 24 17 6 ...
+ $ Humidity     : int  29 36 69 56 49 57 47 57 48 32 ...
+ $ Pressure     : num  1015 1008 1007 1007 1018 ...
+ $ Cloud        : int  7 3 7 7 7 5 6 7 7 1 ...
+ $ Temp         : num  23.6 25.7 20.2 14.1 15.4 14.8 17.3 15.5 18.9 21.7 ...
+ $ RainTomorrow : num  1 1 1 1 0 0 0 0 1 0 ...
+> idx<-sample(1:nrow(weather_df),nrow(weather_df)*0.7)
+> train<-weather_df[idx,]
+> test<-weather_df[-idx,]
+> #학습 데이터로부터 로지스틱 회귀모델 생성
+> weather_model<-glm(formula = RainTomorrow ~ .,data=train,family = 'binomial')
+> weather_model
+
+Call:  glm(formula = RainTomorrow ~ ., family = "binomial", data = train)
+
+Coefficients:
+  (Intercept)        MinTemp        MaxTemp       Rainfall       Sunshine  
+    136.17892       -0.11744        0.21638       -0.08861       -0.33467  
+WindGustSpeed      WindSpeed       Humidity       Pressure          Cloud  
+      0.06269       -0.05948        0.06826       -0.14320        0.15005  
+         Temp  
+      0.04554  
+
+Degrees of Freedom: 252 Total (i.e. Null);  242 Residual
+  (3 observations deleted due to missingness)
+Null Deviance:	    245.8 
+Residual Deviance: 128.5 	AIC: 150.5
+
+#랜덤으로 뽑아낸 거라 할때마다 값이 다르다.
+> summary(weather_model)
+
+Call:
+glm(formula = RainTomorrow ~ ., family = "binomial", data = train)
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-2.35992  -0.39615  -0.18645  -0.07987   2.52759  
+
+Coefficients:
+               Estimate Std. Error z value Pr(>|z|)   
+(Intercept)   136.17892   47.77092   2.851  0.00436 **
+MinTemp        -0.11744    0.08578  -1.369  0.17096   
+MaxTemp         0.21638    0.23974   0.903  0.36676   
+Rainfall       -0.08861    0.06510  -1.361  0.17342   
+Sunshine       -0.33467    0.12518  -2.673  0.00751 **
+WindGustSpeed   0.06269    0.02692   2.329  0.01988 * 
+WindSpeed      -0.05948    0.03836  -1.551  0.12099   
+Humidity        0.06826    0.03000   2.275  0.02288 * 
+Pressure       -0.14320    0.04629  -3.094  0.00198 **
+Cloud           0.15005    0.13226   1.135  0.25657   
+Temp            0.04554    0.25130   0.181  0.85620   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 245.83  on 252  degrees of freedom
+Residual deviance: 128.52  on 242  degrees of freedom
+  (3 observations deleted due to missingness)
+AIC: 150.52
+
+Number of Fisher Scoring iterations: 6
+```
+
+###### 로지스틱 회귀모델 예측치 생성
+
+```r
+> pred<-predict(weather_model,newdata=test,type="response")
+> #response는 예측결과를 
+> pred #예측치가 1에 가까울수록 비율 확률이 높다고 할 수 있다.
+           4           10           13           14           18           19 
+0.0048045197 0.0057987709 0.0156097220 0.0545760681 0.3054960407 0.0579793716 
+          25           31           33           34           36           41 
+0.0382239952 0.7302039247 0.7538308490 0.0740658880 0.5520683367 0.3843221423 
+          45           46           49           56           58           62 
+0.6534871865 0.9615565264 0.5830154462 0.0128152129 0.0133565362 0.1287613199 
+          63           65           66           67           71           76 
+0.2281468558 0.0470881471 0.1282564135 0.4818804674 0.0572870424 0.1356668194 
+          81           82           83           84           87           89 
+0.6106168755 0.6532334422 0.0289206354 0.0240415771 0.1440835108 0.0265654859 
+          94           97          107          109          111          113 
+0.1723149573 0.8979488039 0.0143624258 0.0361689521 0.0422185121 0.9226150667 
+         117          118          122          123          124          125 
+0.1097352929 0.0646157293 0.0057224064 0.0115970618 0.0289950653 0.2814278363 
+         126          129          133          134          137          139 
+0.0447009475 0.0300744121 0.0417099500 0.0877255668 0.0199722866 0.0391002697 
+         140          141          142          145          158          160 
+0.0455782671 0.4940281834 0.2357067833 0.5955743575 0.0191432274 0.0861485288 
+         163          165          169          171          177          189 
+0.0307804683 0.1470307578 0.0430722796 0.0183363487 0.0796907235 0.0107604592 
+         197          200          204          207          209          210 
+0.0183960011 0.0734839815 0.0018035120 0.0588644571 0.0076531168 0.0150430474 
+         211          214          221          222          231          233 
+0.0031745779 0.0997024649 0.0826936572           NA 0.1343125009 0.4989846038 
+         236          239          240          247          248          251 
+0.0191203625 0.0167522177 0.0026713227 0.0345954416 0.0060829156 0.0130588180 
+         256          264          268          277          279          280 
+0.3014455446 0.0155862402 0.0022321790 0.0036578734 0.3622495515 0.0116321564 
+         282          284          289          291          294          296 
+0.0184218138 0.2892037962 0.0393638363 0.0008316125 0.0184985621 0.0648672138 
+         299          300          302          303          304          310 
+0.0048091105 0.0144789805 0.0036150417 0.0280353151 0.4080753039 0.2984512866 
+         316          318          320          322          324          327 
+0.0043620428 0.0683909625 0.5572009999 0.0033850406 0.0325325597 0.9831072859 
+         330          331          335          340          341          349 
+0.0013704837 0.0202315161 0.0030486625 0.0892702015 0.1378021028           NA 
+         357          361 
+0.0019378322 0.4506731818 
+> #예측치를 이항형으로변환 : 0.5이상이면 1, 0.5미만이면 0
+> result_pred<-ifelse(pred>=0.5,1,0)
+> result_pred
+  4  10  13  14  18  19  25  31  33  34  36  41  45  46  49  56  58  62  63  65  66 
+  0   0   0   0   0   0   0   1   1   0   1   0   1   1   1   0   0   0   0   0   0 
+ 67  71  76  81  82  83  84  87  89  94  97 107 109 111 113 117 118 122 123 124 125 
+  0   0   0   1   1   0   0   0   0   0   1   0   0   0   1   0   0   0   0   0   0 
+126 129 133 134 137 139 140 141 142 145 158 160 163 165 169 171 177 189 197 200 204 
+  0   0   0   0   0   0   0   0   0   1   0   0   0   0   0   0   0   0   0   0   0 
+207 209 210 211 214 221 222 231 233 236 239 240 247 248 251 256 264 268 277 279 280 
+  0   0   0   0   0   0  NA   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
+282 284 289 291 294 296 299 300 302 303 304 310 316 318 320 322 324 327 330 331 335 
+  0   0   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   1   0   0   0 
+340 341 349 357 361 
+  0   0  NA   0   0 
+> table(result_pred)#0:91 1: 17
+result_pred
+ 0  1 
+95 13 
+> table(result_pred,test$RainTomorrow)
+           
+result_pred  0  1
+          0 87  8
+          1  4  9
+> #분류 정확도
+> (87+9)/(87+8+4+9)
+[1] 0.8888889   #88%다. 꽤 높은데? 
+```
+
+##### 5.2 ROC Curve를 이용한 모델 평가
+
+```r
+install.packages("ROCR")
+library(ROCR)
+pr <- prediction(pred, test$RainTomorrow)
+prf <- performance(pr, measure="tpr", x.measure="fpr")
+plot(prf)
+#왼쪽 상단의 계단모양의 빈 공백만큼이 분류 정확도에서 오분류(missing)를 나타낸다.
+```
+
+![1568966485644](R.assets/1568966485644.png)
+
+
+
+
+
+***
+
+# 복습
+
+### 단일 분석
+
+단일 집단을 대상으로 전. 후에 대해 표본 추출해서 비율의 차이 비교  검정 - binom.test() (유의순준과 유의확률)
+단일 집단을 평균이 어떤 특정한 집단의 평균과의 차이를 검정을 위해서 단일 집단의 평균이 정규분포를 이루는지 먼저 검정 -shapiro.test()
+단일 집단을 평균이 정규분포를 따르는 경우 t.test() (유의확률과 t검정통계량)
+단일 집단을 평균이 정규분포를 따르지 않는 경우 wilcox.text()
+
+### 두 집단 분석
+
+두집단을 대상으로 비율 검정 (독립표본 이항분포 비율 검정) - prop.test()
+두집단을 대상으로 평균 검정 ->  두 집단의 평균의 정규분포가 동일한지 검정 (동질성 검정 -var.test() )
+두 집단의 평균이 정규분포를 따르는 경우 t.test()
+두 집단의 평균이 정규분포를 따르지 않는 경우 wilcox.text()
+
+대응 두 집단 (예] 교수법 전, 교수법 후 동일 대상의 서로 다른 점수)의 평균 차이 비교
+대응 두 집단의 평균의 정규분포가 동일한지 검정 (동질성 검정 -var.test() )
+대응 두 집단의 평균이 정규분포를 따르는 경우 t.test()
+대응 두 집단의 평균이 정규분포를 따르지 않는 경우 wilcox.text()
+
+세 집단 대상으로 비율 검정 - prop.test()
+세 집단 대상으로 평균 검정 - 분산분석, F검정
+세 집단의 평균의 정규분포가 동일한지 검정 (동질성 검정 - bartlett.test())
+세 집단의 평균이 정규분포를 따르는 경우 aov()
+세 집단의 정규분포를 따르지 않는 경우 kruskal.test()
+사후 검정 TukeyHSD()
+
+요인 분석 - 다수의 변수를 대상으로 변수간의 관계를 분석하여 결과를 이용하여
+ 상관분석이나 회귀분석의 설명변수(독립변수)로 활용하기 위해 수행하는 분석
+
+변수의 주요 성분 분석 요인수를 알아보려면
+1. 주성분 분석 - prcomp()
+2. 고유값(변수의 상관계수 행렬)으로 요인수 분석 - eigen()
+
+변수들간의 상관관계 분석으로 요인 분석 - 변수들간의 상관성을 이용해서 공통요인 추출 factanal(dataset, factors="" , rotation="", scores="") 
+
+***
+
+##### 4. 요인분석
+
+
 
