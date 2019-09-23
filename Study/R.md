@@ -10115,13 +10115,16 @@ chart.Correlation(result, histogram=, pch="+")
    | 관측치 N | FP (거짓   긍정) | 참 부정(TN)   |
 
 2. 정분류율(Accuracy)  = (TP +TN) / 전체관측치(TN+FP+FN+TP)
-   - 모델이 Yes로 판단한 것 중에서 실제로(관측치가) Yes인 비율
-
+   
+- 모델이 Yes로 판단한 것 중에서 실제로(관측치가) Yes인 비율
+   
 3. 오분류율(Inaccuracy)  = (FN +FP) / 전체관측치(TN+FP+FN+TP) = 1- 정분류율
 4. 정확율(Precision)  = TP  / (TP +FP) 
 5. 재현율(Recall)  = TP  / (TP +FN) 
+   
    - 관측치가 Yes인 것 중에서 모델이 Yes로 판단한 비율 
 6. F1 점수(F1 score)  =(2 * (Precision * Recall) / (Precision + Recall)
+   
    - 기계학습에서 Y변수가 갖는 1(Yes)과 0(No)의 비율이 불균형을 이루는 경우 모델의 평가결과로 F1 점수를 주로 이용한다.
 
 ### 2. 지도학습 절차
@@ -10166,7 +10169,7 @@ chart.Correlation(result, histogram=, pch="+")
 
 ##### 3.5. 회귀 방정식 (Y=α +βX)
 
-1. α: 절편 , β:
+1. α: 절편 , β:기울기
 
 ##### 3.6 단순 선형회귀 모델 생성 lm (y~x,data)
 
@@ -10193,6 +10196,8 @@ Y=0.7789 + 0.7393*X
 ```
 
 ###### 3.6.2 생성된 선형회귀 모델의 적합값과 잔차 계산
+
+- 적합값- 오차=실제 종속 변수
 
 ```r
 > #단순 선형회귀 모델 생성 lm(y~x,data)
@@ -10588,7 +10593,8 @@ summary(result) # 회귀분석 결과
 
 ##### 5.1. 특징
 
-1. 종속
+1. 종속변수는 반드시 범주형
+2. 로직변환을 반드시 해야한다.
 
 ##### 실습
 
@@ -10711,7 +10717,7 @@ Number of Fisher Scoring iterations: 6
 ```r
 > pred<-predict(weather_model,newdata=test,type="response")
 > #response는 예측결과를 
-> pred #예측치가 1에 가까울수록 비율 확률이 높다고 할 수 있다.
+> pred #예측치가 1에 가까울수록 비율 확률이 높다고 할 수 있다. (0~1까지의 확률로 결과 표시)
            4           10           13           14           18           19 
 0.0048045197 0.0057987709 0.0156097220 0.0545760681 0.3054960407 0.0579793716 
           25           31           33           34           36           41 
@@ -10785,6 +10791,7 @@ result_pred  0  1
 install.packages("ROCR")
 library(ROCR)
 pr <- prediction(pred, test$RainTomorrow)
+
 prf <- performance(pr, measure="tpr", x.measure="fpr")
 plot(prf)
 #왼쪽 상단의 계단모양의 빈 공백만큼이 분류 정확도에서 오분류(missing)를 나타낸다.
@@ -10794,7 +10801,16 @@ plot(prf)
 
 
 
+### 6. 분류분석
 
+1. 다수의 변수를 갖는데이터 셋을 대상으로 특정 변수의 갑승ㄹ 조건으로 지정하여 데이터를 분류
+2. 종류
+   - 의사결정트리(Decision Tree)
+   - 랜덤 포레스트(Random Forest)
+   - 인공신경망(Artificial Neural Network)
+3. 기존 고객들의 데이터를 활용, 분류모델을 생성한 후 새로운 고개에 대해 예측
+
+##### 6.1 
 
 ***
 
