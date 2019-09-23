@@ -22,11 +22,6 @@ where b.id is null
 ## day7  animal_outs  보다  animal_ins 의 입양일이 빠른  sql
 
 ``` sql
-SELECT  a.animal_id ,a.name
-from animal_ins a, animal_outs b
-where a.animal_id=b.animal_id 
-and a.datetime>b.datetime
-order by a.datetime 
+
 ```
 
-## day7 animal_
