@@ -874,6 +874,17 @@ numeric(0)
 5. 행이름 지정, 조회하려면 **rownames()**사용
 
 ```r
+rownames(대상) <- 배열
+#입력하면 배열 값이 rownames로 들어가게된다.
+#예를 들어 열 값만 있고 행 이름이 없는 상태에서 열이름을 그대로 행 이름에 넣고 싶다면 
+Testcsv <- read.csv("경로" , header = TRUE)
+clon <- colnames(Testcsv)
+rownames(Testcsv) <- clon[2:21] #행 , 열이 같을때 이름은 열이 행보다 하나 더 많다(행의 이름부분은 제외)
+```
+
+
+
+```r
 matrix(
 data,
 nrow=1,
@@ -10117,7 +10128,7 @@ chart.Correlation(result, histogram=, pch="+")
 2. 정분류율(Accuracy)  = (TP +TN) / 전체관측치(TN+FP+FN+TP)
    
 - 모델이 Yes로 판단한 것 중에서 실제로(관측치가) Yes인 비율
-   
+  
 3. 오분류율(Inaccuracy)  = (FN +FP) / 전체관측치(TN+FP+FN+TP) = 1- 정분류율
 4. 정확율(Precision)  = TP  / (TP +FP) 
 5. 재현율(Recall)  = TP  / (TP +FN) 
