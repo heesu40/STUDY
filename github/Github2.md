@@ -80,6 +80,17 @@ $git config --global user.email 'edutak.ssafy@gamil.com'
 
 
 
+## 리눅스에 깃 저장
+
+- 터미널에서 작성해주자.
+
+```cmd
+git init
+git clone 주소
+```
+
+
+
 ### 깃허브에 파일 올리기
 
 ```bash
