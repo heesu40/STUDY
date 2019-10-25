@@ -15,7 +15,7 @@
    - [spring 실습](https://github.com/heesu40/STUDY/blob/master/Study/%EC%8A%A4%ED%94%84%EB%A7%81%20%20%EC%8B%A4%EC%8A%B5.md)
    - [Mybatis](https://github.com/heesu40/STUDY/blob/master/Study/Mybatis.md)
 5. Open Source이용한 API
-   - [카카오](https://github.com/heesu40/STUDY/blob/master/Study/%EC%B9%B4%EC%B9%B4%EC%98%A4API%20%EC%9D%B4%EC%9A%A9.md)
+   - [API](https://github.com/heesu40/STUDY/blob/master/Study/%EC%B9%B4%EC%B9%B4%EC%98%A4API%20%EC%9D%B4%EC%9A%A9.md)
 6. [Lamda](https://github.com/heesu40/STUDY/blob/master/Study/Lambda.md)
 7. [Node.js](https://github.com/heesu40/STUDY/blob/master/Study/Node.js.md)
 8. 알고리즘
@@ -33,4 +33,4 @@
     - [주정차_1]()
 11. 그 외
     - [4차산업혁명](https://github.com/heesu40/STUDY/blob/master/Study/The%20Fourth%20Industrial%20Revolution.md)
-   
+
