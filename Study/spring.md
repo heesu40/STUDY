@@ -60,9 +60,9 @@ DTO
 
 자바에서 new->
 
-![](D:\gitgithub\STUDY\javaStudy\maven1.PNG)
+![](C:\Users\student\Documents\GitHub\STUDY\STUDY\사진\maven1.PNG)
 
-![](D:\gitgithub\STUDY\javaStudy\maven2.PNG)
+![](C:\Users\student\Documents\GitHub\STUDY\STUDY\사진\maven2.PNG)
 
 으로 실행 처음 실행시 로딩이 길다
 

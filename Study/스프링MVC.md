@@ -7,7 +7,7 @@
    - View -  Model의 정보를 사용자에게 표시
    - Controller - Model과 View의 중계역활로 View를 선택
 
-![1563151347845](D:\gitgithub\STUDY\javaStudy\MVC2)
+![1563151347845](C:\Users\student\Documents\GitHub\STUDY\STUDY\사진\MVC2)
 
 2. 설정 방법
 
@@ -17,7 +17,7 @@
   - IoC Container(빈설정 파일)
     - view생성해서 응답
 
-![1563151446425](D:\gitgithub\STUDY\javaStudy\MVC3)
+![1563151446425](C:\Users\student\Documents\GitHub\STUDY\STUDY\사진\MVC3)
 
 ```xml
 <!-- ApplicationContext 빈 설정 파일-->
@@ -76,15 +76,15 @@ Servlet를 지금 따로 여러개 설정하고 있다.(예를 들어 외부사�
 
 
 
-![1563152976260](D:\gitgithub\STUDY\javaStudy\MVC4)
+![1563152976260](C:\Users\student\Documents\GitHub\STUDY\STUDY\사진\MVC4)
 
 이미지 등은 webapp 밑에 저장해 주고 보이고 싶지 않다면 WEB-INF아래에 저장
 
-![1563153094442](D:\gitgithub\STUDY\javaStudy\MVC5)
+![1563153094442](C:\Users\student\Documents\GitHub\STUDY\STUDY\사진\MVC5)
 
 설정해 주자. JRE javaSE 를 edit를 눌러 그림과 같은 것으로 바꿔주고
 
-![1563153185207](D:\gitgithub\STUDY\javaStudy\MVC6)
+![1563153185207](C:\Users\student\Documents\GitHub\STUDY\STUDY\사진\MVC6)
 
 톰캣 클릭후 apply
 
