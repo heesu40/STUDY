@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <!-- form 실습-->
+    <h2>Form input</h2>
+    <form action="#">
+        텍스트 : 
+        <input type="text" placeholder="이름 입력하세요." autofocus><br>
+        이메일 : 
+        <input type="email" placeholder="이메일을 입력하세요"><br>
+        비밀번호 :
+        <input type="password" placeholder="비밀번호를 입력하세요" ><br>
+        날짜:
+        <input type="date">
+        <input type="hidden" value="누군간 보겠지.">
+        <input type="submit" value="보내기">
+    </form>
+
+    <div>
+        <input type="radio" name="gender" value="male"> 남자
+        <input type="radio" name="gender" value="female"> 여자
+        <!-- 같은 이름 속성을 넣어 줘야 클릭시 다른것이 지워진다!!! 아니라면 다른것이라 인식 둘다 복수 선택 가능-->
+         
+    </div>
+    <div>
+        <input type="checkbox" name="val" value="1"> A
+        <input type="checkbox" name="val" value="2"> B
+        <input type="checkbox" name="val" value="3"> C
+        <!-- value 값이 넘어가게 된다. submit 하면!! 텍스트 값이 아닌!-->
+    </div>
+
+    <div>
+        <!-- number는 최대값과 최소값을 설정 가능하다.-->
+        <input type="number" name="size" min="3" max="100" step="10">
+        <!-- step은 건너뛰는 숫자-->
+    </div>
+
+    <div>
+        <select name="country" >
+            <option value="korea">한국</option>
+            <option value="usa">미국</option>
+            <option value="canada">캐나다</option>
+        </select>
+    </div>
+</body>
+</html>
