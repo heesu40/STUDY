@@ -1,0 +1,51 @@
+.base-box {
+    border : 2px solid black;
+    width : 500px;
+    height : 500px;
+    
+}
+
+.box {
+    width : 100px;
+    height : 100px;
+
+}
+.pink {
+    background-color: pink;
+    position : relative;
+}
+.blue {
+ background-color: blue;
+ position : relative;
+ left : 100px;
+}
+.green {
+ background-color: green;
+ position:relative;
+ left: 200px;
+}
+.yellow {
+    background-color: yellow;
+    position: relative;
+    left: 700px;
+    top: 300px;
+
+}
+.red{
+    background-color: red;
+    position: relative;
+    left:400px;
+    position: relative;
+
+}
+.orange {
+    background-color: orange;
+    position: absolute;
+    left : 200px;
+}
+.purple {
+    background-color: purple;
+    position : absolute;
+    left : 100px;
+    top:100px;
+}
