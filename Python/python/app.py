@@ -251,6 +251,7 @@ def lotto_num2():
 
     
 
+
    
     
     #return f'{res}'
