@@ -22,5 +22,10 @@ urlpatterns = [
     path('' , views.index),
     path('<int:age>/', views.age),
     path('<int:num>/squ' , views.num),
-    path('<str:one>/<int:two>/<int:three>/' , views.count)
+    path('<str:one>/<int:two>/<int:three>/' , views.count),
+    path('profile/<str:name>/<int:age>/' , views.profile),
+    path('job/<str:name>/' , views.job),
+    path('image/' , views.image),
+    path('dtl/' , views.dtl), #dtl 은 Django TTL Language
+    path('chmas/' , views.chmas),
 ]
