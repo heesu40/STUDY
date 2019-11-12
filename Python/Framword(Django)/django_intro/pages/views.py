@@ -6,7 +6,7 @@ import requests
 
 # Create your views here.
 def throw(request):
-    return render(request, 'throw.html')
+    return render(request, 'pages/throw.html')
 def catch(request):
     # pprint(request)
     # pprint(request.path)
@@ -19,10 +19,10 @@ def catch(request):
         'msg' : message,
         'msg2' : message2
     }
-    return render(request , 'catch.html' , context)
+    return render(request , 'pages/catch.html' , context)
 
 def lotto(request):
-    return render(request, 'lotto.html')
+    return render(request, 'pages/lotto.html')
 
 def lottoresult(request):
     co = request.GET.get('count') #request로 넘어오는 값 중 GET방식의 count를 얻을 것이다
@@ -36,9 +36,9 @@ def lottoresult(request):
         'count' : count ,
         'lotto' : lotto_num
     }
-    return render(request, "result.html", context)
+    return render(request, "pages/result.html", context)
 def artiii(request):
-    return render(request, 'artiii.html')
+    return render(request, 'pages/artiii.html')
 
 def artiiisend(request):
     txt = request.GET.get("artiii")
@@ -61,10 +61,10 @@ def artiiisend(request):
         "res" : res
     }
     
-    return render(request, 'artiiire.html' , context)
+    return render(request, 'pages/artiiire.html' , context)
 
 def user_new(request):
-    return render(request, 'user_new.html')
+    return render(request, 'pages/user_new.html')
 
 def user_create(request):
     username = request.POST.get('name')
@@ -73,4 +73,27 @@ def user_create(request):
         'username' : username,
         'pw' : pw
     }
-    return render(request , "user_create.html" , context)
+    return render(request , "pages/user_create.html" , context)
+def subway(request):
+    return render(request, "pages/subway.html")
+def subway_result(request):
+    name = request.POST.get("name")
+    date = request.POST.get("date")
+    sandwitch = request.POST.get("sandwitch")
+    size = request.POST.get("size")
+    bread = request.POST.get('bb')
+    source = request.POST.get('source')
+
+    context = {
+        'name' : name,
+        'date' : date,
+        'sandwitch' : sandwitch,
+        'size' : size,
+        'bread' : bread,
+        'source' : source
+    }
+    return render(request , "pages/subway_result.html" , context )
+def static_ex(request):
+    return render(request, 'pages/static_ex.html')
+def index(request):
+    return render(request, 'pages/index.html')

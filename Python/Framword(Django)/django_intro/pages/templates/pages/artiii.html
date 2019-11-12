@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title%}
+Artiii
+{% endblock %}
+{% block body %}
+<form action="/pages/artiiisend/" method="GET">
+    
+    <label for="text">영어만 써주세요~</label>
+    <input type="text" name = "artiii" , id = "artiii">
+    <input type="submit">
+</form>
+{% endblock %}
