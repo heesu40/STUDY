@@ -21,6 +21,7 @@ urlpatterns = [
     path('util/' , include('utilities.urls')),
     path('pages/' , include('pages.urls')), #앞에 pages가 있으면 pages.urls를 참고하게 된다. 
     path('admin/', admin.site.urls),
+    
    
     
 ]
