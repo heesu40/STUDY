@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ name }}님이 주문하신 결과는?</h1>
+
+<p>{{ sandwitch }} / {{ size }} 크기로</p>
+<p>{{ bread }} 에 {{ source }}를 곁들였습니다.</p>
+
+<h3>{{ nowdate }}</h3>
+<!-- {% for i in sd %}
+    {{ i }}
+{% endfor %} -->
+{% endblock %}

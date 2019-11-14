@@ -618,7 +618,7 @@ sqlite> .schema auth_group
 CREATE TABLE IF NOT EXISTS "auth_group" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "name" varchar(150) NOT NULL UNIQUE);
 ```
 
-
+## Shell
 
 - DB에 넣은 내용 확인
 
@@ -635,7 +635,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 ```
 
-## DB 데이터 넣기
+### DB 데이터 넣기
 
 ```cmd
 >>> board = Board() #인스턴스 생성
@@ -660,7 +660,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 <Board: Board object (3)>
 ```
 
-## DB 내용 확인
+### DB 내용 확인
 
 - 반환은 리스트로
 
@@ -715,6 +715,8 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 
 
+***
+
 
 
 ## ORM 변경 순서
@@ -739,11 +741,459 @@ Type "help", "copyright", "credits" or "license" for more information.
 
    - 세번째 방법은 세이브 없어도 적용!
 
+***
+
 
 
  
 
+## Shell
+
+#### get
+
+- 단일 데이터 불러올떄 
+
+```shell
+>>> from boards.models import Board
+>>> board =  Board()
+>>> board.title = "fourth"
+>>> board.content = "django"
+>>> board.id
+>>> board.created_at
+>>> board.save()
+>>> biard.id
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'biard' is not defined
+>>> board.id
+4
+>>> board.created_at
+datetime.datetime(2019, 11, 14, 5, 6, 2, 549530, tzinfo=<UTC>)
+
+
+>>> board2 = Board()
+>>> board2.title = "12345678901"
+>>> board2.full_clean()
+#현재 설정 내용 확인 가능!
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "C:\Users\student\Documents\GitHub\STUDY\Python\Framword(Django)\venv\lib\site-packages\django\db\models\base.py", line 1203, 
+in full_clean
+    raise ValidationError(errors)
+django.core.exceptions.ValidationError: {'title': ['이 값이 최대 10 개의 글자인지 확인하세요(입력값 11 자).'], 'content': ['이 필드는
+ 빈 칸으로 둘 수 없습니다.']}
+ 
+>>> b = Board.objects.all()
+>>> b #쿼리 셋이 리스트 형식으로 날아온다. 인덱스로 접근 가능
+<QuerySet [<Board: 1 : first>, <Board: 2 : second>, <Board: 3 : third>, <Board: 4 : fourth>]>
+#인덱스로 불러옴을 확인할 수 있따.
+>>> b[0].title
+'first'
+#get(pk=값)으로도 확인 가능
+>>> b = Board.objects.get(pk = 3)
+>>> b
+<Board: 3 : third>
+>>> b = Board.objects.get(title='second') 
+>>> b
+<Board: 2 : second>
+```
+
+- get 으로 불러오는 것은 하나뿐이다.
+
+#### filter
+
+- 여러개 불러올 때 사용한다.
+
+```shell
+>>> Board.objects.create(title='second' , content = '두번째') 
+<Board: 5 : second>
+>>> Board.objects.get(title = "second")
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "C:\Users\student\Documents\GitHub\STUDY\Python\Framword(Django)\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "C:\Users\student\Documents\GitHub\STUDY\Python\Framword(Django)\venv\lib\site-packages\django\db\models\query.py", line 412, 
+in get
+    (self.model._meta.object_name, num)
+boards.models.Board.MultipleObjectsReturned: get() returned more than one Board -- it returned 2!
+#그렇기에 두개로 저장된건 오류난다
+>>> Board.objects.filter(title='second')
+<QuerySet [<Board: 2 : second>, <Board: 5 : second>]>
+#그래서 filter를 사용하면 여러개 불러올 수 있다.
+```
+
+#### 쿼리문 슬라이스
+
+```shell
+>>> b  = Board.objects.all()
+>>> b
+<QuerySet [<Board: 1 : first>, <Board: 2 : second>, <Board: 3 : third>, <Board: 4 : fourth>, <Board: 5 : second>]>
+#원하는 부분만 자를수 있따.
+>>> b[1:3]
+<QuerySet [<Board: 2 : second>, <Board: 3 : third>]>
+```
 
 
 
+#### 타입 확인
+
+```shell
+>>> type(b)  
+<class 'django.db.models.query.QuerySet'>
+>>> type(b[0]) 
+<class 'boards.models.Board'>
+```
+
+#### 해당 문자 포함시 불러오는 sql문
+
+1. contains
+2. startwith
+3. endswith
+4. 내용 업데이트(수정)
+
+```shell
+#contains
+>>> b = Board.objects.filter(title__contains = "sec") 
+>>> b
+<QuerySet [<Board: 2 : second>, <Board: 5 : second>]>
+
+#startswith
+>>> b = Board.objects.filter(title__startswith="fi") 
+>>> b
+<QuerySet [<Board: 1 : first>]>
+#endswith
+>>> b  = Board.objects.filter(title__endswith = "d")
+>>> b
+<QuerySet [<Board: 2 : second>, <Board: 3 : third>, <Board: 5 : second>]
+#DB 내용 업데이트!
+>>>> b = Board.objects.get(pk=1) 
+>>> b
+<Board: 1 : first>
+>>> type(b)
+<class 'boards.models.Board'>
+
+>>> b.title = "hello orm"
+>>> b.save()
+#저장을 해야 내용이 바뀐다.
+>>> b = Board.objects.get(pk=1))
+  File "<console>", line 1
+    b = Board.objects.get(pk=1))
+                               ^
+SyntaxError: invalid syntax
+>>> b = Board.objects.get(pk=1) 
+>>> b
+<Board: 1 : hello orm>
+#바뀐것을 확인한다.
+```
+
+#### 삭제
+
+```shell
+>>> b = Board.objects.get(pk=3)
+>>> b
+<Board: 3 : third>
+>>> b.delete()
+(1, {'boards.Board': 1})
+>>> Board.objects.all()
+<QuerySet [<Board: 1 : hello orm>, <Board: 2 : second>, <Board: 4 : fourth>, <Board: 5 : second>]>
+#3번 사라진것 확인
+>>> b = Board.objects.get(pk=3)
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "C:\Users\student\Documents\GitHub\STUDY\Python\Framword(Django)\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "C:\Users\student\Documents\GitHub\STUDY\Python\Framword(Django)\venv\lib\site-packages\django\db\models\query.py", line 408, 
+in get
+    self.model._meta.object_name
+boards.models.Board.DoesNotExist: Board matching query does not exist.
+#3번이 사라짐을 확인한다.
+```
+
+## admin (shell은 어렵다~ 대신 이걸 쓴다)
+
+- shell보다 DB관리가 쉽다~
+
+1. 먼저 계정을 만든다.
+
+```cmd
+student@M1504 MINGW64 ~/Documents/GitHub/STUDY/Python/Framword(Django)/django_orm (master)
+$ python manage.py createsuperuser
+사용자 이름 (leave blank to use 'student'): '작성하자'
+이메일 주소: '없어도 된다.'
+Password: '8글자로'
+Password (again):
+Superuser created successfully.
+(venv) 
+#등록!
+
+#서버 실행
+student@M1504 MINGW64 ~/Documents/GitHub/STUDY/Python/Framword(Django)/django_orm (master)
+$ python manage.py runserver
+```
+
+![image-20191114143458633](ORM(%EC%9E%A5%EA%B3%A03).assets/image-20191114143458633.png)
+
+- 접속이 가능해진다. 접속하면 위의 화면이 뜨게 된다.
+- 여기에 등록을 시켜야 관리를 할 수 있다.
+- Boards app 생성시 자동으로 만들어진 admin.py에 들어간다
+
+```python
+from django.contrib import admin
+from .models import Board
+#현재 App위치에 있는 models에 있는 Board 불러오기
+
+# Register your models here.
+
+admin.site.register(Board)
+```
+
+![image-20191114144336798](ORM(%EC%9E%A5%EA%B3%A03).assets/image-20191114144336798.png)
+
+- F5를 누르면 바뀐 것 확인 가능!
+
+#### Board  커스터마이징
+
+```python
+from django.contrib import admin
+from .models import Board
+
+# Register your models here.
+class BoardAdmin(admin.ModelAdmin):
+    #admin 안에 Model를 상속을 받아서
+    #Field순서 바꾸기
+    fields = ['content' , 'title']
+    list_display = ["title" , 'updated_at' , 'content']
+    list_filter = ["updated_at"]
+    second_fields = ["title" , "content"]
+
+admin.site.register(Board , BoardAdmin)
+```
+
+[django admin site]( https://docs.djangoproject.com/en/2.2/ref/contrib/admin/ )에 들어가면 더 자세한 정보를 알 수 있습니다~
+
+#### 실습(subway)
+
+- subway메뉴를 만들고 이를 뿌려주자
+
+
+
+- 먼저 DB 적용
+
+```python
+from django.db import models
+
+# Create your models here.
+class Board(models.Model):
+    title = models.CharField(max_length=10) #CharField는최대 글자를 설정해 주어야 한다.
+    content = models.TextField() #Text Field는 maxlength주어도 DB에서 글자수 제한이 주어지지 않는다.
+    created_at = models.DateTimeField(auto_now_add=True) #글이 생성되면 날짜가 자동으로 저장되기 위해서 auto_now_add
+    updated_at = models.DateTimeField(auto_now=True) #수정될때마다 시간 자동으로 저장하기 위해서
+    #장고는 아이디를 자동으로 만들어주기 때문에 컬럼명만 신경 쓰면 된다! VO생성 안해도 된다
+    def __str__(self):
+        return f'{self.id} : {self.title}'
+
+class Subway(models.Model):
+    title = models.CharField(max_length=10)
+    nowdate = models.DateTimeField(auto_now_add = True)
+    sandwitch = models.CharField(max_length=20)
+    size = models.CharField(max_length=2)
+    bread = models.CharField(max_length=10)
+    source = models.CharField(max_length=10)
+    def __str__(self):
+        return f'{self.title} ,{self.nowdate}, {self.sandwitch} , {self.size} , {self.bread} , {self.source}'
+
+```
+
+```cmd
+$ python manage.py makemigrations
+# 명세서 만들고
+$ python manage.py migrate
+# DB실제 적용 한다.
+```
+
+- admin서버에서 보일 내용 설정
+
+```python
+from django.contrib import admin
+from .models import Board
+from .models import Subway
+
+# Register your models here.
+class BoardAdmin(admin.ModelAdmin):
+    #admin 안에 Model를 상속을 받아서
+    #Field순서 바꾸기
+    fields = ['content' , 'title']
+    list_display = ["title" , 'updated_at' , 'content']
+    list_filter = ["updated_at"]
+    second_ = ["title" , "content"]
+
+class SubwayAdmin(admin.ModelAdmin):
+    fields = ['title' , 'sandwitch', 'size' ,'bread' , 'source']
+    #실제 만들때 조건을 준 auto_now_add 때문에 fields를 만들시 다시 생성 문제 떄문에 오류가 뜨는 것! date넣어주면 오류 뜬다.
+    
+    list_display = ['title' , 'nowdate' ]
+
+
+admin.site.register(Board , BoardAdmin)
+admin.site.register(Subway , SubwayAdmin)
+```
+
+
+
+```html
+<!--subway.html-->
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.bread li ul {
+background: rgb(109,109,109);
+display:none;  /* 평상시에는 서브메뉴가 안보이게 하기 */
+height:auto;
+padding:0px;
+margin:0px;
+border:0px;
+position:absolute;
+width:200px;
+z-index:200;
+}
+
+.bread li:hover ul {
+display: block;
+}
+</style>
+<form action="/boards/subwayresult/" method="POST">
+    {% csrf_token %}
+<h1>FORM</h1>
+<h3>주문서를 작성하여 주십시오</h3>
+<label for="name">이름 : </label>
+<input type="text" name="name" , id="name">
+<label for="date">날짜 : </label>
+<input type="date" name = "date" >
+<h2>1. 샌드위치 선택</h2>
+<input type="radio" name = "sandwitch" value ="에그 마요">에그 마요 
+<input type="radio" name = "sandwitch" value ="이탈리안 비엠티"> 이탈리안 비엠티
+<input type="radio" name = "sandwitch" value ="터키 베이컨 아보카도">터키 베이컨 아보카도
+<hr>
+<h2>2. 사이즈 선택</h2>
+<input type="number" min = "15" max= "30" step ="15" placeholder="15" value = "size" name= "size">
+<hr>
+<h2>3. 빵</h2>
+<div class="bread">
+   
+    <li id = "pop">빵 고르기
+    
+    
+    <ul>
+        <li><input type="radio" name= "bread" value="허니오트">허니오트</li>
+        <li><input type="radio" name= "bread" value="플랫브레드">플랫브레드</li>
+        <li><input type="radio" name= "bread" value="하티이탈리안">하티이탈리안</li>
+    </ul>
+    </li>
+     
+</div>
+<!-- <hr>
+<select name="bread" id="">
+    <option value="허니오트">허니오트</option>
+    <option value="플랫브레드">플랫브레드</option>
+    <option value="하티 이탈리안">하티 이탈리안</option>
+</select>
+<hr> -->
+<h2>4. 야채/소스</h2>
+<input type="checkbox" name = "source"  value = "토마토">토마토<br>
+<input type="checkbox" name = "source" value = "오이">오이<br>
+<input type="checkbox" name = "source" value = "할라피뇨">할라피뇨<br>
+<input type="checkbox" name = "source" value = "핫칠리">핫 칠리<br>
+<input type="checkbox" name = "source" value = "바베큐">바베큐<br>
+
+<input type="submit">
+</form>
+{% endblock %}
+```
+
+```html
+<!--subwayresult.html-->
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ name }}님이 주문하신 결과는?</h1>
+
+<p>{{ sandwitch }} / {{ size }} 크기로</p>
+<p>{{ bread }} 에 {{ source }}를 곁들였습니다.</p>
+
+<h3>{{ nowdate }}</h3>
+<!-- {% for i in sd %}
+    {{ i }}
+{% endfor %} -->
+{% endblock %}
+
+```
+
+- urls.py
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('subwayresult/' , views.subwayresult),
+    path('subway/' , views.subway),
+    path('' , views.index),
+]
+```
+
+- views.py
+
+```python
+from django.shortcuts import render 
+from .models import Subway
+from  requests  import get,post
+
+# Create your views here.
+def index(request):
+    return render (request, 'boards/index.html')
+def subway(request):
+    return render (request , 'boards/subway.html')
+def subwayresult(request):
+    
+    title = request.POST.get('name')
+    print(title)
+    nowdate = request.POST.get('date')
+    sandwitch = request.POST.get('sandwitch')
+    size = request.POST.get('size')
+    bread = request.POST.get('bread')
+    source = request.POST.get('source')
+   
+  
+
+    subway = Subway()
+ 
+
+    subway.title = title 
+    subway.nowdate = nowdate 
+    subway.sandwitch = sandwitch
+    subway.size = size
+    subway.bread = bread
+    subway.source = source
+    subway.save()
+
+    sb = Subway.objects.all()
+    ss = len(sb)
+    result = str(sb[ss-1])
+    re = result.split(",")
+    
+   
+    content = {
+        'name' : re[0],
+        'nowdate' :re[1],
+        'sandwitch' :re[2],
+        'size' : re[3],
+        'bread' : re[4],
+        'source' : re[5]
+
+    }
+
+    
+    return render (request , 'boards/subwayresult.html', content)
+```
 
