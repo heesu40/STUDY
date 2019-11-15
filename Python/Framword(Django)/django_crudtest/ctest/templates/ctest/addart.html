@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block body %}
+<form action='/ctest/upart/' method = 'POST'>
+    {% csrf_token %}
+    <!-- <label for="title">기사제목</label>
+    <input type="text" name="title" id="title"><br>
+    <textarea name="content"  cols="30" rows="10"></textarea><br>   
+    <input type= 'submit'>
+</form> -->
+
+
+
+<div class="input-group flex-nowrap">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="addon-wrapping">기사제목</span>
+  </div>
+  <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" name= "title" id="title">
+</div>
+
+<div class="input-group flex-nowrap">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="addon-wrapping">기사내용</span>
+        </div>
+        <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" name = "content" id = "content">
+      </div>
+
+<input type="submit">
+{% endblock %}

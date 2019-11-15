@@ -1,0 +1,12 @@
+from django.db import models
+
+# Create your models here.
+class Article(models.Model):
+    title = models.CharField(max_length=50)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True) #추가될때 마다 현재시간으로 저장
+    updated_at = models.DateTimeField(auto_now=True) #editable옵션이 False로 자동 저장된다.
+
+    def __str__(self):
+        return f'{self.id} {self.title}'
+  

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>Article</h1>
+<ul class="list-group">
+{% for art in art %}
+    <li class="list-group-item"><a href="/ctest/{{ art.id }}/artcon/">{{art.id}} 번째 {{ art.title}} </a></li>
+{% endfor %}
+</ul>
+{% endblock %}
+       
+     

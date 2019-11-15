@@ -1,0 +1,6 @@
+    {% extends 'base.html' %}
+    {% block content %}
+        {{ result.title }} <!-- 쿼리셋이 아니므로 for for 문 안돌려도 된다.-->
+        {{ result.nowdate }}
+        {{ result.bread }}
+    {% endblock%}
