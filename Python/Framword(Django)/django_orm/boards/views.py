@@ -16,11 +16,11 @@ def subwayresult(request):
     size = request.POST.get('size')
     bread = request.POST.get('bread')
     source = request.POST.get('source')
-   
-  
+
+
 
     subway = Subway()
- 
+
 
     subway.title = title 
     subway.nowdate = nowdate 
@@ -35,16 +35,23 @@ def subwayresult(request):
     result = str(sb[ss-1])
     re = result.split(",")
     
-   
+
     content = {
         'name' : re[0],
         'nowdate' :re[1],
         'sandwitch' :re[2],
         'size' : re[3],
         'bread' : re[4],
-        'source' : re[5]
+        'source' : re[5],
+        'sb' : sb
 
     }
 
     
     return render (request , 'boards/subwayresult.html', content)
+def subwayid(request , id):
+    sub = Subway.objects.get(pk = id) #혹은 id=id
+    context = {
+        "result" : sub,
+    }
+    return render(request , 'boards/subid.html' , context)

@@ -1,3 +1,4 @@
+<!--subwayresult.html-->
 {% extends 'base.html' %}
 
 {% block content %}
@@ -7,7 +8,14 @@
 <p>{{ bread }} 에 {{ source }}를 곁들였습니다.</p>
 
 <h3>{{ nowdate }}</h3>
-<!-- {% for i in sd %}
-    {{ i }}
-{% endfor %} -->
+<hr>
+    <ul>
+    {% for i in sb %}
+        <li>이름 - {{ i.title }}</li>
+        <li>날짜 - {{ i.nowdate }}</li>
+        <li>빵  - {{ i.bread }}</li>
+        <li>소스 - {{ i.source }}</li>
+        <br>
+    {% endfor %}   
+    </ul>
 {% endblock %}

@@ -345,6 +345,19 @@ $ python manage.py shell
 - 필수적인 필드(컬럼)과 데이터(레코드)에 대한 정보를 포함
 - 각각의 모델은 단일 데이터베이스 테이블과 매핑
 - 사용자가 저장하는 데이터들의 필수적인 필드(컬럼) 동작을 포함
+- 옵션을 줄 수있는데
+  - `필드옵션` : 필드마다 고유 옵션이 존재, 공통 적용 옵션도 있음
+  - null (DB 옵션) : DB 필드에 NULL 허용 여부 (디폴트 : False)
+  - unique (DB 옵션) : 유일성 여부 (디폴트 : False)
+  - blank : 입력값 유효성 (validation) 검사 시에 empty 값 허용 여부 (디폴트 : False)
+  - default : 디폴트 값 지정. 값이 지정되지 않았을 때 사용
+  - verbose_name : 필드 레이블. 지정되지 않으면 필드명이 쓰여짐
+  - validators : 입력값 유효성 검사를 수행할 함수를 다수 지정
+    - 각 필드마다 고유한 validators 들이 이미 등록되어있기도 함
+    - 예 : 이메일만 받기, 최대길이 제한, 최소길이 제한, 최대값 제한, 최소값 제한 등
+  - choices (form widget 용) : select box 소스로 사용
+  - help_text (form widget 용) : 필드 입력 도움말
+  - auto_now_add : Bool, True 인 경우, 레코드 생성시 현재 시간으로 자동 저장
 
 #### 실습
 
@@ -974,6 +987,7 @@ admin.site.register(Board , BoardAdmin)
 #### 실습(subway)
 
 - subway메뉴를 만들고 이를 뿌려주자
+- TextFiled는 데이터를 많이 잡아먹기 때문에 되도록 CharField를 사용해주자.
 
 
 
@@ -995,8 +1009,10 @@ class Board(models.Model):
 class Subway(models.Model):
     title = models.CharField(max_length=10)
     nowdate = models.DateTimeField(auto_now_add = True)
+    #DTF 치면 알아서 자동완성 된다! 
     sandwitch = models.CharField(max_length=20)
     size = models.CharField(max_length=2)
+    #숫자이기 때문에 IntegerField()로 해주어도 무방~
     bread = models.CharField(max_length=10)
     source = models.CharField(max_length=10)
     def __str__(self):
@@ -1006,7 +1022,7 @@ class Subway(models.Model):
 
 ```cmd
 $ python manage.py makemigrations
-# 명세서 만들고
+# 명세서 만들고, 한번 확인해 본후 적절하다면 다음으로 넘어간다.
 $ python manage.py migrate
 # DB실제 적용 한다.
 ```
@@ -1122,12 +1138,31 @@ display: block;
 <p>{{ bread }} 에 {{ source }}를 곁들였습니다.</p>
 
 <h3>{{ nowdate }}</h3>
-<!-- {% for i in sd %}
-    {{ i }}
-{% endfor %} -->
+<hr>
+    <ul>
+    {% for i in sb %}
+        <li>이름 - {{ i.title }}</li>
+        <li>날짜 - {{ i.nowdate }}</li>
+        <li>빵  - {{ i.bread }}</li>
+        <li>소스 - {{ i.source }}</li>
+        <br>
+    {% endfor %}   
+    </ul>
 {% endblock %}
 
 ```
+
+```html
+<!--subid.html-->
+{% extends 'base.html' %}
+{% block content %}
+    {{ result.title }} <!-- 쿼리셋이 아니므로 for for 문 안돌려도 된다.-->
+    {{ result.nowdate }}
+    {{ result.bread }}
+{% endblock%}
+```
+
+
 
 - urls.py
 
@@ -1139,6 +1174,7 @@ urlpatterns = [
     path('subwayresult/' , views.subwayresult),
     path('subway/' , views.subway),
     path('' , views.index),
+    path('subwayid/<int:id>/' , views.subwayid),
 ]
 ```
 
@@ -1163,11 +1199,11 @@ def subwayresult(request):
     size = request.POST.get('size')
     bread = request.POST.get('bread')
     source = request.POST.get('source')
-   
-  
+
+
 
     subway = Subway()
- 
+
 
     subway.title = title 
     subway.nowdate = nowdate 
@@ -1182,18 +1218,114 @@ def subwayresult(request):
     result = str(sb[ss-1])
     re = result.split(",")
     
-   
+
     content = {
         'name' : re[0],
         'nowdate' :re[1],
         'sandwitch' :re[2],
         'size' : re[3],
         'bread' : re[4],
-        'source' : re[5]
+        'source' : re[5],
+        'sb' : sb
 
     }
 
     
     return render (request , 'boards/subwayresult.html', content)
+def subwayid(request , id):
+    sub = Subway.objects.get(pk = id) #혹은 id=id
+    context = {
+        "result" : sub,
+    }
+    return render(request , 'boards/subid.html' , context)
+
 ```
+
+***
+
+## 전체적인 정리
+
+### ORM
+
+- SQL을 몰라도 db활용할 수 있게
+
+#### MODEL
+
+- CLASS명이 TABLE명
+
+-  클래스 변수가  COLUMN명
+
+- _ _str _ _ (self) 데이터가 어떤것이 들어왔는지 클래스 메소드로서 선언을 한다. 그렇게 되면 작업 하기에도, 실제 눈으로 확인하기도 쉬워진다.
+
+- ```python
+  from django.db import models
+  
+  # Create your models here.
+  class Board(models.Model):
+      title = models.CharField(max_length=10) #CharField는최대 글자를 설정해 주어야 한다.
+      content = models.TextField() #Text Field는 maxlength주어도 DB에서 글자수 제한이 주어지지 않는다.
+      created_at = models.DateTimeField(auto_now_add=True) #글이 생성되면 날짜가 자동으로 저장되기 위해서 auto_now_add
+      updated_at = models.DateTimeField(auto_now=True) #수정될때마다 시간 자동으로 저장하기 위해서
+      #장고는 아이디를 자동으로 만들어주기 때문에 컬럼명만 신경 쓰면 된다! VO생성 안해도 된다
+      def __str__(self):
+          return f'{self.id} : {self.title}'
+  
+  class Subway(models.Model):
+      title = models.CharField(max_length=10)
+      nowdate = models.DateTimeField(auto_now_add = True)
+      sandwitch = models.CharField(max_length=20)
+      size = models.CharField(max_length=2)
+      bread = models.CharField(max_length=10)
+      source = models.CharField(max_length=10)
+      def __str__(self):
+          return f'{self.title} ,{self.nowdate}, {self.sandwitch} , {self.size} , {self.bread} , {self.source}'
+  ```
+
+- 위의 코드를 보면 좀더 이해가 쉽다.
+
+- 작성 후 이를 적용하기 위해서 명세서를 작성해야한다.
+
+##### makemigrations
+
+```cmd
+$ python manage.py makemigrations
+#makemigrations
+```
+
+- 장고에서 변경된 부분을 migrations폴더안에 0001_XXXX같이 명세서를 작성해 주는 명령어이다.(자동생성해준다.)
+- 수정할 부분이 있다면 model 을 먼저 수정후 다시 `makemigrations`해주어야한다.
+- 만약 notchange라고 뜬다면 새롭게 생성된 migrations 파일 삭제후 다시 해보자
+
+##### migrate
+
+```cmd
+$ python manage.py migrate
+```
+
+- migrations 파일을 바탕으로 db에 테이블을 적용.
+- 최대한 컬럼명은 바꾸지 말아야 하면 컬럼 추가시 not null에 의해 이전 데이터가 문제가 발생하지 않았는지 꼭 확인해 주자.
+
+##### sqllite3 , shell
+
+- 테이블 내용 확인 위한 것인데 둘다 좀 불편하기 떄문에 장고에서는 admin.py를 이용한다.
+
+#### admin.py
+
+- db 관리용 페이지
+
+- 일반 사용자에게 보여지는 페이지는 아님.
+
+- **fields** - 데이터를 수정할때 나타나는 수정박스를 나타나게
+
+  - admin.py에서 클릭해서 들어가 내용을 변경할 수 있는데 그 부분
+  - fields list, tuple 형식으로 수정할 항목이나 순서를 설정을 해주자.
+  - auto_now=True , editable = False로 바뀌면서 옵션이 바뀐다. 그러면 fields안에 들어갈 수 없다. 이 옵션이 있는 컬럼은 제외 해야 한다.  (editable =True 인 컬럼만 올 수 있다.)
+
+- **list_filter **
+
+  - bool, char, date, datetime, integer 속성 만 들어갈 수 있다.
+
+    
+
+
 
