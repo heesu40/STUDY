@@ -1,4 +1,4 @@
-# CRUD
+# 1.CRUD
 
 - Create / Read / Update / Delete
 - 기본동작
@@ -775,3 +775,580 @@ class Migration(migrations.Migration):
 
 
 ## django_ctest 로 이번내용을 다시 복습했다! 다시 한번 살펴보자.
+
+
+
+
+
+
+
+# 설정
+
+
+
+
+
+
+
+# Subway CRUD
+
+## 구성
+
+- Model
+  - Subway
+    - name
+    - address
+    - phone
+    - menu
+    - bread
+    - vegetable
+    - sauce
+    - drink
+    - created_at
+    - updated_at
+- index page
+  - 주문자명 : 메뉴명 주문일자(리스트로)
+    - 해당 글을 클릭하면 detail정보로 넘어가기
+- detail page
+  - 주문 정보에 대한 내용 전부 출력
+  - 하단에 수정하기버튼, 삭제하기 버튼 
+- 수정하기 page
+  - 해당 주문 메뉴를 수정하면 된다.
+- 삭제하기 page
+  - 해당 주문 을 삭제하면 된다.
+- nav bar
+  - 홈 버튼 / 새로 주문하기 버튼이 존재한다.
+
+
+
+#### 실습
+
+# 2.URL 구성 바꾸기
+
+- urls.py에서 
+
+- ```python
+  from django.urls import path
+  from . import views
+  
+  app_name = 'subway'
+  urlpatterns = [
+      #name 을 설정하면 url관리가 수월하다.
+      #{% url 'name설정한것' %} appname지정안했다면
+      #{% url 'app_name:name설정한것' %} 위에 app name지정한다면
+      #url이 바뀌어도 일일히 찾아서 바꿀 필요가 없다.
+      path('' , views.index),
+      path('menu/' , views.menu , name='menu'), #메뉴 선택하는 링크
+      path('addmenu/' , views.addmenu, name = 'add'), #메뉴 추가 링크
+      path('detail/<ind:id>/', views.detail , name = 'detail')
+      
+  ]
+  ```
+
+- index.html
+
+- ```html
+  {% extends 'base.html' %}
+  {% block body %}
+  <h1>현 주문서</h1>
+  <hr>
+  {% for sb in sb %}
+     <a href="{% url 'subway:detail' sb.id %}"></a> {{ forloop.counter }}.{{sb.name}} : {{sb.create_at}} <br>
+  {% endfor%}
+  {% endblock %}
+  ```
+
+- view.py
+
+- ```python
+  def delete(request, pk):
+      article = Article.objects.get(pk=pk)
+  
+      article.delete()
+  
+      return redirect('crud:index') #삭제해서 뭐 받아 올 필요도 없고 하니 바로 홈으로!
+  
+  
+  ```
+
+- 이렇게 바꿀 수 있다~~
+
+- new.html
+
+- ```python
+  {% extends 'base.html' %}
+  {% block body %}
+  <form action='{% url "crud:create" %}' method = 'POST'>
+      
+  ```
+
+- 폼에서 보낼 때도 이렇게 보낼 수 있다.
+
+
+
+# 3.REST
+
+- 면접 질문으로 가끔 나오는 것인데
+- Representional State Transfer 
+- Roy Fielding  논문으로 HTTP가 좋은데 제대로 활용을 못해서 새로운 아키텍처를 발표했다. 
+
+## HTTP?
+
+- 모든 웹이나 서버, 애플리케이션은 HTTP로 통신을 하게 된다. 
+- 클라이언트를 서버에게 HTTP요청(request)을 하고 이를 처리한 내용을 서버는 response하게 된다. 
+- 웹서버는 웹 리소스(정적파일=> 이미지, JS, CSS등)를 관리하고 제공을 한다.
+
+### 리소스
+
+1. 미디어 타입 : 수천가지 데이터 타입 => MIME로 관리한다.
+   - Multipurpost Internet Mail Extensions 라 한다.
+   - html : text/html
+   - jpeg : image/jpeg
+   - ASCII : text/plain
+2. URL(URL+URN)
+   - URL : 리소스의 위치(스킴://서버위치/경로) 스킴: 리소스에 접근하기위한 프로토콜
+   - URN : 위치에 독립적임.
+
+### REST의 구성
+
+1. 자원 - URL
+2. 행위 - HTTP Method(GET /POST/PUT/DELETE/)
+3. 표현 
+
+### REST 디자인 가이드
+
+1. '/'는 계층 관계를 나타내는데 사용
+2. '_'대신 '-'를 활용
+3. 정보의 자원을 포현해야함
+4. `GET /boards/show/1` show라는 행위가 있기 때문에 REST하지 않는다.(X)
+   - `GET /boards/1`
+5. `GET /boards/create` (X)
+   - `POST /boards`
+6. `GET /boards/1/update` update가 행위이기 떄문에 (REST X)
+   - `PUT /boards/1`
+   - `POST /boards/1/edit`(장고에서는)
+7. `GET /boards/1/delete` (REST X)
+   - `DELETE /boards/1`
+   - `POST /boards/1/delete`(장고에서는)
+
+### 장고에서 REST?
+
+- djqngo 에서는 Http method를 GET/POST 만 지원한다. 
+
+- 즉 완벽하게 REST하지 못하며 GET /POST 외에는  행위가 들어가야 한다.
+
+- 이제까지 배운것을 Restful하게 바꿔보자~
+
+  
+
+#### 실습
+
+- ```python
+  from django.urls import path
+  from . import views
+  
+  app_name = 'crud'
+  urlpatterns = [
+      path('' , views.index , name= 'index'), #crud/
+      path('new/' , views.new , name = 'new'), #crud/new
+      path('create/' , views.create , name='create'), #crud/create
+      path('<int:pk>/article/', views.detail , name= 'detail'), #crud/detail하게 내용 보는 페이지
+      path("<int:pk>/update/", views.update ,  name = 'update'), # crud/update/ 수정하는 페이지
+      path("<int:pk>/revise/" , views.revise , name = 'revise'),
+      path("<int:pk>/delete/" , views.delete , name = 'delete'),
+  
+  ]
+  ```
+
+- new와 create는 비슷한 동작을 한다.
+
+- new 은 폼을 불러오는 부분(GET) , create는 new에 담긴 form내용을 새로 생성하는 부분(POST)를 사용할 것이다.
+
+- `crud/new` `crud/create`는 `GET /crud/new` `POST /crud/new`로 변경 가능하다.
+
+- urls.py
+
+- ```python
+  from django.urls import path
+  from . import views
+  
+  app_name = 'crud'
+  urlpatterns = [
+      path('' , views.index , name= 'index'), #crud/
+      path('new/' , views.new , name = 'new'), #crud/new
+      # path('create/' , views.create , name='create'), #crud/create
+      path('<int:pk>/article/', views.detail , name= 'detail'), #crud/detail하게 내용 보는 페이지
+      path("<int:pk>/update/", views.update ,  name = 'update'), # crud/update/ 수정하는 페이지
+      path("<int:pk>/revise/" , views.revise , name = 'revise'),
+      path("<int:pk>/delete/" , views.delete , name = 'delete'),
+  
+  ]
+  ```
+
+- view.py
+
+- ```python
+  def new(requests):
+      print(f'new : {requests.method}')
+      if request.method == 'POST':
+          title = request.POST.get("title")
+          content = request.POST.get("content")
+  
+          #DB에 저장시키자
+          article = Article()
+          
+          article.title = title
+          article.content = content
+          article.save()
+      
+  
+          return render(request, "crud/created.html")
+      else:
+          return render(requests , "crud/new.html")
+  
+  #form 에서 데이터를 받아 DB에 저장하고 글작성 성공메세지 출력
+  # def create(request):
+  #     title = request.POST.get("title")
+  #     content = request.POST.get("content")
+  
+  #     #DB에 저장시키자
+  #     article = Article()
+      
+  #     article.title = title
+  #     article.content = content
+  #     article.save()
+      
+  
+  #     return render(request, "crud/created.html")
+  #if else로 위에 new에 붙여주자.
+  
+  ```
+
+- urls.py
+
+- ```python
+  from django.urls import path
+  from . import views
+  
+  app_name = 'crud'
+  urlpatterns = [
+      path('' , views.index , name= 'index'), #crud/
+      path('new/' , views.new , name = 'new'), #crud/new
+      # path('create/' , views.create , name='create'), #crud/create
+      path('<int:pk>/', views.detail , name= 'detail'), #crud/detail하게 내용 보는 페이지
+      path("<int:pk>/update/", views.update ,  name = 'update'), # crud/update/ 수정하는 페이지
+      # path("<int:pk>/revise/" , views.revise , name = 'revise'),
+      path("<int:pk>/delete/" , views.delete , name = 'delete'),
+  
+  ]
+  ```
+
+- view.py
+
+- ```python
+  from django.shortcuts import render , redirect
+  from .models import Article
+  
+  # Create your views here.
+  def index(requests):
+      # articles = Article.objects.all()
+      #쿼리셋 형태로 전체 목록이 날아온다.
+  
+      #리스트 내용을 역순으로 하는 방법 1번째 파이썬에서 정렬 하는 방법
+      # articles = Article.objects.all()[::-1]
+  
+      #리스트 내용을 역순으로 하는 방법 2번째 , 불러올때 정렬시키는 법
+      articles = Article.objects.order_by('-id') 
+      # 쿼리셋으로 리턴될때만 사용가능 , 값이 한 행만 날아오는 경우 제대로 작동하지않는다. 
+      # 그래서 get의 경우 오류가 나지만 filter의 경우 오류가 안난다.
+  
+      context = {
+          "articles" : articles,
+      }
+      return render (requests , "crud/index.html" , context)
+  
+  def new(request):
+      print(f'new : {request.method}')
+      if request.method == 'POST':
+          title = request.POST.get("title")
+          content = request.POST.get("content")
+  
+          #DB에 저장시키자
+          article = Article()
+          
+          article.title = title
+          article.content = content
+          article.save()
+      
+  
+          return render(request, "crud/created.html")
+      else:
+          return render(request , "crud/new.html")
+  
+  #form 에서 데이터를 받아 DB에 저장하고 글작성 성공메세지 출력
+      # def create(request):
+      #     title = request.POST.get("title")
+      #     content = request.POST.get("content")
+  
+      #     #DB에 저장시키자
+      #     article = Article()
+          
+      #     article.title = title
+      #     article.content = content
+      #     article.save()
+          
+  
+      #     return render(request, "crud/created.html")
+  
+  def detail(request, pk):
+  
+  
+      article = Article.objects.get(pk=pk) #앞은 table에 저장된 pk 뒤의 pk는 입력 받은 pk
+      #자동적으로 생기는 것은 id인데 왜 pk를 쓸수 있나?
+      #id_exact = pk 로 등록이 되어있어 pk이용이 가능하다. 
+      #만약 필터(filter)로 한다면 해당값은 쿼리셋으로 날아오기 떄문에 그 경우 for문을 사용해 주어야 한다.
+      context = {
+          "article" : article,
+      }
+      return render(request, "crud/detail.html" , context)
+  
+  def update(request, pk):
+      
+      if request.method == 'POST':
+          article = Article.objects.get(pk=pk)
+  
+          title = request.POST.get("title")
+          content = request.POST.get("content")
+  
+          #새로운 내용을 본 테이블의 해당 내역에 넣어준다.
+          article.title = title
+          article.content = content
+          article.save()
+          #save되면 바뀐 값이 최종으로 된다.
+  
+          return redirect('crud:detail',article.id) 
+      else:
+          print(f'update : {request.method}')
+          article = Article.objects.get(pk=pk)
+          context = {
+              "article" : article,
+  
+          }
+          return render(request , "crud/update.html" , context)
+  
+  # def revise(request, pk): #pk받아오는 방법이 url에서 id 값 받아오는 것이다~
+  #     print(f'save : {request.method}')
+  #     article = Article.objects.get(pk=pk)
+  
+  #     title = request.POST.get("title")
+  #     content = request.POST.get("content")
+  
+  #     #새로운 내용을 본 테이블의 해당 내역에 넣어준다.
+  #     article.title = title
+  #     article.content = content
+  #     article.save()
+  #     #save되면 바뀐 값이 최종으로 된다.
+  
+  #     return redirect('crud:detail',article.id) 
+  
+  def delete(request, pk):
+      article = Article.objects.get(pk=pk)
+      if request.method == "POST":
+          
+  
+          article.delete()
+  
+          return redirect('crud:index') #삭제해서 뭐 받아 올 필요도 없고 하니 바로 홈으로!
+      else:
+          return redirect('crud:detail' , article.id)
+  
+  
+  ```
+
+- detail.html
+
+- ```html
+  {% extends 'base.html' %}
+  {% block body %}
+  <h1>{{ article.title}}</h1><br>
+  <hr>
+  {{ article.content }} <br>
+  <hr>
+  <!-- <a href="/crud/{{ article.pk }}/update/">수정하기</a> -->
+  <a href="{% url 'crud:update' article.id %}">수정하기</a>
+  <form action='{% url "crud:delete" article.id %}' method = 'POST'>
+      {% csrf_token %}
+      <input type= 'submit' value = "삭제하기" >
+  </form>
+  
+  <!-- <a href="/crud/{{ article.pk }}/delete/">삭제하기</a> -->
+  
+  {% endblock %}
+  ```
+
+- 이렇게 되면 조금이라도 간편해 질 것이다.
+
+- ```html
+  <!--form의 action부분에 아무것도 작성하지 않는다면!-->
+  <form action="" method="POST">
+      
+      <!-- 이렇게 해도 에러는 나지않는다! 왜냐하면 자기 스스로를 받기 떄문에~ 하지만 확실성을 위해서 명명하도록 하자-->
+  </form>
+  ```
+
+### 1 : n관계
+
+- models.py
+
+- ```python
+  from django.db import models
+  
+  # Create your models here.
+  class Article(models.Model):
+      title = models.CharField(max_length=50)
+      content = models.TextField()
+      created_at = models.DateTimeField(auto_now_add=True) #추가될때 마다 현재시간으로 저장
+      updated_at = models.DateTimeField(auto_now=True) #editable옵션이 False로 자동 저장된다.
+  
+      def __str__(self):
+          return f'{self.id} {self.title}'
+    
+  
+  class Comment(models.Model):
+      comment = models.CharField(max_length=200)
+      #ForeignField(어떤 테이블 참조할지 , 그 테이블이 삭제될때 어떻게 할지!)
+      #models.CASCADE : 부모테이블이 삭제시 같이 삭제하는 옵션
+      #models.PROTECT : 부모테이블이 삭제될 때 오류를 발생(삭제가 되면 안되기 때문에!)
+      #models.SET_NULL : 부모테이블이 삭제될때 null값을 채운다.(but not null 옵션일때는 불가능하다.)
+      #models.SET() : 특정 함수를 호출.
+      #models.DO_NOTHING : 암것도 안함.
+      article = models.ForeignKey(Article , on_delete=models.CASCADE) 
+      created_at = models.DateTimeField(auto_now_add=True)
+      updated_at = models.DateTimeField(auto_now=True)
+  
+  ```
+
+- cmd창에서
+
+- ```cmd
+  $ python manage.py makemigrations
+  $ python manage.py migrate #적용
+  
+  
+  $ sqlite db.sqlite3
+  SQLite version 3.30.1 2019-10-10 20:19:45
+  Enter ".help" for usage hints.
+  sqlite> .tables
+  auth_group                  crud_comment
+  auth_group_permissions      django_admin_log
+  auth_permission             django_content_type
+  auth_user                   django_migrations
+  auth_user_groups            django_session
+  auth_user_user_permissions  subway_subway
+  crud_article
+  sqlite> .schema crud_comment
+  CREATE TABLE IF NOT EXISTS "crud_comment" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "comment" varchar(200) NOT NULL, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL, "article_id" integer NOT NULL REFERENCES "crud_article" ("id") DEFERRABLE INITIALLY DEFERRED);
+  CREATE INDEX "crud_comment_article_id_94d7ec8b" ON "crud_comment" ("article_id");
+  
+  #article_id가 생긴것을 볼 수 잇는데 부모의 아이디를 가져온다.
+  ```
+
+- `python manage.py shell`은 좀 불편하므로!
+
+- [django extensions]( https://django-extensions.readthedocs.io/en/latest/ ) 에서 `pip install django-extensions`임을 확인! 이를 설치해준다.
+
+- settings.py
+
+- ```python
+  
+  # Application definition
+  
+  INSTALLED_APPS = [
+      'crud',
+      'subway',
+      'django.contrib.admin',
+      'django.contrib.auth',
+      'django.contrib.contenttypes',
+      'django.contrib.sessions',
+      'django.contrib.messages',
+      'django.contrib.staticfiles',
+      'django_extensions', #추가
+  ]
+  ```
+
+-  그 후 다시 shell을 실행해보자.
+
+- ```cmd
+  $ python manage.py shell_plus
+  #이번에는 plus를 추가해준다.
+  # Shell Plus Model Imports
+  from crud.models import Article, Comment
+  from django.contrib.admin.models import LogEntry
+  from django.contrib.auth.models import Group, Permission, User
+  from django.contrib.contenttypes.models import ContentType
+  from django.contrib.sessions.models import Session
+  from subway.models import Subway
+  # Shell Plus Django Imports
+  from django.core.cache import cache
+  from django.conf import settings
+  from django.contrib.auth import get_user_model
+  from django.db import transaction
+  from django.db.models import Avg, Case, Count, F, Max, Min, Prefetch, Q, Sum, When, Exists, OuterRef, Subquery
+  from django.utils import timezone
+  from django.urls import reverse
+  Python 3.7.5 (tags/v3.7.5:5c02a39a0b, Oct 15 2019, 00:11:34) [MSC v.1916 64 bit (AMD64)] on win32
+  Type "help", "copyright", "credits" or "license" for more information.
+  (InteractiveConsole)
+  #위에 자동으로 추가됨을 확인했다.!
+  >>> Article.objects.get(id=4) 
+  <Article: 4 이쁘게 적어보자>
+  >>> com = Comment()
+  >>> com.comment = "1빠"
+  >>> art = Article.objects.get(id=4)
+  >>> com.article = art
+  >>> com.save()
+  >>> com.article_id
+  4
+  #실제로 넣어주지 않았지만 연결되어서 id가 생성됐음을 확인
+  >>> com.comment
+  '1빠'
+  #comment도 생성되었음을 확인!
+  >>> com.article
+  <Article: 4 이쁘게 적어보자>
+  #부모 테이블에 대한 정보가 나오게 된다.
+  >>> com.article.title
+  '이쁘게 적어보자'
+  #점을 통해 접근 가능!
+  ```
+
+- ```cmd
+  >>> art2  = Article.objects.get(id=8)
+  >>> art2
+  <Article: 8 오늘 금요일 아냐?>
+  >>> com2  = Comment(article=art2 , comment = "2번 1빠")
+  >>> com2.article_id #com2의 article_id
+  8
+  >>> com2.article.id #com2의 연결된 부모 id
+  8
+  >>> com2.article.content
+  '오늘 금요일 같은 이 날 내일 쉬어야 할 것 같다.'
+  >>> art.comment_set.all()
+  <QuerySet [<Comment: Comment object (1)>]>
+  #.comment_set.all()하면 참조되는 모든 클래스의 내용을 가져올 수 있다...?
+  ```
+
+- ```cmd
+  >>> dir(Comment)
+  #사용가능한 것이 쭈욱 나온다~
+  ['DoesNotExist', 'MultipleObjectsReturned', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setstate__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_check_column_name_clashes', '_check_constraints', '_check_field_name_clashes', '_check_fields', '_check_id_field', '_check_index_together', '_check_indexes', '_check_local_fields', '_check_long_column_names', '_check_m2m_through_same_relationship', '_check_managers', '_check_model', '_check_model_name_db_lookup_clashes', '_check_ordering', '_check_property_name_related_field_accessor_clashes', '_check_single_primary_key', '_check_swappable', '_check_unique_together', '_do_insert', '_do_update', '_get_FIELD_display', '_get_next_or_previous_by_FIELD', '_get_next_or_previous_in_order', '_get_pk_val', '_get_unique_checks', '_meta', '_perform_date_checks', '_perform_unique_checks', '_save_parents', '_save_table', '_set_pk_val', 'article', 'article_id', 'check', 'clean', 'clean_fields', 'comment', 'created_at', 'date_error_message', 'delete', 'from_db', 'full_clean', 'get_deferred_fields', 'get_next_by_created_at', 'get_next_by_updated_at', 'get_previous_by_created_at', 'get_previous_by_updated_at', 'id', 'objects', 'pk', 'prepare_database_save', 'refresh_from_db', 'save', 'save_base', 'serializable_value', 'unique_error_message', 'updated_at', 'validate_unique']
+  
+  >>> dir(Article)
+  ['DoesNotExist', 'MultipleObjectsReturned', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setstate__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_check_column_name_clashes', '_check_constraints', '_check_field_name_clashes', '_check_fields', '_check_id_field', '_check_index_together', '_check_indexes', '_check_local_fields', '_check_long_column_names', '_check_m2m_through_same_relationship', '_check_managers', '_check_model', '_check_model_name_db_lookup_clashes', '_check_ordering', '_check_property_name_related_field_accessor_clashes', '_check_single_primary_key', '_check_swappable', '_check_unique_together', '_do_insert', '_do_update', '_get_FIELD_display', '_get_next_or_previous_by_FIELD', '_get_next_or_previous_in_order', '_get_pk_val', '_get_unique_checks', '_meta', '_perform_date_checks', '_perform_unique_checks', '_save_parents', '_save_table', '_set_pk_val', 'check', 'clean', 'clean_fields', 'comment_set', 'content', 'created_at', 'date_error_message', 'delete', 'from_db', 'full_clean', 'get_deferred_fields', 'get_next_by_created_at', 'get_next_by_updated_at', 'get_previous_by_created_at', 'get_previous_by_updated_at', 'id', 'objects', 'pk', 'prepare_database_save', 'refresh_from_db', 'save', 'save_base', 'serializable_value', 'title', 'unique_error_message', 'updated_at', 'validate_unique']
+  ```
+
+- 
+
+# 4.댓글에 관한 CRUD
+
+- 
+

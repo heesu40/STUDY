@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>{{ article.title}}</h1><br>
+<hr>
+{{ article.content }} <br>
+<hr>
+<!-- <a href="/crud/{{ article.pk }}/update/">수정하기</a> -->
+<a href="{% url 'crud:update' article.id %}">수정하기</a>
+<form action='{% url "crud:delete" article.id %}' method = 'POST'>
+    {% csrf_token %}
+    <input type= 'submit' value = "삭제하기" >
+</form>
+
+<!-- <a href="/crud/{{ article.pk }}/delete/">삭제하기</a> -->
+
+{% endblock %}

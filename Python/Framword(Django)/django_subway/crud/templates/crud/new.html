@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block body %}
+<form action='{% url "crud:new" %}' method = 'POST'>
+    {% csrf_token %}
+    <!-- <label for="title">기사제목</label> label은 id값과 매칭이 된다. -->
+    <!-- <input type="text" name="title" id="title"><br> -->
+    <!-- <textarea name="content" cols="30" rows="5"></textarea>30글자의 10줄 -->
+    
+    <div class="input-group input-group-lg">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="inputGroup-sizing-lg" >기사제목</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" name = "title">
+      </div><br>
+      <div class="input-group input-group-lg">
+        <div class="input-group-prepend">
+          <span class="input-group-text" id="inputGroup-sizing-lg" >기사내용</span>
+        </div>
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" name= "content">
+      </div>
+    <input type="submit">
+</form>
+{% endblock %} 

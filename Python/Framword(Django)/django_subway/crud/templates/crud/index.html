@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<!-- <h1>Article List</h1>
+<ul>
+    {% for art in articles %}
+    <li><a href="/crud/{{ art.pk }}/article">{{ art.id }}번글 {{ art.title }}</li></a> 해당 pk값이 들어갈 것 이다.-->
+    <!-- {% endfor %}
+</ul> --> 
+
+
+
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col"> 번호</th>
+        <th scope="col"> 제목</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+    {% for art in articles %}
+      <tr>
+        <th scope="row">{{ forloop.counter }}</th>
+        <td><a href="{% url 'crud:detail' art.pk %}">{{art.id}} 번글</a></td>
+        <td><a href="{% url 'crud:detail' art.pk %}">{{art.title}}</a></td>
+        
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endblock %}

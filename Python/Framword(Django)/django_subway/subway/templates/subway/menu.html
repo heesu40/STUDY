@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block body %}
+<form action='{% url "subway:menu"%}' method = 'POST'>
+    {% csrf_token %}
+    <h1>Subway 주문서</h1>
+    <hr>
+    이름 : <input type="text" name = "name" id = "name"><br>
+    주소입력 : <input type="text" name = "address" id = "address"><br>
+    전화번호 : <input type="tel" name = "phone" id = "phone"><br>
+    <hr>
+    <h3>메뉴 선택</h3>
+    <h4>빵</h4>
+    <select name="bread" id="bread">
+        <option value="위트">위트</option>
+        <option value="허니오트">허니오트</option> 
+        <option value="플레인">플레인</option>
+        <option value="하티">하티</option>
+        <option value="오레아즈">오레아즈</option>
+        <option value="플랫브레드">플랫브레드</option>
+    
+    </select>
+    <h4>소스</h4>
+    <input type="radio" name = "sauce" id = "sauce" value = "렌지">렌지
+    <input type="radio" name = "sauce" id = "sauce" value = "마요네즈">마요네즈
+    <input type="radio" name = "sauce" id = "sauce" value = "스위트어니언"> 스위트어니언
+    <input type="radio" name = "sauce" id = "sauce" value = "스위트칠리"> 스위트칠리
+    <input type="radio" name = "sauce" id = "sauce" value = "핫 칠리"> 핫 칠리
+    <input type="radio" name = "sauce" id = "sauce" value = "올리브오일"> 올리브오일
+    
+
+    <h4>야채</h4>
+    <input type="checkbox" name = "vegetable" id = "vegetable" value = "양상추">양상추
+    <input type="checkbox" name = "vegetable" id = "vegetable" value = "토마토">토마토
+    <input type="checkbox" name = "vegetable" id = "vegetable" value = "오이">오이
+    <input type="checkbox" name = "vegetable" id = "vegetable" value = "피망">피망
+    <input type="checkbox" name = "vegetable" id = "vegetable" value = "양파">양파
+    <input type="checkbox" name = "vegetable" id = "vegetable" value = "피클">피클
+
+    <h4>음료</h4>
+    <input type="radio" name = "drink"  id = "drink" value = "콜라">콜라
+    <input type="radio" name = "drink"  id = "drink" value = "스프라이트">스프라이트
+    <input type="radio" name = "drink"  id = "drink" value = "환타">환타
+    <input type="radio" name = "drink"  id = "drink" value = "쿨피스">쿨피스
+    <input type="radio" name = "drink"  id = "drink" value = "오렌지쥬스">오렌지쥬스
+    <br>
+    <hr>
+    <input type= 'submit'>
+</form>
+{% endblock %}

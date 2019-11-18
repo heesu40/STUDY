@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block body %}
+    <form action='{% url "crud:update" article.id %}' method = 'POST'><!--기본값또한 불러와야하기 때문에 pk값을 보낼 것이다.-->
+        {% csrf_token %}
+        <input type="text" name="title" value="{{ article.title }}" ><br>
+        <textarea name="content" cols="30" rows="5">{{ article.content }}</textarea>
+        <input type= 'submit'>
+    </form>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>현 주문서</h1>
+<hr>
+{% for ss in sb %}
+   <a href="{% url 'subway:detail' ss.id %}">{{ forloop.counter }}.{{ss.name}} : {{ss.create_at}}</a> <br>
+{% endfor%}
+{% endblock %}

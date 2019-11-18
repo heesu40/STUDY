@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>주문자 {{sb.name }}의 메뉴</h1>
+<hr>
+<h3>{{ sb.bread }}</h3><br>
+<h3>{{ sb.sauce }}</h3>
+<!-- <h3>{% for veg in sb.vegetable %}
+            {{ forloop.counter}}.{{ sb.veg }} <br>
+    {% endfor %}
+</h3> -->
+<h3></h3>
+<h3>{{ sb.drink }}</h3>
+<h3>{{ sb.create_at }}</h3>
+
+<a href = '{% url "subway:mod" sb.id %}'>수정하기</a>   
+<form action='{% url "subway:delete" sb.id %}' method = 'POST'>
+    {% csrf_token %}
+    <input type= 'submit' value = "삭제하기">
+</form>
+
+
+{% endblock %}
