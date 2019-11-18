@@ -11,8 +11,8 @@ urlpatterns = [
     path('menu/' , views.menu , name='menu'), #메뉴 선택하는 링크
     # path('addmenu/' , views.addmenu, name = 'add'), #메뉴 추가 링크
     path('<int:id>/', views.detail , name = 'detail'),
-    path('<int:id>/mod/' , views.mod , name  = 'mod'),
-    path('<int:id>/delete/' , views.delete , name = "delete"),
+    path('mod/<int:id>/' , views.mod , name  = 'mod'),
+    path('delete/<int:id>/' , views.delete , name = "delete"),
 
     
 ]

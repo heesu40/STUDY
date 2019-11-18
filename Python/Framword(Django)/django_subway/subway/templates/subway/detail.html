@@ -2,15 +2,11 @@
 {% block body %}
 <h1>주문자 {{sb.name }}의 메뉴</h1>
 <hr>
-<h3>{{ sb.bread }}</h3><br>
-<h3>{{ sb.sauce }}</h3>
-<!-- <h3>{% for veg in sb.vegetable %}
-            {{ forloop.counter}}.{{ sb.veg }} <br>
-    {% endfor %}
-</h3> -->
-<h3></h3>
-<h3>{{ sb.drink }}</h3>
-<h3>{{ sb.create_at }}</h3>
+<h3>{{ sb.bread }} 빵으로</h3>
+<h3>{{ sb.sauce }} 소스를 발라</h3> 
+<h3>{{ sb.vegetable }} 의 야채를 추가하여</h3> 
+<h3>{{ sb.drink }} 와 마신다!</h3>
+<h5>{{ sb.create_at }}</h5>
 
 <a href = '{% url "subway:mod" sb.id %}'>수정하기</a>   
 <form action='{% url "subway:delete" sb.id %}' method = 'POST'>

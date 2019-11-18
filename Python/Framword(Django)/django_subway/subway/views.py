@@ -19,7 +19,8 @@ def menu(request):
         phone = request.POST.get('phone')
         bread = request.POST.get('bread')
         sauce = request.POST.get('sauce')
-        vegetable = request.POST.getlist('vegetable')
+        vegetable =[str(veg) for veg in request.POST.getlist('vegetable')]
+        vegetable = ",".join(vegetable)
         drink = request.POST.get('drink')
 
         sb  = Subway()
@@ -55,7 +56,9 @@ def mod(request, id):
         phone = request.POST.get('phone')
         bread = request.POST.get('bread')
         sauce = request.POST.get('sauce')
-        vegetable = request.POST.getlist('vegetable')
+        vegetable =[str(veg) for veg in request.POST.getlist('vegetable')]
+        vegetable = ",".join(vegetable)
+        
         drink = request.POST.get('drink')
 
         sb  = Subway()
@@ -70,17 +73,19 @@ def mod(request, id):
 
         return redirect('subway:detail' , sb.id)
     else:
-        
-        return render(request , 'subway/mod.html', sb.id)
+        context = {
+            'sb' : sb
+        }
+        return render(request , 'subway/mod.html', context)
 
 def delete(request , id):
-    sb = Subway.objects.get(id=id)
+    
     if request.method  == 'POST':
-        
+        sb = Subway.objects.get(id=id)    
 
         sb.delete()
-        return redirect('subway:index.html')
+        return redirect('subway:index')
     else:
-        return redirect('subway:detail' , sb.id)
+        return redirect('subway:detail' , id)
 
 
