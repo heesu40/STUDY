@@ -10,7 +10,35 @@
     {% csrf_token %}
     <input type= 'submit' value = "삭제하기" >
 </form>
-
 <!-- <a href="/crud/{{ article.pk }}/delete/">삭제하기</a> -->
+<hr><br>
 
+<form action='{% url "crud:comment" article.id %}'  method = 'POST'> 
+    <!--어떤것이 부모테이블인지 넣어주어야 한다. 그렇기에 article의 값을 같이 넣어 줄 것이다.-->
+    {% csrf_token %}
+    댓글달기[{{ comlen }}]  : <input type="text" name = "comment" >
+    <input type= 'submit'>
+</form>
+
+<hr><br>
+<!-- 댓글이 많으면 오래걸리기 때문에 view에서 처리하자.-->
+<!-- <ul>
+    {% for com in article.comment_set.all %} 
+        <li>{{com.comment}}</li>
+    {% endfor %}
+</ul>
+<hr><br> -->
+댓글 개수 : {{ comments|length }} / {{ article.comment_set.all|length}} / {{ comments.count}}
+<ul>
+    {% for com in comments %} <!-- 댓글이 많으면 오래걸리기 때문에 view에서 처리하자.-->
+        <li>{{com.comment}}</li>
+        <a href="{% url 'crud:comedit' article.id com.id %}">수정하기</a>
+        <form action='{% url "crud:comdel" article.id com.id %}' method = 'POST'>
+            {% csrf_token %}
+            <input type= 'submit' value="삭제">
+        </form>
+        {% empty %}
+            <h2>등록된 댓글이 없어요~</h2>
+        {% endfor %}
+</ul>
 {% endblock %}

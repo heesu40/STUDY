@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>질문 list</h1>
+<ul>
+{% for  con in   question_all  %}
+    <li><a href="{% url 'btest:detail' con.id %}">{{  con.question }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

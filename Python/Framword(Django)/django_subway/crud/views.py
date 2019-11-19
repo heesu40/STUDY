@@ -1,5 +1,5 @@
 from django.shortcuts import render , redirect
-from .models import Article
+from .models import Article , Comment
 
 # Create your views here.
 def index(requests):
@@ -33,7 +33,7 @@ def new(request):
         article.save()
     
 
-        return render(request, "crud/created.html")
+        return redirect('crud:index')
     else:
         return render(request , "crud/new.html")
 
@@ -52,22 +52,27 @@ def new(request):
 
     #     return render(request, "crud/created.html")
 
-def detail(request, pk):
+def detail(request, art_pk):
 
+    
+    article = Article.objects.get(pk=art_pk) #앞은 table에 저장된 pk 뒤의 pk는 입력 받은 pk
+    com = article.comment_set.all()
+    comlen = len(com)
 
-    article = Article.objects.get(pk=pk) #앞은 table에 저장된 pk 뒤의 pk는 입력 받은 pk
     #자동적으로 생기는 것은 id인데 왜 pk를 쓸수 있나?
     #id_exact = pk 로 등록이 되어있어 pk이용이 가능하다. 
     #만약 필터(filter)로 한다면 해당값은 쿼리셋으로 날아오기 떄문에 그 경우 for문을 사용해 주어야 한다.
     context = {
         "article" : article,
+        "comments" : com,
+        "comlen" : comlen,
     }
     return render(request, "crud/detail.html" , context)
 
-def update(request, pk):
+def update(request, art_pk):
     
     if request.method == 'POST':
-        article = Article.objects.get(pk=pk)
+        article = Article.objects.get(pk=art_pk)
 
         title = request.POST.get("title")
         content = request.POST.get("content")
@@ -81,7 +86,7 @@ def update(request, pk):
         return redirect('crud:detail',article.id) 
     else:
         print(f'update : {request.method}')
-        article = Article.objects.get(pk=pk)
+        article = Article.objects.get(pk=art_pk)
         context = {
             "article" : article,
 
@@ -103,8 +108,9 @@ def update(request, pk):
 
 #     return redirect('crud:detail',article.id) 
 
-def delete(request, pk):
-    article = Article.objects.get(pk=pk)
+def delete(request, art_pk):
+    article = Article.objects.get(pk=art_pk)
+    
     if request.method == "POST":
         
 
@@ -114,3 +120,44 @@ def delete(request, pk):
     else:
         return redirect('crud:detail' , article.id)
 
+
+# 코멘트는 POST로 날아올 것이다. art_id/comment
+def comment(request, art_id):
+    article = Article.objects.get(id=art_id)
+
+    if request.method == 'POST':
+        comment = request.POST.get('comment')
+        #comment에 해당 부분을 적용할 것이다.
+
+        com = Comment()
+        com.comment = comment
+        com.article = article #부모 정보도 저장해준다.
+        com.save()
+    
+
+        return redirect('crud:detail' , article.id) #art.id나 article.id나 상관없다!
+        #return redirect('crud:detail',com.article_id) 이렇게 해도 된다! 
+        #post일때만 저장이 될 것이다.
+def comedit(request, art_id , com_id):
+    com = Comment.objects.get(id=com_id) #커멘트의 id가 com_id랑 같은 것 만 가져온다.
+    #간단하게 창을 만드는 것으로 해서
+
+    if request.method =='POST':
+        text =request.POST.get("comment")
+        com.comment = text
+        com.save()
+        return redirect('crud:detail' , art_id)
+    else:
+        context = {
+            'comment' : com
+
+        }
+
+        return render(request, 'crud/comedit.html' , context)
+def comdel(request, art_id , com_id):
+    com = Comment.objects.get(id = com_id)
+
+    #POST형식으로 올때만 삭제를 해야하지 때문에
+    if request.method == 'POST':
+        com.delete()
+        return redirect('crud:detail' , art_id)

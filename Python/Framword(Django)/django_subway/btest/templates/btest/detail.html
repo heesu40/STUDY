@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block body %}
+<form action='{% url "btest:question_del" question.id %}' method = 'POST'><!-- 삭제하기 추가해서 넣어야 한다.-->
+    {% csrf_token %}
+    <h1>{{ question.question }}</h1>
+    <input type="submit" value = "삭제하기">
+    </form>
+    <hr>
+    <ul>
+        {% for vv in question_vote %}
+        <li>{{vv.survey }}</li>
+        <form action='{% url "btest:vote_mod" question_vote.id question.id %}' method = 'POST'>
+            
+            <input type= 'submit' value="수정하기">
+        </form>
+        <form action='{% url "btest:vote" question_vote.id question.id %}' method = 'POST'>
+            
+            <input type= 'submit' value="투표하기">
+        </form>
+        {% empty %}
+        등록된 투표가 없다.
+        {% endfor %}
+    </ul>
+    <form action='{% url "btest:detail" question_vote.id question.id %}' method = 'POST'>
+        {% csrf_token %}
+        <input type="text" name= "contentchild">
+        <input type= '투표등록'>
+    </form>
+    
+
+{% endblock %}

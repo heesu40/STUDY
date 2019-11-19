@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    
+    'btest',
     'crud',
     'subway',
     'django.contrib.admin',

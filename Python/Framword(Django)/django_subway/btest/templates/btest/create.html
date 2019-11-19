@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block body %}
+<form action='{% url "btest:create" %}' method = 'POST'>
+    {% csrf_token %}
+    <input type="text" name = "content" >
+    <input type= 'submit' value = "질문 등록">
+</form>
+{% endblock %}

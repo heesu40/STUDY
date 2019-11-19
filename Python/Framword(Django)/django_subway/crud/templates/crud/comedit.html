@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block body %}
+<form action='' method = 'POST'> <!--action이 빈값이면 현재 경로로 다시 -->
+    {% csrf_token %}
+    댓글 : <input type="text" name = "comment" value = "{{comment.comment}}">
+    <input type= 'submit' value = "댓글수정">
+</form>
+{% endblock %}
