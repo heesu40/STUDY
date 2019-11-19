@@ -24,42 +24,40 @@ def create(request):
 def detail(request, btest_id):
     
     question = Btest.objects.get(id=btest_id)
-    question_vote = question.survey.all() #???
-    if request.method=="POST":
-        content_child= request.POST.get('contentchild')
-        qs = Btestchild()
-        qs.survey = content_child
-        qs.question = question
-        qs.save()
-        context = {
-            "question" : question,
-            "question_vote" : question_vote
-        }
+    #자식테이블명_set
+    #부모 테이블을 가진 모든 자식 테이블을 가져 온다.
+    question_vote = question.btestchild_set.all() 
 
-        return render(request , 'btest/detail.html' , context)
+   
+    context= {
+        "question" : question,
+        "question_vote" : question_vote
+    }
+    return render(request, "btest/detail.html" ,context )
+
+def survey(request, btest_id):
+    q = Btest.objects.get(id=btest_id)
+    text = request.POST.get('detailadd')
+    ques = Btestchild()
+    ques.survey = text
+    ques.question = q # 부모테이블에 저장,  FK이기 때문에 필수
+    ques.save()
+
+    return redirect('btest:detail' , btest_id)
+
+def survey_mod(request , btestchild_id ):
+    ques = Btestchild.objects.get(id=btestchild_id)
+    
+    if request.method =="POST":
+        
+        text = request.POST.get('detailadd')
+        ques.survey = text
+        ques.save()
+
+        return redirect('btest:detail' ,ques.question_id )
     else:
-        context= {
-            "question" : question,
-            "question_vote" : question_vote
+        context = {
+            "question_vote" : ques
         }
-        return render(request, "btest/detail.html" ,context )
-
-def vote_mod(request , btestchild_id , btest_id):
-    qs  = Btestchild.objects.get(id = btestchild_id)
-
-    ques = Btest.objects.get(id= btest_id)
-
-    cont
-
-    return redirect('btest:index' )
-
-def question_del(request , btest_id):
-    ques = Btest.objects.get(id=btest_id)
-    ques.delete()
-
-    return redirect('btest:index')
-
-def vote(request , btestchild_id , btest_id):
-
-    return redirect('btest:index')
+        return render(request, 'btest/survey_mod.html' , context )
     

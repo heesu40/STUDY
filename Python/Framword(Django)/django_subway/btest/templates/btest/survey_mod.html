@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block body %}
+<form action='' method= 'POST'>
+    {% csrf_token %}
+    <input type="text" name = "detailadd" value = "{{ question_vote.survey}}">
+    <input type='submit' value = " 수정하기">
+</form>
+{% endblock %}

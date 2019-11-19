@@ -7,7 +7,7 @@ urlpatterns = [
     path('' , views.index , name = 'index'),
     path('create/' , views.create, name='create'),
     path('detail/<int:btest_id>/' , views.detail , name = 'detail'),
-    path('vote_mod/<int:btestchild_id>/<int:btest_id>/' , views.vote_mod , name='vote_mod'),
-    path('question_del/<int:btest_id>' , views.question_del , name= "question_del"),
-    path('vote/<int:btestchild_id>/<int:btest_id>/' , views.vote , name = 'vote'),
+    path('survey/<int:btest_id>/' , views.survey , name='survey'),
+    path('<int:btestchild_id>/survey_mod/', views.survey_mod , name = 'survey_mod'),
+    
 ]
