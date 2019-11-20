@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block body %}
+    
+<form action='{% url "movie:new" %}' method = 'POST'>
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="exampleInputEmail1">title</label>
+          <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter title" name = 'title'>
+          
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">title_en</label>
+          <input type="text" class="form-control" id="exampleInputPassword1" placeholder="title_en" name = "title_en">
+        </div>
+
+        <div class="form-group">
+                <label for="exampleInputPassword1">audience</label>
+                <input type="number" class="form-control" id="exampleInputPassword1" placeholder="audience" name = "audience" step  = "1000">
+              </div>
+
+        <div class="form-group">
+            <label for="exampleInputPassword1">open_date</label>
+            <input type="date" class="form-control" id="exampleInputPassword1" placeholder="open_date" name = "open_date">
+            </div>
+        
+        <div class="form-group">
+                <label for="exampleInputPassword1">genre</label>
+                <input type="text" class="form-control" id="exampleInputPassword1" placeholder="genre" name = "genre">
+                </div>
+
+        <div class="form-group">
+                <label for="exampleInputPassword1">watch_grade</label>
+                <input type="text" class="form-control" id="exampleInputPassword1" placeholder="wathc_grade" name = "watch_grade">
+                </div> 
+
+        <div class="form-group">
+                <label for="exampleInputPassword1">scroe</label>
+                <input type="number" class="form-control" id="exampleInputPassword1" placeholder="score" name = "score" max="100">
+                </div>
+        <div class="form-group">
+                <label for="exampleInputPassword1">poster_url</label>
+                <input type="text" class="form-control" id="exampleInputPassword1" placeholder="poster_url" name = "poster_url">
+                </div>
+
+        <div class="form-group">
+                <label for="exampleInputPassword1">description</label>
+                <input type="textarea" class="form-control" id="exampleInputPassword1" placeholder="description" name = "description">
+                </div>
+        <button type="submit" class="btn btn-primary">영화 등록</button>
+</form>
+{% endblock %}

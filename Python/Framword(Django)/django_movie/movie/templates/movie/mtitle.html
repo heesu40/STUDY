@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block body %}
+<table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">1</th>
+            <th scope="col">2</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>제목</td>
+            <td>{{movie.title}}</td>
+            
+          </tr>
+          <tr>
+            <th scope="row">2</th>
+            <td>영어제목</td>
+            <td>{{movie.title_en}}</td>
+           
+          </tr>
+          <tr>
+            <th scope="row">3</th>
+            <td>관객수</td>
+            <td>{{movie.audience}}</td>
+            
+          </tr>
+          <tr>
+                <th scope="row">4</th>
+                <td>개봉일</td>
+                <td>{{movie.open_date}}</td>
+                
+              </tr>
+        <tr>
+            <th scope="row">5</th>
+            <td>장르</td>
+            <td>genre</td>
+            
+         </tr>   
+        <tr>
+                <th scope="row">6</th>
+                <td>연령</td>
+                <td>{{movie.watch_grade}}</td>      
+        </tr>   
+        <tr>
+                <th scope="row">7</th>
+                <td>점수</td>
+                <td>{{movie.score}}</td>      
+        </tr>   
+
+        <tr>
+                <th scope="row">8</th>
+                <td>포스터 url</td>
+                <td>{{movie.poster_url}}</td>      
+        </tr>   
+        <tr>
+                <th scope="row">9</th>
+                <td>설명</td>
+                <td>{{movie.description}}</td>      
+        </tr>   
+        </tbody>
+       </table>
+       <a href="{% url 'movie:movies' %}" class="btn btn-primary">영화목록</a>
+       
+       <a href="{% url 'movie:edit' movie.id %}" class="btn btn-primary">영화 수정</a>
+       <a href="{% url 'movie:delete' movie.id %}" class="btn btn-primary">영화 삭제</a>
+{% endblock %}

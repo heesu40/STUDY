@@ -10,7 +10,7 @@
     <ol>
         {% for vv in question_vote %}
         {{ vv.survey }}
-        <li><a href="{% url 'btest:survey_mod' question_vote.id  %}">수정하기</a></li>
+        <li><a href="{% url 'btest:survey_mod' vv.id  %}">수정하기</a></li>
      
         {% empty %}
         등록된 투표가 없다.

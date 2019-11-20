@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">movie</th>
+            <th scope="col">title</th>
+            <th scope="col">score</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+            {% for mo in movie%}
+          <tr>
+            
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><a href="{% url 'movie:moviesdetail' mo.id %}">{{ mo.title }}</a></td>
+            <td>{{ mo.score}}</td>
+            
+          </tr>
+            {% endfor %}   
+        </tbody>
+      </table>
+      <a href="{% url 'movie:new' %}"  class="btn btn-primary">새 영화 등록 클릭</a>
+{% endblock %}
