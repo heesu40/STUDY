@@ -1,0 +1,17 @@
+{% load static %}
+<h2>Detail Page</h2>
+
+<div>
+    TITEL: {{ board.title }}
+    content :  {{ board.content }}
+    IMAGE : <br>
+    {% if board.image %}
+    <img src="{{ board.image.url }}" alt="{{ board.image }}"> <!--board.image는 image의 이름이다.-->
+    [<img src="{{ board.image_thumb.url}}" alt="{{board.image_thumb}}">]
+    {% else %}
+        <img src="{% static '타코.jpg' %}" alt="내용 없음.">
+        
+    {% endif %}
+</div>
+
+<a href="{% url 'boards:edit' board.id %}">수정하기</a>

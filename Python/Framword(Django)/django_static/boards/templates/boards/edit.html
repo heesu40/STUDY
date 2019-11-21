@@ -1,0 +1,13 @@
+<h1>edit</h1>
+<hr><br><hr>
+<form action="{% url 'boards:edit' board.id %}" enctype="multipart/form-data" method="POST"><!--enctype해 주어야 저장이 된다 꼬옥 해주자.-->
+    {% csrf_token %}
+    타이틀 : <input type="text" name = "title" required placeholder="제목" value = "{{board.title}}"><br>
+    내용 :  <input type="text" name = "content" required placeholder="내용" value = "{{board.content}}"><br>
+    <hr>
+    
+    <input type="file" name = "image" accept="image/*"> <!--이미지만 허용/ 하지만 강제성은 없다. 설정해도 동영상 올릴수있다.-->
+    <hr> <!--file type의경우 value값이 없다!-->
+    <input type="submit">
+</form>
+<hr><br><hr>

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<h1>index</h1>
+
+<!-- <img src="{% static 'boards/images/떡볶이.jpg' %}" alt="떡볶이.jpg">
+<img src="{% static '마제면.jpg' %}" alt="마제면.jpg">  -->
+<!--settings에서 장소를 지정해 주었기 떄문에-->
+
+<hr><br><hr>
+<ul>
+    {% for board in boards %}
+    <li><a href="{% url 'boards:detail' board.id %}">{{ board.title }}</a></li>
+
+    {% endfor %}
+</ul>
+<hr><br><hr>
+
+<a href="{% url 'boards:new' %}">새로 만들기 </a>
+{% endblock %}
