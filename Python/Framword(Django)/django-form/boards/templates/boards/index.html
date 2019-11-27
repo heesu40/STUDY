@@ -4,6 +4,7 @@
 <ul>
     {% for board in boards %}
         <li><a href="{% url 'boards:detail' board.id %}">{{board.title}}</a> - {{board.user}}</li>
+        {% include 'boards/_board.html' %}
     {% endfor %}
 </ul>
 
