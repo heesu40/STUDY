@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>indexpage</h1>
+<ul>
+    {% for board in boards %}
+        <li><a href="{% url 'boards:detail' board.id %}">{{board.title}}</a> - {{board.user}}</li>
+        {% include 'boards/_board.html' %}
+    {% endfor %}
+</ul>
+
+<!--새글쓰기 링크-->
+
+
+
+
+<form action='{% url "accounts:logout" %}' method = 'POST'>
+    {% csrf_token %}
+    <a href="{% url 'boards:new' %}">New</a><br>
+    
+</form>
+
+{% endblock %}
+
+
+
+
+
+
