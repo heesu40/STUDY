@@ -42,7 +42,7 @@ def survey(request, btest_id):
     ques.survey = text
     ques.question = q # 부모테이블에 저장,  FK이기 때문에 필수
     ques.save()
-
+``
     return redirect('btest:detail' , btest_id)
 
 def survey_mod(request , btestchild_id ):
