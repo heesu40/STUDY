@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <h2>My Wish List</h2>
+  내가 원하는 건 : <input type="text" id="wish-input">
+  <button id="add-button">추가하기</button>
+
+  <ol id="wish-list">
+
+  </ol>
+  <script>
+    //---------------------------------------------------생성
+    // 1. input 태그를 선택하여 변수에 담는다.
+      const ww = document.querySelector('#wish-input')
+    // 2. 버튼을 태그를 선택하여 변수에 담는다.
+      const bb = document.querySelector('#add-button')
+    // 3. ol 태그를 선택하여 변수에 담는다.
+      const oo = document.querySelector('#wish-list')
+    // 4. 클릭을 했을때 의 동작 
+
+      bb.addEventListener('click' , function(){
+        // 5. input 태그에 value를 변수에 담는다.
+        const vv  = ww.value;
+                
+        // 6. input 태그에 입력되어진 value를 초기화 한다.
+        ww.value= "";
+        // 7. li 태그를 생성해서 변수에 담는다. 
+        const ll = document.createElement('li')
+                
+        // 8 li 태그가 저장된 변수에 input value를 담는다. .innerText
+        ll.innerText = vv
+        //-------------------------------------------------삭제
+        // 2-1 delete 버튼 태그 생성
+        const delButton = document.createElement('button')
+        // 2-2 delete 버튼에 버튼 이름 지정해 주기
+        delButton.innerText = "목표성취"
+
+        // 2-3 delete 버튼을 ll 에 마지막 요소로 추가(자식으로 들어가게 된다.)
+        ll.append(delButton)
+
+        // 2-4 버튼을 누르면 해당 아이템을 삭제
+        delButton.addEventListener('click', function(){
+          ll.remove()
+        })
+        // 9 ol 태그에 li  요소를 추가
+        
+        oo.append(ll)
+
+
+      })
+  </script>
+  <!--script 의 경우 로딩이 오래 걸리기 때문에 미리 하지 않고 먼저 형식을 보여주고 나중에 로딩하는 방식으로 하기위해서
+  또한 가끔 이벤트의 경우 script가 먼저 읽혔을때 없다고 잘못 인식하는 경우도 있기 때문에 마지막에 위치하는것이 가장 바람직하다.-->
+</body>
+</html>

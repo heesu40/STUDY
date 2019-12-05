@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="my"></div>
+    <button id="this-button">이것을 누르면 ?</button>
+
+
+  <script>
+    //어디에 이벤트를 등록할 것인가! 버튼에 할것이당
+    //1. 무엇을? EventTarget
+    const button = document.querySelector('#this-button')
+
+    // 2. 언제? 첫번째 인자 클릭했을 때 (콜백함수 사용 할 것이다~ )
+    button.addEventListener('click', function(e){
+      console.log(e);
+      // 3. 어떻게? div에 뿅이라고 적어주기.
+      const div = document.querySelector('#my')
+      div.innerHTML = '<h1>뿅!</h1>'
+      
+    })
+
+    
+  </script>
+</body>
+</html>

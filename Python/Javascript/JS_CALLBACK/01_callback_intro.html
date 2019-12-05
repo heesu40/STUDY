@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+</head>
+<body>
+	<button id="myButton">눌러 볼래?</button>
+	<script>
+	const button = document.getElementById('myButton') //위의 버튼을 가르킨다.
+	button.addEventListener('click' , function(){ //익명함수를 실행하도록 설정~
+		console.log('눌렀니?');
+		
+	})
+
+	function doSomething(task, callback){
+		alert(`자 ,${task} 준비를 해봅시다!`)
+		callback()
+	}
+	
+	////콜백에 익명함수 넣기~
+	// doSomething('탕수육 먹을', function(){
+	// 	alert(`뿜바이로 맛난 탕슉 먹으러 갑시다!`)
+	// })
+
+
+	//콜백에는 기명함수도 넣을 수 있다.
+	function whereGo(){
+		alert(`탕슉 어디가 맛나나요?`)
+	}
+
+	doSomething('탕수육 먹을' , whereGo)
+	</script>
+
+	
+</body> 
+</html>

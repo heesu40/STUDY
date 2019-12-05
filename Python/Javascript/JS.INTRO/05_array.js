@@ -11,7 +11,7 @@ console.log(numbers[0]) //가장 마지막 번호를 뽑아올 수 있다.
 //push 배열의 마지막에 값을 넣어 주는 것 넣어주고 끝나면 배열의 총 길이를 return 해준다.
 numbers.push('peng') ///return 값은 배열의 길이가 된다. (새롭게 추가된 값까지의 길이를 알려준다.)
 console.log(numbers)//맨 마지막에 추가됨을 확인 할 수 있다.
-console.log(number.push('su'))
+console.log(numbers.push('su'))
 
 //pop 빼는 아이
 
@@ -30,7 +30,7 @@ console.log(numbers)
 //includes
 console.log(numbers.includes(1)) //ture false로 나오므로 있는지 없는지 확인 가능
 
-console.log(numbers.indexOf(2)) //위치를 알려준다! 어느 위치에 있는지
+console.log("index", numbers.indexOf(2)) //위치를 알려준다! 어느 위치에 있는지
 
 numbers.push('peng' , 'peng') //값 중복이면 어찌 될까?
 console.log(numbers)
