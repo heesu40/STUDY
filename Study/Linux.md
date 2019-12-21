@@ -21,6 +21,7 @@
 
 ## Day 1
 
+```cmd
 [hadoop@localhost ~]$ pwd
 [hadoop@localhost ~]$ cd /                  #절대 경로 사용 경로 변경
 [hadoop@localhost /]$ pwd
@@ -86,6 +87,7 @@
 [hadoop@localhost ~]$ ln temp/data1   temp/data1.ln
 [hadoop@localhost ~]$ ls temp/
 [hadoop@localhost ~]$ ls -i temp/   #data1파일과 data1.ln 의 inode비교
+```
 
 
 
@@ -93,6 +95,7 @@
 
 ## Day2
 
+```cmd
 [hadoop@localhost ~]$ pwd
 [hadoop@localhost ~]$ cd /                  #절대 경로 사용 경로 변경
 [hadoop@localhost /]$ pwd
@@ -158,6 +161,11 @@
 [hadoop@localhost ~]$ ln temp/data1   temp/data1.ln
 [hadoop@localhost ~]$ ls temp/
 [hadoop@localhost ~]$ ls -i temp/   #data1파일과 data1.ln 의 inode비교
+
+
+```
+
+
 
 
 
