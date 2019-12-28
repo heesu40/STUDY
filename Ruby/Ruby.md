@@ -1,3 +1,5 @@
+[공부참고 사이트](http://rubylearning.com/satishtalim/numbers_in_ruby.html)
+
 #  Ruby 설치
 
 - Ruby  다운로드 [위치](https://rubyinstaller.org/downloads/)는 이곳이다.클릭!
@@ -22,8 +24,20 @@
 
 
 
+## Hello ruby
 
-### Hello Ruby?
+- 먼저 기본 실행을 확인해보자.
+
+- ```ruby
+  #ru_1.rb
+  puts 'hello world'
+  ```
+
+- console창에서 `ruby rb_1.rb`를 작성하면 파일 실행이 되면서 확인할 수 있다.
+
+
+
+## 
 
 
 
