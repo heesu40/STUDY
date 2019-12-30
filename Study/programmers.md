@@ -64,3 +64,54 @@ order by a.datetime
 
 - 
 
+
+
+
+
+##  완주하지 못한 선수 구하기
+
+#### python
+
+```python
+#문제! 
+#아래 그림처럼 완주하지 못한 선수를 구해보자.
+```
+
+![image-20191230214715982](programmers.assets/image-20191230214715982.png)
+
+```python
+def solution(participant, completion):
+    answer = ''
+    completion.append('z')
+    for p, c  in zip(sorted(participant) , sorted(completion)):
+        if p != c:
+            answer = p
+            return answer 
+            
+
+```
+
+```python
+def solution(participant, completion):
+    answer = ''
+  	answer = collections.Counter(participant) - collections.Counter(completion)
+	return list(answer.keys())[0]
+
+###########참고로
+print("대답리스트" , list(answer))
+print("대답 키" , list(answer.keys()))
+print(list(answer.keys())[0])
+
+
+```
+
+![image-20191230215056126](programmers.assets/image-20191230215056126.png)
+
+- 이렇게 나오게 된다. 
+- colloections는....
+  - 컨테이너에 동일한 값의 자료가 몇개 인지 파악하는데 사 용하는 객체이다.
+  - 결과값은  dictionary형태로
+  - 추가사항은 [사이트](https://excelsior-cjh.tistory.com/94)를 참고하자.
+
+
+
