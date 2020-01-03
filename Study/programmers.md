@@ -184,3 +184,13 @@ def solution(phone_book):
   ```
 
 - 
+
+#  힙(Heap)
+
+## 1. 더 맵게
+
+- ```python
+  
+  ```
+
+- 
