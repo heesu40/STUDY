@@ -1001,3 +1001,6 @@ $ git push heroku master
 - 스켈쥴러를 클릭하여 시간을 지정!
 
 ![1567153369713](Github2.assets/1567153369713.png)
+
+- study를 참고!
+- 
