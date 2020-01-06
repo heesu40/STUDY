@@ -37,7 +37,116 @@
 
 
 
-## 
+## ruby and rails
+
+#### 윈도우에서 개발환경 설정
+
+- 레일스 인스톨러 이용하여 설치!
+
+- [설치위치](http://railsinstaller.org/en)는 이곳을 참고한다.
+
+- 번들러 최신화
+
+- ```bash
+  gem install bundler
+  #번들러 최신업데이트!
+  ```
+
+## 프로젝트 생성!
+
+- ```bash
+  rails new <프로젝트 이름>
+  ```
+
+- ![image-20200106220622797](Ruby.assets/image-20200106220622797.png)
+
+- r1으로 프로젝트 이름을 만들었고 자동 생성됨을 확인 할 수 있다.
+
+## 서버 실행
+
+- ```bash
+  rails s
+  #가 실행이 안되서 
+  bundle install
+  
+  ```
+
+- 로 실행한다. 실행은 r1 (만든 프로젝트이름) 파일안에 cd로 이동한 후 실행하도록 한다.
+
+- 버전이 다르지 않은지 확인하도록 한다
+
+
+
+## 기본 구조
+
+### 1. 브라우저와 서버
+
+- 브라우저 : 클라이언트
+- 서버 : Rails서버는 MVC패턴으로 이루어져 있기 떄문에 Model, View , Controller가 서로 상호작용하여 정보를 가공
+
+#### 1.1 서버와 클라이언트간 데이터교환
+
+- 클라이언트가 서버에 연결 요청
+- 서버는 클라이언트에 확인 메시지, 클라이언트는 확인메시지를 받았다는 확인 메시지를 서버에
+- TCP연결 완료
+
+#### 1.2. 브라우저(클라이어언트)
+
+- HTML, CSS파일을 읽어, 사용자가 사용하기 편하도록 화면상에 띄워준다.
+- JS파일을 읽어 화면을 동적 구성
+
+#### 1.3. 서버가 하는 일
+
+- Model : 어플리케이션 데이터와 정보 
+- View : 데이터 표현 , 동적  정적 표현.
+- Controller  :  Model과  View를 이어주며, 데이터 가공을 수행
+
+
+
+### 2. 새로운 페이지 만들기
+
+#### 2.1 페이지 생성 조건
+
+1. controller action 존재
+2. action과 연결된 view파일 존재
+3. routes.rb에 url과  action이 연결
+
+#### 2.2 Controller와 action 생성
+
+```bash
+rails generate controller home
+```
+
+- 먼저 컨트롤러 생성 위해서 bash창에 입력!
+- 그 다음 Controller에서 액션 추가
+
+```ruby
+#ruby
+
+```
+
+
+
+
+
+
+
+## print put차이!
+
+- ```ruby
+  puts "Hello"
+  puts " Hee!"
+  print "Hello"
+  print " Hee!"
+  
+  #############결과~
+  Hello
+   Hee!
+  Hello Hee!
+  
+  ```
+
+
 
 
 
