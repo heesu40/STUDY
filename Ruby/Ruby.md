@@ -37,20 +37,36 @@
 
 
 
-## ruby and rails
+## ~~ruby and rails~~
 
-#### 윈도우에서 개발환경 설정
+## 윈도우에서 개발환경 설정
 
-- 레일스 인스톨러 이용하여 설치!
+- ~~레일스 인스톨러 이용하여 설치!~~
 
-- [설치위치](http://railsinstaller.org/en)는 이곳을 참고한다.
+- ~~[설치위치](http://railsinstaller.org/en)는 이곳을 참고한다.~~ ==> 하지만 이걸로 했을때 오류가 났기 때문에! 취소!
 
 - 번들러 최신화
 
 - ```bash
+  gen install rails #루비를 통해 rails를 설치할 수 있다.
   gem install bundler
-  #번들러 최신업데이트!
+  #번들러 최신업데이트! 번들러를 통해 젬의 의존성을 관리한다.
+  gem install sqlite3
+  #이것이 없으면 프로젝트 생성시 오류가 생긴다~
+  
   ```
+  
+- node.js를 설치해주자~ 프로젝트 생성시 필요한지 미리 설치를 요구한다.
+
+- [설치장소](https://nodejs.org/ko/)는 여기다.
+
+- yarn또한 설치해 주어야 한다. [설치장소](https://yarnpkg.com/lang/en/docs/install/#windows-stable)는 여기다. 
+
+- ```cmd
+  choco install yarn
+  ```
+
+- 
 
 ## 프로젝트 생성!
 
@@ -65,15 +81,17 @@
 ## 서버 실행
 
 - ```bash
+  cd <프로젝트이름> #프로젝트 파일안에서 서버실행 해주어야 한다.
   rails s
-  #가 실행이 안되서 
-  bundle install
-  
   ```
-
+  
 - 로 실행한다. 실행은 r1 (만든 프로젝트이름) 파일안에 cd로 이동한 후 실행하도록 한다.
 
-- 버전이 다르지 않은지 확인하도록 한다
+- `127.0.0.1:3000`으로 실행되며(다를수도..?)
+
+- ![image-20200107135330839](Ruby.assets/image-20200107135330839.png)
+
+- 브라우저 확인 가능하다~
 
 
 
@@ -114,16 +132,107 @@
 #### 2.2 Controller와 action 생성
 
 ```bash
-rails generate controller home
+user@DESKTOP-OT4VEF9 MINGW64 /d/gitgithub/STUDY/Ruby (master)
+$ cd r1
+
+user@DESKTOP-OT4VEF9 MINGW64 /d/gitgithub/STUDY/Ruby/r1 (master)
+$ ls
+app              config     Gemfile       log           postcss.config.js  README.md  tmp
+babel.config.js  config.ru  Gemfile.lock  node_modules  public             storage    vendor
+bin              db         lib           package.json  Rakefile           test       yarn.lock
+
+user@DESKTOP-OT4VEF9 MINGW64 /d/gitgithub/STUDY/Ruby/r1 (master)
+$ rails generate controller home
+      create  app/controllers/home_controller.rb
+      invoke  erb
+      create    app/views/home
+      invoke  test_unit
+      create    test/controllers/home_controller_test.rb
+      invoke  helper
+      create    app/helpers/home_helper.rb
+      invoke    test_unit
+      invoke  assets
+      invoke    scss
+      create      app/assets/stylesheets/home.scss
 ```
 
 - 먼저 컨트롤러 생성 위해서 bash창에 입력!
-- 그 다음 Controller에서 액션 추가
+- ![image-20200107135628913](Ruby.assets/image-20200107135628913.png)
+- 이렇게 컨트롤러 밑에 home_controller.rb파일이 생성된다.
 
-```ruby
-#ruby
+- home_controller.rb파일로 들어가면
 
-```
+- ```ruby
+  class HomeController < ApplicationController
+  end
+  #이렇게 존재~
+  ```
+
+- ```ruby
+  class HomeController < ApplicationController
+  	def index
+  	end
+  end
+  
+  ```
+
+- index라는 액션을 만든다.
+
+- View파일 생성 위해서
+
+- ![image-20200107135905726](Ruby.assets/image-20200107135905726.png)
+
+- app>vies>home파일에 index.erb 를 생성하자~
+
+- 이곳에서 html 코드를 입력할 수 있다.
+
+#### 2.3 routes.rb로 url과  action 연결
+
+- ![image-20200107140119471](Ruby.assets/image-20200107140119471.png)
+
+-  app > config > routes.rb 폴더안에는
+
+- ```ruby
+  Rails.application.routes.draw do
+    # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  end
+  #이렇게~ 존재한다.
+  ```
+
+- ```ruby
+  Rails.application.routes.draw do
+    # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+    get '/' => 'home#index'
+  end
+  
+  ```
+
+#### 2.4 controller 와 View연결
+
+- ```ruby
+  #home_controller.rb
+  class HomeController < ApplicationController
+  	def index
+  		@hello = "world"
+  	end
+  end
+  
+  ```
+
+- ```erb
+  <!-- index.erb-->
+  <h1>Hello index</h1>
+  <%= @hello %>
+  
+  ```
+
+- 브라우저에서 127.0.0.1:3000/   */*를 index 의 url로 정했기에 꼭 추가해준다.
+
+- ![image-20200107140522731](Ruby.assets/image-20200107140522731.png)
+
+- 이렇게 결과가 나오게 된다.
+
+
 
 
 
@@ -149,4 +258,12 @@ rails generate controller home
 
 
 
+
+## 크롤링
+
+- ```ruby
+  
+  ```
+
+- 
 
