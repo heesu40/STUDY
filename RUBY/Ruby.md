@@ -83,6 +83,7 @@
 - ```bash
   cd <프로젝트이름> #프로젝트 파일안에서 서버실행 해주어야 한다.
   rails s
+  # s는 server의 약자이다.
   ```
   
 - 로 실행한다. 실행은 r1 (만든 프로젝트이름) 파일안에 cd로 이동한 후 실행하도록 한다.
@@ -154,6 +155,10 @@ $ rails generate controller home
       invoke  assets
       invoke    scss
       create      app/assets/stylesheets/home.scss
+#컨트롤러 삭제는
+# rails d controller <컨트롤러명> <액션명>
+# d는 destroy의 약자! g 는 generate 의 약자!
+# 액션 생성을 동시에 하는 경우 
 ```
 
 - 먼저 컨트롤러 생성 위해서 bash창에 입력!
@@ -234,9 +239,60 @@ $ rails generate controller home
 
 
 
+## CRUD
 
+[참고페이지](https://railsboyz.tistory.com/14)
 
+### index 
 
+- 기본 페이지를 설정하려고 할때
+
+- ```ruby
+  Rails.application.routes.draw do
+    # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+    get '/' => 'home#index'
+    root 'home#index'
+  end
+  # root 설정을 해주면 된다! 그렇다면 기본 페이지가 root에서 설정한 페이지로 나오게 된다.
+  ```
+
+#### RESTful
+
+- REST? ' Representational State Transfer'의 약자
+
+- HTTP의 메소드가  REST이다.
+
+- | URL             | 액션    | 메소드 | 역할                      |
+  | --------------- | ------- | ------ | ------------------------- |
+  | /posts          | index   | GET    | 목록 페이지               |
+  | /posts/:id      | show    | GET    | 개별 콘텐츠 페이지        |
+  | /posts/new      | new     | GET    | 새로운 콘텐츠 입력 페이지 |
+  | /posts          | create  | POST   | 입력 받은 콘텐츠 등록     |
+  | /posts/:id/edit | edit    | GET    | 기존의 콘텐츠 수정 페이지 |
+  | /posts/:id      | update  | PATCH  | 수정한 콘텐츠 내용 등록   |
+  | /posts/:id      | destroy | DELETE | 선택한 콘텐츠 제거        |
+
+  
+
+#### 라우팅 설정
+
+-  ```ruby
+  #project > config > routes.rb
+  
+  Rails.application.routes.draw do
+    # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+    get '/' => 'home#index'
+  
+    resources :posts
+      #resources메소드를 사용! 
+    root 'home#index'
+  end
+  
+   ```
+
+- cmd 창에 `rails routes`를 입력하면 모든 라우터를 확인할 수 있다.
+
+- 
 
 ## 루비 코드 실행시간 측정
 
