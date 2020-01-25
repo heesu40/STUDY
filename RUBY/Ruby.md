@@ -288,7 +288,7 @@ $ rails generate controller home
     root 'home#index'
   end
   
-   ```
+  ```
 
 - cmd 창에 `rails routes`를 입력하면 모든 라우터를 확인할 수 있다.
 
@@ -537,13 +537,11 @@ puts(finish - start)
   file.close
   ```
 
-- 
 
 ## 분석기
 
 - 참고 사이트는 [여기](https://ko.programqa.com/question/7704719/) 단어 카운트를 하고 있다.
 - TF-IDF 참고 사이트는 [여기](https://datascienceschool.net/view-notebook/3e7aadbf88ed4f0d87a76f9ddc925d69/)다.
-- 
 
 # 참고할 만한 코드!
 
@@ -585,5 +583,3 @@ puts(finish - start)
         }
       end
   ```
-
-- 
