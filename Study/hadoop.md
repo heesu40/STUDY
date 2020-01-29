@@ -123,9 +123,9 @@ hostname 호스트네임 을 실행하고 hostname을 실행하면 변경된 hos
 
 
 
-![1565751662680](D:\gitgithub\STUDY\javaStudy\사진\하둡)
+![1565751662680](hadoop.assets\하둡)
 
-![1565751675465](D:\gitgithub\STUDY\javaStudy\사진\하둡2)
+![1565751675465](hadoop.assets\하둡2)
 
 
 
@@ -162,11 +162,11 @@ slave1 ipaddress 192.168.255.129
 
 ssh설정시 하둡 계정이 아니 마스터 계정으로 해주어야 하기 때문에 exit를 눌러 로그아웃 후 해준다.
 
-![1565760279745](D:\gitgithub\STUDY\javaStudy\사진\하둡3)
+![1565760279745](hadoop.assets\하둡3)
 
 slave 노드에 베포할 공개키를 인증키로 복사한다!
 
-![1565760524822](D:\gitgithub\STUDY\javaStudy\사진\하둡4)
+![1565760524822](hadoop.assets\하둡4)
 
 slave에서 인증키 설정한다
 
@@ -419,7 +419,7 @@ master의 namenode와 datanode2, slave의 secondary와 datanode1를 동시 시�
 
 해서 확인해보자~ 
 
-![1565772027387](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡5)
+![1565772027387](hadoop.assets\하둡5)
 
 이리 나온 상태에서 (위에는 historyserver가 빠져있는데 안해도 된다
 
@@ -727,7 +727,7 @@ chown -R hadoop:hadoop /usr/local/eclipse/
 ls -al(로 그룹명 변화 확인)
 ```
 
-![1566180247001](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡7)
+![1566180247001](hadoop.assets\하둡7)
 
 ```java
 
@@ -929,7 +929,7 @@ public class WordCount {
 
 ```
 
-![1565938606745](C:\Users\student\Documents\STUDY\javaStudy\사진\하둡6)
+![1565938606745](hadoop.assets\하둡6)
 
 이 과정을 실험해 보았따!
 
